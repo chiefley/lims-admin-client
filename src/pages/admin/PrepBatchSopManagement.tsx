@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Space,
-  message,
-  Spin,
-  Tag,
-  Tooltip,
-  Card,
-  Alert,
-  Modal,
-  Form,
-  DatePicker,
-} from 'antd';
+import { Typography, Space, message, Spin, Tag, Tooltip, Card, Alert, Modal, Button } from 'antd';
 import {
   EditOutlined,
   DeleteOutlined,
   ExperimentOutlined,
   InfoCircleOutlined,
   UnorderedListOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
 import { fetchBatchSopSelections, fetchSelectors } from '../../api/endpoints/sopService';
 import {
@@ -30,7 +19,7 @@ import CardSection from '../../components/common/CardSection';
 import StyledTable from '../../components/tables/StyledTable';
 import PrepBatchSopForm from '../../components/forms/PrepBatchSopForm';
 import ManifestSampleForm from '../../components/forms/ManifestSampleForm';
-import dayjs from 'dayjs';
+import ModelAdapter from '../../utils/ModelAdapter';
 
 const { Text } = Typography;
 
@@ -76,6 +65,14 @@ const PrepBatchSopManagement: React.FC = () => {
 
   // Table columns for the main prep batch SOP list
   const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string) => <Text strong>{text}</Text>,
+      sorter: (a: PrepBatchSopSelectionRs, b: PrepBatchSopSelectionRs) =>
+        a.name.localeCompare(b.name),
+    },
     {
       title: 'Name',
       dataIndex: 'name',
@@ -134,6 +131,12 @@ const PrepBatchSopManagement: React.FC = () => {
               style={{ cursor: 'pointer', color: '#ff4d4f' }}
             />
           </Tooltip>
+          <Tooltip title="Add Sample Type">
+            <PlusOutlined
+              onClick={() => handleAddSample(record.batchSopId)}
+              style={{ cursor: 'pointer', color: '#52c41a' }}
+            />
+          </Tooltip>
           <Tooltip title="View Details">
             <InfoCircleOutlined
               onClick={() => handleViewDetails(record)}
@@ -153,8 +156,7 @@ const PrepBatchSopManagement: React.FC = () => {
         dataIndex: 'manifestSampleTypeId',
         key: 'manifestSampleTypeId',
         render: (id: number) => {
-          const item = selectors.manifestSampleTypeItems.find(item => item.id === id);
-          return item ? item.label : id;
+          return ModelAdapter.getSampleTypeLabel(selectors, id);
         },
       },
       {
@@ -162,8 +164,7 @@ const PrepBatchSopManagement: React.FC = () => {
         dataIndex: 'panelGroupId',
         key: 'panelGroupId',
         render: (id: number) => {
-          const item = selectors.panelGroupItems.find(item => item.id === id);
-          return item ? item.label : id;
+          return ModelAdapter.getPanelGroupLabel(selectors, id);
         },
       },
       {
@@ -206,19 +207,33 @@ const PrepBatchSopManagement: React.FC = () => {
         title={<Text strong>Sample Types and Panel Groups</Text>}
         style={{ marginLeft: 48, marginRight: 48 }}
         extra={
-          <Tooltip title="Add Sample Type">
-            <a onClick={() => handleAddSample(record.batchSopId)}>Add Sample Type</a>
-          </Tooltip>
+          <Button
+            type="primary"
+            size="small"
+            icon={<PlusOutlined />}
+            onClick={() => handleAddSample(record.batchSopId)}
+          >
+            Add Sample Type
+          </Button>
         }
       >
-        <StyledTable
-          columns={sampleColumns}
-          dataSource={record.manifestSamplePrepBatchSopRss}
-          rowKey="manifestSamplePrepBatchSopId"
-          pagination={false}
-          size="small"
-          striped
-        />
+        {record.manifestSamplePrepBatchSopRss.length === 0 ? (
+          <Alert
+            message="No sample types configured"
+            description="Click 'Add Sample Type' to configure sample types for this SOP."
+            type="info"
+            showIcon
+          />
+        ) : (
+          <StyledTable
+            columns={sampleColumns}
+            dataSource={record.manifestSamplePrepBatchSopRss}
+            rowKey="manifestSamplePrepBatchSopId"
+            pagination={false}
+            size="small"
+            striped
+          />
+        )}
       </Card>
     );
   };
@@ -280,11 +295,18 @@ const PrepBatchSopManagement: React.FC = () => {
 
   const handleAddSample = (batchSopId: number) => {
     // Create a new empty sample with default values
+    // Note: In your model, you might want to handle the case where the dropdown needs a null/undefined
+    // initial value to show the placeholder. For this fix, we'll use actual ID values.
     const newSample: ManifestSamplePrepBatchSopRs = {
       manifestSamplePrepBatchSopId: 0, // Will be assigned by the server
       batchSopId: batchSopId,
-      manifestSampleTypeId: 0,
-      panelGroupId: 0,
+      // If we have any selectors, use the first one as default, otherwise use null
+      manifestSampleTypeId:
+        selectors.manifestSampleTypeItems.length > 0
+          ? Number(selectors.manifestSampleTypeItems[0].id)
+          : 0,
+      panelGroupId:
+        selectors.panelGroupItems.length > 0 ? Number(selectors.panelGroupItems[0].id) : 0,
       panels: '',
       effectiveDate: new Date().toISOString(),
     };
@@ -295,7 +317,7 @@ const PrepBatchSopManagement: React.FC = () => {
   };
 
   const handleEditSample = (sample: ManifestSamplePrepBatchSopRs, batchSopId: number) => {
-    setCurrentSample(sample);
+    setCurrentSample({ ...sample }); // Create a copy to avoid reference issues
     setParentSopId(batchSopId);
     setSampleEditModalVisible(true);
   };
@@ -373,6 +395,11 @@ const PrepBatchSopManagement: React.FC = () => {
       <PageHeader
         title="Prep Batch SOP Management"
         subtitle="Configure and manage standard operating procedures for sample preparation batch processing"
+        extra={
+          <Button type="primary" icon={<PlusOutlined />}>
+            Add New SOP
+          </Button>
+        }
       />
 
       {error && (

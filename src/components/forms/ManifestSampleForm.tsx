@@ -19,20 +19,13 @@ const ManifestSampleForm: React.FC<ManifestSampleFormProps> = ({
 }) => {
   const [form] = Form.useForm();
 
-  // Format date for form initialization
-  const formattedInitialValues = {
-    ...initialValues,
-    // Use null as fallback for number fields to ensure dropdowns show placeholder
-    manifestSampleTypeId: initialValues.manifestSampleTypeId || null,
-    panelGroupId: initialValues.panelGroupId || null,
-    // Convert ISO date string to dayjs object for DatePicker
-    effectiveDate: initialValues.effectiveDate ? dayjs(initialValues.effectiveDate) : dayjs(),
-  };
-
-  // Set initial form values
   useEffect(() => {
-    form.setFieldsValue(formattedInitialValues);
-  }, [form, formattedInitialValues]);
+    // Set form values directly, preserving the original IDs
+    form.setFieldsValue({
+      ...initialValues,
+      effectiveDate: initialValues.effectiveDate ? dayjs(initialValues.effectiveDate) : dayjs(),
+    });
+  }, [form, initialValues]);
 
   const handleSubmit = async () => {
     try {
@@ -42,7 +35,6 @@ const ManifestSampleForm: React.FC<ManifestSampleFormProps> = ({
       const formattedValues = {
         ...initialValues,
         ...values,
-        // Ensure we're using ISO format for the date
         effectiveDate: values.effectiveDate.toISOString(),
       };
 
@@ -52,23 +44,24 @@ const ManifestSampleForm: React.FC<ManifestSampleFormProps> = ({
     }
   };
 
+  // Debugging helper - shows the current state
+  useEffect(() => {
+    console.log('Current initialValues:', initialValues);
+    console.log('Available panel groups:', selectors.panelGroupItems);
+  }, [initialValues, selectors]);
+
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      initialValues={formattedInitialValues}
-      onFinish={handleSubmit}
-    >
-      {/* Hidden fields for IDs - not displayed to user but needed for API */}
-      <Form.Item name="manifestSamplePrepBatchSopId" hidden={true}>
+    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      {/* Hidden fields for IDs */}
+      <Form.Item name="manifestSamplePrepBatchSopId" hidden>
         <input type="hidden" />
       </Form.Item>
 
-      <Form.Item name="batchSopId" hidden={true}>
+      <Form.Item name="batchSopId" hidden>
         <input type="hidden" />
       </Form.Item>
 
-      {/* Sample Type dropdown - populated with SopMaintenanceSelectors.ManifestSampleTypeItems */}
+      {/* Sample Type dropdown */}
       <FormItem
         name="manifestSampleTypeId"
         label="Sample Type"
@@ -77,15 +70,15 @@ const ManifestSampleForm: React.FC<ManifestSampleFormProps> = ({
         rules={[{ required: true, message: 'Please select a sample type' }]}
       >
         <Select placeholder="Select sample type">
-          {selectors.manifestSampleTypeItems.map(type => (
-            <Select.Option key={type.id} value={type.id}>
-              {type.label}
+          {selectors.manifestSampleTypeItems.map(item => (
+            <Select.Option key={item.id} value={item.id}>
+              {item.label}
             </Select.Option>
           ))}
         </Select>
       </FormItem>
 
-      {/* Panel Group dropdown - populated with SopMaintenanceSelectors.PanelGroupItems */}
+      {/* Panel Group dropdown */}
       <FormItem
         name="panelGroupId"
         label="Panel Group"
@@ -94,15 +87,15 @@ const ManifestSampleForm: React.FC<ManifestSampleFormProps> = ({
         rules={[{ required: true, message: 'Please select a panel group' }]}
       >
         <Select placeholder="Select panel group">
-          {selectors.panelGroupItems.map(group => (
-            <Select.Option key={group.id} value={group.id}>
-              {group.label}
+          {selectors.panelGroupItems.map(item => (
+            <Select.Option key={item.id} value={item.id}>
+              {item.label}
             </Select.Option>
           ))}
         </Select>
       </FormItem>
 
-      {/* Display-only field for Panels - not editable per API comments */}
+      {/* Display-only field for Panels */}
       {initialValues.panels && (
         <FormItem label="Panels" tooltip="Panels associated with this sample type (read-only)">
           <div
@@ -118,7 +111,7 @@ const ManifestSampleForm: React.FC<ManifestSampleFormProps> = ({
         </FormItem>
       )}
 
-      {/* Effective Date - required per API comments */}
+      {/* Effective Date */}
       <FormItem
         name="effectiveDate"
         label="Effective Date"
