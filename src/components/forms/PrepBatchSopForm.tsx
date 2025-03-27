@@ -1,16 +1,20 @@
-// src/components/forms/BatchSopForm.tsx
+// src/components/forms/PrepBatchSopForm.tsx
 
 import React from 'react';
 import { Form, Input, Button, Space } from 'antd';
 import { PrepBatchSopSelectionRs } from '../../models/types';
 
-interface BatchSopFormProps {
+interface PrepBatchSopFormProps {
   initialValues: PrepBatchSopSelectionRs;
   onSubmit: (values: any) => void;
   onCancel: () => void;
 }
 
-const BatchSopForm: React.FC<BatchSopFormProps> = ({ initialValues, onSubmit, onCancel }) => {
+const PrepBatchSopForm: React.FC<PrepBatchSopFormProps> = ({
+  initialValues,
+  onSubmit,
+  onCancel,
+}) => {
   const [form] = Form.useForm();
 
   // Set initial form values
@@ -36,7 +40,7 @@ const BatchSopForm: React.FC<BatchSopFormProps> = ({ initialValues, onSubmit, on
         name="name"
         label="Name"
         rules={[
-          { required: true, message: 'Please enter the SOP name' },
+          { required: true, message: 'Please enter the Prep SOP name' },
           { max: 150, message: 'Name cannot exceed 150 characters' },
         ]}
       >
@@ -88,4 +92,4 @@ const BatchSopForm: React.FC<BatchSopFormProps> = ({ initialValues, onSubmit, on
   );
 };
 
-export default BatchSopForm;
+export default PrepBatchSopForm;

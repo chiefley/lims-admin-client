@@ -10,38 +10,37 @@ import {
 } from '@ant-design/icons';
 import { fetchBatchSopSelections } from '../../api/endpoints/sopService';
 import { PrepBatchSopSelectionRs } from '../../models/types';
-//import { stylePresets } from '../../config/theme';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
 import StyledTable from '../../components/tables/StyledTable';
 
 const { Text } = Typography;
 
-const BatchSopManagement: React.FC = () => {
-  const [batchSops, setBatchSops] = useState<PrepBatchSopSelectionRs[]>([]);
+const PrepBatchSopManagement: React.FC = () => {
+  const [prepBatchSops, setPrepBatchSops] = useState<PrepBatchSopSelectionRs[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load batch SOPs
+  // Load prep batch SOPs
   useEffect(() => {
-    const loadBatchSops = async () => {
+    const loadPrepBatchSops = async () => {
       try {
         setLoading(true);
         const data = await fetchBatchSopSelections();
-        setBatchSops(data);
+        setPrepBatchSops(data);
         setError(null);
       } catch (err: any) {
-        setError(err.message || 'Failed to load batch SOPs');
+        setError(err.message || 'Failed to load prep batch SOPs');
         message.error('Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    loadBatchSops();
+    loadPrepBatchSops();
   }, []);
 
-  // Table columns for the main batch SOP list
+  // Table columns for the main prep batch SOP list
   const columns = [
     {
       title: 'Name',
@@ -160,32 +159,32 @@ const BatchSopManagement: React.FC = () => {
   // Event handlers
   const handleAdd = () => {
     message.info('Add functionality will be implemented');
-    // This would open a modal or navigate to a form to add a new SOP
+    // This would open a modal or navigate to a form to add a new Prep SOP
   };
 
   const handleEdit = (record: PrepBatchSopSelectionRs) => {
-    message.info(`Edit SOP: ${record.name}`);
+    message.info(`Edit Prep SOP: ${record.name}`);
     // This would open a modal or navigate to a form with the record data
   };
 
   const handleDelete = (id: number) => {
-    message.info(`Delete SOP with ID: ${id}`);
+    message.info(`Delete Prep SOP with ID: ${id}`);
     // This would show a confirmation dialog and then delete the record
   };
 
   const handleViewDetails = (record: PrepBatchSopSelectionRs) => {
-    message.info(`View details for: ${record.name}`);
+    message.info(`View details for Prep SOP: ${record.name}`);
     // This would show a modal with detailed information
   };
 
   return (
     <div className="page-container">
       <PageHeader
-        title="Batch SOP Management"
-        subtitle="Configure and manage standard operating procedures for batch processing"
+        title="Prep Batch SOP Management"
+        subtitle="Configure and manage standard operating procedures for sample preparation batch processing"
         extra={
           <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-            Add New SOP
+            Add New Prep SOP
           </Button>
         }
       />
@@ -200,11 +199,11 @@ const BatchSopManagement: React.FC = () => {
         />
       )}
 
-      <CardSection icon={<UnorderedListOutlined />} title="Batch SOPs">
+      <CardSection icon={<UnorderedListOutlined />} title="Prep Batch SOPs">
         <Spin spinning={loading}>
           <StyledTable
             columns={columns}
-            dataSource={batchSops}
+            dataSource={prepBatchSops}
             rowKey="batchSopId"
             expandable={{
               expandedRowRender,
@@ -218,4 +217,4 @@ const BatchSopManagement: React.FC = () => {
   );
 };
 
-export default BatchSopManagement;
+export default PrepBatchSopManagement;

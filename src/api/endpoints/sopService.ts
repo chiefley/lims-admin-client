@@ -1,21 +1,29 @@
-// src/api/endpoints/sopService.ts
-import { apiClient, DEFAULT_LAB_ID } from '../config';
+import axios from 'axios';
+import appConfig from '../../config/appConfig';
 import {
   ServiceResponse,
-  SopMaintenanceSelectors,
   PrepBatchSopSelectionRs,
+  SopMaintenanceSelectors,
 } from '../../models/types';
 
-const SOP_MAINTENANCE_URL = '/sopmaintenance';
+// Base URL for SOP maintenance endpoints
+const baseUrl = `${appConfig.api.baseUrl}${appConfig.api.endpoints.sopMaintenance.base}`;
+const labId = appConfig.api.defaultLabId;
 
-// Fetch selectors for dropdowns
-export const fetchSelectors = async (
-  labId: number = DEFAULT_LAB_ID
-): Promise<SopMaintenanceSelectors> => {
+/**
+ * Fetches selector values for SOP maintenance dropdowns
+ * @returns Promise with SopMaintenanceSelectors data
+ */
+export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
   try {
-    const response = await apiClient.get<ServiceResponse<SopMaintenanceSelectors>>(
-      `${SOP_MAINTENANCE_URL}/FetchSelectors/${labId}`
+    const response = await axios.get<ServiceResponse<SopMaintenanceSelectors>>(
+      `${baseUrl}/FetchSelectors/${labId}`
     );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch selectors');
+    }
+
     return response.data.data;
   } catch (error) {
     console.error('Error fetching selectors:', error);
@@ -23,62 +31,39 @@ export const fetchSelectors = async (
   }
 };
 
-// Fetch batch SOP selections
-export const fetchBatchSopSelections = async (
-  labId: number = DEFAULT_LAB_ID
-): Promise<PrepBatchSopSelectionRs[]> => {
+/**
+ * Fetches all prep batch SOP selections for the lab
+ * @returns Promise with array of PrepBatchSopSelectionRs data
+ */
+export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs[]> => {
   try {
-    const response = await apiClient.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
-      `${SOP_MAINTENANCE_URL}/FetchBatchSopSelections/${labId}`
+    const response = await axios.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
+      `${baseUrl}/FetchBatchSopSelections/${labId}`
     );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch prep batch SOPs');
+    }
+
     return response.data.data;
   } catch (error) {
-    console.error('Error fetching batch SOP selections:', error);
+    console.error('Error fetching prep batch SOPs:', error);
     throw error;
   }
 };
 
-// Create a new batch SOP
-export const createBatchSop = async (
-  batchSop: Partial<PrepBatchSopSelectionRs>
-): Promise<PrepBatchSopSelectionRs> => {
-  try {
-    const response = await apiClient.post<ServiceResponse<PrepBatchSopSelectionRs>>(
-      `${SOP_MAINTENANCE_URL}/CreateBatchSop`,
-      batchSop
-    );
-    return response.data.data;
-  } catch (error) {
-    console.error('Error creating batch SOP:', error);
-    throw error;
-  }
+/**
+ * Planned for future implementation
+ * Saves a prep batch SOP selection
+ */
+export const savePrepBatchSopSelection = async (data: PrepBatchSopSelectionRs) => {
+  // Implementation for saving prep batch SOP will be added here
+  console.log('Saving prep batch SOP:', data);
+  // This is a placeholder for future implementation
 };
 
-// Update an existing batch SOP
-export const updateBatchSop = async (
-  batchSop: PrepBatchSopSelectionRs
-): Promise<PrepBatchSopSelectionRs> => {
-  try {
-    const response = await apiClient.put<ServiceResponse<PrepBatchSopSelectionRs>>(
-      `${SOP_MAINTENANCE_URL}/UpdateBatchSop/${batchSop.batchSopId}`,
-      batchSop
-    );
-    return response.data.data;
-  } catch (error) {
-    console.error('Error updating batch SOP:', error);
-    throw error;
-  }
-};
-
-// Delete a batch SOP
-export const deleteBatchSop = async (batchSopId: number): Promise<boolean> => {
-  try {
-    const response = await apiClient.delete<ServiceResponse<boolean>>(
-      `${SOP_MAINTENANCE_URL}/DeleteBatchSop/${batchSopId}`
-    );
-    return response.data.data;
-  } catch (error) {
-    console.error('Error deleting batch SOP:', error);
-    throw error;
-  }
+export default {
+  fetchSelectors,
+  fetchBatchSopSelections,
+  savePrepBatchSopSelection,
 };

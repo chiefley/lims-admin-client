@@ -65,7 +65,7 @@ const AppLayout: React.FC = () => {
               children: [
                 {
                   key: '2-1',
-                  label: <Link to="/admin/batch-sop">Batch SOP</Link>,
+                  label: <Link to="/admin/prep-batch-sop">Prep Batch SOP</Link>,
                 },
                 {
                   key: '2-2',
