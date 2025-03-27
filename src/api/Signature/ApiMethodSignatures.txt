@@ -1,0 +1,10 @@
+All responses contained in ServiceResponse<T>
+
+// Call this to get choices for dropdown controls.
+// Returns ServiceResponse<SopMaintenanceSelectors>
+[HttpGet("FetchSelectors/{labId}")]
+public async Task<IActionResult> FetchSelectors(int labId)
+
+ // Returns ServiceResponse<List<PrepBatchSopSelectionRs>>
+ [HttpGet("FetchBatchSopSelections/{labId}")]
+ public async Task<IActionResult> FetchPrepBatchSopSelection(int labId)
