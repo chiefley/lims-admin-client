@@ -16,7 +16,8 @@ const appConfig = {
 
   // Feature flags
   features: {
-    useMockData: true, // Set to false when real API is available
+    useMockData: false, // Set to false to use the real API
+    useMockDataAsFallback: true, // Use mock data if API calls fail
   },
 };
 

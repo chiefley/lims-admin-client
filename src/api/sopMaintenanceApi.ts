@@ -35,18 +35,53 @@ const sopMaintenanceApi = {
 
       const response = await axios.get<ServiceResponse<SopMaintenanceSelectors>>(url);
 
-      console.log('Selectors API response:', response);
+      // Detailed logging for debugging API response structure
+      console.log('Selectors API raw response:', response);
+      console.log('Response data structure:', JSON.stringify(response.data, null, 2));
+      console.log('Success flag:', response.data.success);
+      console.log('Data property:', response.data.data);
 
       if (response.data.success) {
-        return response.data.data;
+        if (response.data.data) {
+          return response.data.data;
+        } else {
+          console.error('API response success=true but data is missing:', response.data);
+          throw new Error('API response is missing data property');
+        }
       } else {
-        throw new Error(response.data.message || 'Failed to fetch selectors');
+        console.error('API response indicates failure:', response.data);
+        const errorMsg =
+          response.data.message ||
+          (response.data.validationErrors && response.data.validationErrors.length > 0
+            ? response.data.validationErrors
+                .map(ve => `${ve.propertyName}: ${ve.errorMessage}`)
+                .join(', ')
+            : 'Failed to fetch selectors');
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Error fetching selectors:', error);
       if (axios.isAxiosError(error)) {
         console.error('Axios error details:', error.response?.data || error.message);
       }
+
+      // Fallback to mock data if API fails and fallback is requested
+      if (appConfig.features.useMockDataAsFallback) {
+        console.warn('API call failed, using mock selector data as fallback');
+        return {
+          manifestSampleTypeItems: [
+            { id: 1, label: 'Blood (Mock)' },
+            { id: 2, label: 'Urine (Mock)' },
+            { id: 3, label: 'Tissue (Mock)' },
+          ],
+          panelGroupItems: [
+            { id: 1, label: 'Basic (Mock)' },
+            { id: 2, label: 'Comprehensive (Mock)' },
+            { id: 3, label: 'Specialized (Mock)' },
+          ],
+        };
+      }
+
       throw error;
     }
   },
@@ -115,18 +150,89 @@ const sopMaintenanceApi = {
 
       const response = await axios.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(url);
 
-      console.log('Batch SOP API response:', response);
+      // Detailed logging for debugging API response structure
+      console.log('Batch SOP API raw response:', response);
+      console.log('Response data structure:', JSON.stringify(response.data, null, 2));
+      console.log('Success flag:', response.data.success);
+      console.log('Data property:', response.data.data);
 
       if (response.data.success) {
-        return response.data.data;
+        if (response.data.data) {
+          return response.data.data;
+        } else {
+          console.error('API response success=true but data is missing:', response.data);
+          throw new Error('API response is missing data property');
+        }
       } else {
-        throw new Error(response.data.message || 'Failed to fetch batch SOP selections');
+        console.error('API response indicates failure:', response.data);
+        const errorMsg =
+          response.data.message ||
+          (response.data.validationErrors && response.data.validationErrors.length > 0
+            ? response.data.validationErrors
+                .map(ve => `${ve.propertyName}: ${ve.errorMessage}`)
+                .join(', ')
+            : 'Failed to fetch batch SOP selections');
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Error fetching batch SOP selections:', error);
       if (axios.isAxiosError(error)) {
         console.error('Axios error details:', error.response?.data || error.message);
       }
+
+      // Fallback to mock data if API fails and fallback is requested
+      if (appConfig.features.useMockDataAsFallback) {
+        console.warn('API call failed, using mock batch SOP data as fallback');
+        return [
+          {
+            batchSopId: 1,
+            name: 'Sample Preparation SOP (Mock)',
+            sop: 'SP001',
+            version: '1.0',
+            sopGroup: 'Preparation',
+            labId: 1001,
+            manifestSamplePrepBatchSopRss: [
+              {
+                manifestSamplePrepBatchSopId: 1,
+                batchSopId: 1,
+                manifestSampleTypeId: 1,
+                panelGroupId: 2,
+                panels: 'Panel A, Panel B',
+                effectiveDate: '2023-01-01',
+              },
+            ],
+            $type: 'PrepBatchSopSelectionRs',
+          },
+          {
+            batchSopId: 2,
+            name: 'Quality Control SOP (Mock)',
+            sop: 'QC002',
+            version: '2.1',
+            sopGroup: 'Quality',
+            labId: 1001,
+            manifestSamplePrepBatchSopRss: [
+              {
+                manifestSamplePrepBatchSopId: 2,
+                batchSopId: 2,
+                manifestSampleTypeId: 2,
+                panelGroupId: 1,
+                panels: 'Panel C',
+                effectiveDate: '2023-02-15',
+              },
+              {
+                manifestSamplePrepBatchSopId: 3,
+                batchSopId: 2,
+                manifestSampleTypeId: 3,
+                panelGroupId: 3,
+                panels: 'Panel D, Panel E',
+                effectiveDate: '2023-03-01',
+              },
+            ],
+            $type: 'PrepBatchSopSelectionRs',
+          },
+        ];
+      }
+
       throw error;
     }
   },

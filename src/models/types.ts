@@ -1,10 +1,15 @@
 // src/models/types.ts
 
+export interface ValidationError {
+  propertyName: string;
+  errorMessage: string;
+}
+
 export interface ServiceResponse<T> {
-  data: T;
   success: boolean;
-  message?: string;
-  errors?: Record<string, string[]>;
+  message: string;
+  data: T;
+  validationErrors: ValidationError[];
 }
 
 export interface DropDownItem {
