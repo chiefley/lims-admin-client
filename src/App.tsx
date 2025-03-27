@@ -1,47 +1,41 @@
-// src/App.tsx
-
 import React from 'react';
-import { Layout, Menu, ConfigProvider } from 'antd';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import SopMaintenancePage from './pages/admin/SopMaintenancePage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ConfigProvider, App as AntApp, message } from 'antd';
+import { limsTheme } from './config/theme';
+import './styles/global.css';
 
-const { Header, Content, Footer } = Layout;
+// Import layout components
+import AppLayout from './components/layout/AppLayout';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+// Import pages
+import Dashboard from './pages/dashboard/Dashboard';
+import BatchSopManagement from './pages/admin/BatchSopManagement';
+import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
+  // Configure global message settings
+  message.config({
+    top: 60,
+    duration: 3,
+    maxCount: 3,
+  });
+
   return (
-    <ConfigProvider>
-      <Router>
-        <Layout className="layout" style={{ minHeight: '100vh' }}>
-          <Header>
-            <div
-              className="logo"
-              style={{ float: 'left', color: 'white', fontSize: '18px', fontWeight: 'bold' }}
-            >
-              LIMS Admin
-            </div>
-            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-              <Menu.Item key="1">
-                <Link to="/">SOP Maintenance</Link>
-              </Menu.Item>
-              {/* Add more menu items as needed */}
-            </Menu>
-          </Header>
-          <Content style={{ padding: '0 50px' }}>
-            <div
-              className="site-layout-content"
-              style={{ background: '#fff', padding: 24, marginTop: 16 }}
-            >
-              <Routes>
-                <Route path="/" element={<SopMaintenancePage />} />
-                {/* Add more routes as needed */}
-              </Routes>
-            </div>
-          </Content>
-          <Footer style={{ textAlign: 'center' }}>
-            Laboratory Information Management System ©{new Date().getFullYear()}
-          </Footer>
-        </Layout>
-      </Router>
+    <ConfigProvider theme={limsTheme}>
+      <AntApp>
+        <ErrorBoundary>
+          <Router>
+            <Routes>
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="admin/batch-sop" element={<BatchSopManagement />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </Router>
+        </ErrorBoundary>
+      </AntApp>
     </ConfigProvider>
   );
 };
