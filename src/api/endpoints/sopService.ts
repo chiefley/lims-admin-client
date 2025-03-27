@@ -1,6 +1,10 @@
 // src/api/endpoints/sopService.ts
 import { apiClient, DEFAULT_LAB_ID } from '../config';
-import { ServiceResponse, SopMaintenanceSelectors, PrepBatchSopSelectionRs } from '../types';
+import {
+  ServiceResponse,
+  SopMaintenanceSelectors,
+  PrepBatchSopSelectionRs,
+} from '../../models/types';
 
 const SOP_MAINTENANCE_URL = '/sopmaintenance';
 

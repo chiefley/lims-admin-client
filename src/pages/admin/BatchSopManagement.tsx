@@ -9,8 +9,8 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import { fetchBatchSopSelections } from '../../api/endpoints/sopService';
-import { PrepBatchSopSelectionRs } from '../../api/types';
-import { stylePresets } from '../../config/theme';
+import { PrepBatchSopSelectionRs } from '../../models/types';
+//import { stylePresets } from '../../config/theme';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
 import StyledTable from '../../components/tables/StyledTable';
