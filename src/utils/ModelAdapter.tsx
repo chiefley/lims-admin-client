@@ -11,14 +11,14 @@ export const ModelAdapter = {
    * @param id The ID to look up
    * @returns The corresponding label or a fallback string
    */
-  findLabel: (items: { id: number | null; label: string }[], id: number | null): string => {
+  findLabel: (items: { id: number; label: string }[], id: number | null): string => {
     // Handle various scenarios that might cause the lookup to fail
     if (id === null || id === undefined) {
       return 'Not Selected';
     }
 
     // Try to find the matching item, converting both to numbers to ensure type safety
-    const matchingItem = items.find(item => item.id !== null && Number(item.id) === Number(id));
+    const matchingItem = items.find(item => Number(item.id) === Number(id));
 
     return matchingItem ? matchingItem.label : `ID: ${id}`;
   },

@@ -108,10 +108,13 @@ function EditableTable<RecordType extends Record<string, any>>({
 
         // Type-safe way to update the record
         if (column?.inputType === 'date' && value && dayjs.isDayjs(value)) {
-          // Use type assertion to inform TypeScript this is safe
+          // Convert dayjs to ISO string
           (updatedRecord as any)[key] = value.toISOString();
+        } else if (column?.inputType === 'date' && !value) {
+          // If date value is null or undefined, explicitly set to null
+          (updatedRecord as any)[key] = null;
         } else {
-          // Use type assertion for the general case as well
+          // For all other types, use the value as is (which might be null)
           (updatedRecord as any)[key] = value;
         }
       });
@@ -142,7 +145,12 @@ function EditableTable<RecordType extends Record<string, any>>({
       return (
         <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
           {column.editComponent ? (
-            <column.editComponent options={column.options} style={{ width: '100%' }} />
+            <column.editComponent
+              options={column.options}
+              style={{ width: '100%' }}
+              allowClear={true} // Allow clearing selection (results in null)
+              placeholder="Select an option"
+            />
           ) : (
             <span>No editor component</span>
           )}
@@ -151,7 +159,10 @@ function EditableTable<RecordType extends Record<string, any>>({
     } else if (column.inputType === 'date') {
       return (
         <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
-          <DatePicker style={{ width: '100%' }} />
+          <DatePicker
+            style={{ width: '100%' }}
+            allowClear={true} // Allow clearing date (results in null)
+          />
         </Form.Item>
       );
     } else {
@@ -250,7 +261,13 @@ function EditableTable<RecordType extends Record<string, any>>({
     return (
       <div style={{ marginBottom: 16 }}>
         <Button
-          onClick={() => onAdd(defaultValues)}
+          onClick={() => {
+            // Call onAdd with defaultValues
+            onAdd(defaultValues);
+
+            // The component handling onAdd is responsible for putting the new row into edit mode
+            // This is now done in handleAddSop and handleAddSample
+          }}
           type="primary"
           icon={<PlusOutlined />}
           disabled={editingKey !== ''}

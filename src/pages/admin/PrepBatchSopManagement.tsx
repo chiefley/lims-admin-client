@@ -59,7 +59,7 @@ const PrepBatchSopManagement: React.FC = () => {
     loadData();
   }, []);
 
-  // Handle adding a new SOP
+  // Handle adding a new SOP - now automatically enters edit mode
   const handleAddSop = (defaultValues: Partial<PrepBatchSopSelectionRs> = {}) => {
     // Create a new SOP with default values
     const newSop: PrepBatchSopSelectionRs = {
@@ -74,8 +74,19 @@ const PrepBatchSopManagement: React.FC = () => {
       ...defaultValues,
     };
 
-    // Add to the list
-    setPrepBatchSops([...prepBatchSops, newSop]);
+    // Add to the list and store the temp ID
+    setPrepBatchSops(prev => [...prev, newSop]);
+
+    // Use setTimeout to ensure the state update completes before trying to edit
+    setTimeout(() => {
+      // Find and click the edit button for the new row - using row-key attribute that Ant Design adds
+      const newRowEditButton = document.querySelector(
+        `.ant-table-row[data-row-key="${newSop.batchSopId}"] .ant-btn`
+      );
+      if (newRowEditButton instanceof HTMLElement) {
+        newRowEditButton.click();
+      }
+    }, 100);
   };
 
   // Handle saving a batch SOP record
@@ -121,21 +132,20 @@ const PrepBatchSopManagement: React.FC = () => {
     setPrepBatchSops(prevSops => prevSops.filter(sop => sop.batchSopId !== record.batchSopId));
   };
 
-  // Handle adding a sample type to a SOP
+  // Handle adding a sample type to a SOP - now automatically enters edit mode
   const handleAddSample = (sopId: number) => {
-    // Create a new empty sample with default values
+    // Create a new empty sample with null values for dropdowns
     const newSample: ManifestSamplePrepBatchSopRs = {
       manifestSamplePrepBatchSopId: -Date.now(), // Temporary negative ID
       batchSopId: sopId,
-      manifestSampleTypeId:
-        selectors.manifestSampleTypeItems.length > 0
-          ? Number(selectors.manifestSampleTypeItems[0].id)
-          : 0,
-      panelGroupId:
-        selectors.panelGroupItems.length > 0 ? Number(selectors.panelGroupItems[0].id) : 0,
+      manifestSampleTypeId: null, // Start with null, let user select
+      panelGroupId: null, // Start with null, let user select
       panels: '',
-      effectiveDate: new Date().toISOString(),
+      effectiveDate: null, // Start with null, let user select
     };
+
+    // Store the temporary ID for later use
+    const tempId = newSample.manifestSamplePrepBatchSopId;
 
     // Update state to include the new sample
     setPrepBatchSops(prevSops =>
@@ -149,6 +159,17 @@ const PrepBatchSopManagement: React.FC = () => {
         return sop;
       })
     );
+
+    // Use setTimeout to ensure the state update completes before trying to edit
+    setTimeout(() => {
+      // Find and click the edit button for the new row - using row-key attribute that Ant Design adds
+      const newRowEditButton = document.querySelector(
+        `.ant-table-row[data-row-key="${tempId}"] .ant-btn`
+      );
+      if (newRowEditButton instanceof HTMLElement) {
+        newRowEditButton.click();
+      }
+    }, 100);
   };
 
   // Handle saving a sample type
@@ -238,7 +259,7 @@ const PrepBatchSopManagement: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       editable: true,
-      inputType: 'text', // Using the specific allowed values
+      inputType: 'text',
       editComponent: Input,
       render: (text: string) => <Text strong>{text}</Text>,
       sorter: (a: PrepBatchSopSelectionRs, b: PrepBatchSopSelectionRs) =>
@@ -253,7 +274,7 @@ const PrepBatchSopManagement: React.FC = () => {
       dataIndex: 'sop',
       key: 'sop',
       editable: true,
-      inputType: 'text', // Using the specific allowed values
+      inputType: 'text',
       editComponent: Input,
       render: (text: string) => (
         <Tag color="blue" icon={<ExperimentOutlined />}>
@@ -270,7 +291,7 @@ const PrepBatchSopManagement: React.FC = () => {
       dataIndex: 'version',
       key: 'version',
       editable: true,
-      inputType: 'text', // Using the specific allowed values
+      inputType: 'text',
       editComponent: Input,
       render: (text: string) => <Tag color="green">{text}</Tag>,
       rules: [
@@ -283,7 +304,7 @@ const PrepBatchSopManagement: React.FC = () => {
       dataIndex: 'sopGroup',
       key: 'sopGroup',
       editable: true,
-      inputType: 'text', // Using the specific allowed values
+      inputType: 'text',
       editComponent: Input,
       rules: [
         { required: true, message: 'Please enter the SOP group' },
@@ -294,7 +315,7 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'Sample Types',
       key: 'sampleTypes',
       dataIndex: 'sampleTypes',
-      editable: false, // Make sure to add this
+      editable: false,
       render: (_: any, record: PrepBatchSopSelectionRs) => {
         const count = record.manifestSamplePrepBatchSopRss.length;
         return (
@@ -309,7 +330,7 @@ const PrepBatchSopManagement: React.FC = () => {
       key: 'view',
       dataIndex: 'view',
       width: 80,
-      editable: false, // Make sure to add this
+      editable: false,
       render: (_: any, record: PrepBatchSopSelectionRs) => (
         <Tooltip title="View Details">
           <Button
@@ -332,13 +353,11 @@ const PrepBatchSopManagement: React.FC = () => {
         editable: true,
         inputType: 'select',
         editComponent: Select,
-        options: selectors.manifestSampleTypeItems
-          .filter(item => item.id !== null) // Filter out items with null ids
-          .map(item => ({
-            value: item.id as number, // Type assertion since we filtered out nulls
-            label: item.label,
-          })),
-        render: (id: number) => ModelAdapter.getSampleTypeLabel(selectors, id),
+        options: selectors.manifestSampleTypeItems.map(item => ({
+          value: item.id,
+          label: item.label,
+        })),
+        render: (id: number | null) => ModelAdapter.getSampleTypeLabel(selectors, id),
         rules: [{ required: true, message: 'Please select a sample type' }],
       },
       {
@@ -348,13 +367,11 @@ const PrepBatchSopManagement: React.FC = () => {
         editable: true,
         inputType: 'select',
         editComponent: Select,
-        options: selectors.panelGroupItems
-          .filter(item => item.id !== null) // Filter out items with null ids
-          .map(item => ({
-            value: item.id as number, // Type assertion since we filtered out nulls
-            label: item.label,
-          })),
-        render: (id: number) => ModelAdapter.getPanelGroupLabel(selectors, id),
+        options: selectors.panelGroupItems.map(item => ({
+          value: item.id,
+          label: item.label,
+        })),
+        render: (id: number | null) => ModelAdapter.getPanelGroupLabel(selectors, id),
         rules: [{ required: true, message: 'Please select a panel group' }],
       },
       {
@@ -370,7 +387,9 @@ const PrepBatchSopManagement: React.FC = () => {
         key: 'effectiveDate',
         editable: true,
         inputType: 'date',
-        render: (text: string) => {
+        render: (text: string | null) => {
+          if (!text) return <span className="data-placeholder">Not set</span>;
+
           try {
             return new Date(text).toLocaleDateString();
           } catch (e) {

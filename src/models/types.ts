@@ -15,7 +15,7 @@ export interface ServiceResponse<T> {
 
 // Dropdown item matching your C# DropDownItem
 export interface DropDownItem {
-  id: number | null;
+  id: number; // Updated to be non-nullable to match C# changes
   label: string;
 }
 
@@ -39,10 +39,10 @@ export interface BatchSopSelectionRs {
 export interface ManifestSamplePrepBatchSopRs {
   manifestSamplePrepBatchSopId: number;
   batchSopId: number;
-  manifestSampleTypeId: number;
-  panelGroupId: number;
+  manifestSampleTypeId: number | null; // Updated to be nullable
+  panelGroupId: number | null; // Updated to be nullable
   panels: string;
-  effectiveDate: string;
+  effectiveDate: string | null; // Updated to be nullable
 }
 
 export interface PrepBatchSopSelectionRs extends BatchSopSelectionRs {
