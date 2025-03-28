@@ -26,7 +26,7 @@ import {
 } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
-import EditableTable from '../../components/tables/EditableTable';
+import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import ModelAdapter from '../../utils/ModelAdapter';
 
 // Import editable table styles here to keep them scoped to this component
@@ -330,7 +330,7 @@ const PrepBatchSopManagement: React.FC = () => {
 
   // Expandable row showing the sample types and panel groups
   const expandedRowRender = (record: PrepBatchSopSelectionRs) => {
-    const sampleColumns = [
+    const sampleColumns: EditableColumn[] = [
       {
         title: 'Sample Type',
         dataIndex: 'manifestSampleTypeId',
@@ -363,6 +363,7 @@ const PrepBatchSopManagement: React.FC = () => {
         title: 'Panels',
         dataIndex: 'panels',
         key: 'panels',
+        editable: false,
         render: (text: string) => <Text ellipsis={{ tooltip: text }}>{text || '-'}</Text>,
       },
       {
@@ -465,4 +466,5 @@ const PrepBatchSopManagement: React.FC = () => {
   );
 };
 
+// Make sure to export the component as the default export
 export default PrepBatchSopManagement;

@@ -11,7 +11,7 @@ import { TableProps } from 'antd/lib/table';
 import dayjs from 'dayjs';
 
 // Define the column interface with the additional properties we need
-interface EditableColumn {
+export interface EditableColumn {
   dataIndex: string;
   title: string;
   inputType?: 'text' | 'select' | 'date' | 'number' | 'textarea';
@@ -97,21 +97,22 @@ function EditableTable<RecordType extends Record<string, any>>({
 
       // Get values from form
       const values = await form.validateFields();
-      const updatedRecord = { ...record } as RecordType;
+
+      // Create a new object for the updated record using spread
+      const updatedRecord = { ...record };
 
       // Process each field according to its type
       Object.keys(values).forEach(key => {
         const column = columns.find(col => col.dataIndex === key);
+        const value = values[key];
 
-        if (column?.inputType === 'date' && values[key]) {
-          // Convert dayjs objects to ISO strings for API
-          if (dayjs.isDayjs(values[key])) {
-            updatedRecord[key] = values[key].toISOString();
-          } else {
-            updatedRecord[key] = values[key];
-          }
+        // Type-safe way to update the record
+        if (column?.inputType === 'date' && value && dayjs.isDayjs(value)) {
+          // Use type assertion to inform TypeScript this is safe
+          (updatedRecord as any)[key] = value.toISOString();
         } else {
-          updatedRecord[key] = values[key];
+          // Use type assertion for the general case as well
+          (updatedRecord as any)[key] = value;
         }
       });
 
@@ -167,7 +168,7 @@ function EditableTable<RecordType extends Record<string, any>>({
   };
 
   // Add action column for edit/save/cancel buttons if editable
-  const actionColumn: EditableColumn = editable
+  const actionColumn: EditableColumn | null = editable
     ? {
         title: 'Actions',
         dataIndex: 'operation',
@@ -237,7 +238,10 @@ function EditableTable<RecordType extends Record<string, any>>({
   }));
 
   // Add action column if editable
-  const mergedColumns = [...enhancedColumns, ...(actionColumn ? [actionColumn] : [])];
+  const mergedColumns = [
+    ...enhancedColumns,
+    ...(actionColumn ? [actionColumn as EditableColumn] : []),
+  ];
 
   // Action buttons for the table (like Add button)
   const renderTableActions = () => {
