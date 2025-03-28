@@ -69,15 +69,80 @@ td.ant-table-cell-editing {
   margin-right: 0;
 }
 
+/* Improved table readability */
+.ant-table-tbody > tr > td {
+  padding: 12px 16px;
+}
+
+/* Enhanced table headers */
+.ant-table-thead > tr > th {
+  font-weight: 600;
+  background-color: #e6e9ed;
+  border-bottom: 2px solid #d0d4d9;
+  padding: 14px 16px;
+  color: #333;
+}
+
+.ant-table-row:hover {
+  background-color: #e6f7ff;
+}
+
+/* Better hover states for parent and child tables */
+.ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #e6f7ff !important;
+}
+
+/* Highlight expandable rows */
+.ant-table-row-expand-icon-cell {
+  border-right: 1px solid #f0f0f0;
+}
+
+/* Make expand/collapse icon more noticeable */
+.ant-table-row-expand-icon {
+  background: #f0f2f5;
+  border-color: #d9d9d9;
+}
+
+/* Striped tables for better readability */
+.ant-table-striped .ant-table-tbody > tr:nth-child(even) {
+  background-color: #f5f7fa;
+}
+
+/* Zebra striping for nested tables */
+.ant-table-expanded-row .ant-table-tbody > tr:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.ant-table-expanded-row .ant-table-tbody > tr:nth-child(even) {
+  background-color: rgba(245, 247, 250, 0.7);
+}
+
+/* Style for expanded rows */
+.ant-table-expanded-row > td {
+  padding: 16px 8px !important;
+  background-color: #f5f7fa !important;
+  border-bottom: 1px dashed #d9d9d9 !important;
+}
+
+/* Add a subtle left border to indicate hierarchy */
+.ant-table-expanded-row .ant-table {
+  border-left: 3px solid #1677ff;
+  margin-left: 10px;
+}
+
+/* Subtable header styling */
+.ant-table-expanded-row .ant-table-thead > tr > th {
+  background-color: #f0f2f5;
+  font-weight: 500;
+  border-bottom: 1px solid #d9d9d9;
+}
+
 /* Style for action column */
 .ant-table-cell.action-column {
   text-align: center;
   width: 120px;
-}
-
-/* Better spacing for expanded rows */
-.ant-table-expanded-row > td {
-  padding: 16px 8px !important;
+  background-color: #fafbfc;
+  border-left: 1px solid #f0f0f0;
 }
 
 /* Make editable inputs more prominent */
