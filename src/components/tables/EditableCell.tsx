@@ -41,9 +41,26 @@ const EditableCell: React.FC<EditableCellProps> = ({
     if (editing && record) {
       let value = record[dataIndex];
 
-      // Convert date strings to dayjs for DatePicker
-      if (inputType === 'date' && value && typeof value === 'string') {
-        value = dayjs(value);
+      // Safely convert date strings to dayjs for DatePicker
+      if (inputType === 'date' && value) {
+        if (typeof value === 'string') {
+          try {
+            // Use a safer way to convert to dayjs
+            value = dayjs(value);
+
+            // Verify it's a valid date
+            if (!value.isValid()) {
+              console.warn(`Invalid date detected for field ${dataIndex}:`, record[dataIndex]);
+              value = dayjs(); // Fallback to current date if invalid
+            }
+          } catch (err) {
+            console.error(`Error converting date for field ${dataIndex}:`, err);
+            value = dayjs(); // Fallback to current date on error
+          }
+        } else if (!dayjs.isDayjs(value)) {
+          // If it's not a string or dayjs object, use current date
+          value = dayjs();
+        }
       }
 
       setInitialValue(value);

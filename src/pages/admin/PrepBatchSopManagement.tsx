@@ -58,6 +58,32 @@ const PrepBatchSopManagement: React.FC = () => {
     loadData();
   }, []);
 
+  // Safe conversion of date values
+  const formatDateValue = (value: any): string => {
+    if (!value) {
+      return new Date().toISOString();
+    }
+
+    if (dayjs.isDayjs(value) && value.isValid()) {
+      return value.toISOString();
+    }
+
+    if (typeof value === 'string') {
+      try {
+        // Attempt to parse as ISO date
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          return date.toISOString();
+        }
+      } catch (err) {
+        console.warn('Invalid date string:', value);
+      }
+    }
+
+    // Default to current date if all else fails
+    return new Date().toISOString();
+  };
+
   // Handle adding a new SOP
   const handleAddSop = (defaultValues: Partial<PrepBatchSopSelectionRs> = {}) => {
     // Create a new SOP with default values
@@ -152,65 +178,69 @@ const PrepBatchSopManagement: React.FC = () => {
 
   // Handle saving a sample type
   const handleSaveSample = (sample: ManifestSamplePrepBatchSopRs, sopId: number) => {
-    // Format the date if it's a dayjs object
-    const formattedSample = {
-      ...sample,
-      effectiveDate: dayjs.isDayjs(sample.effectiveDate)
-        ? sample.effectiveDate.toISOString()
-        : sample.effectiveDate,
-    };
+    try {
+      // Safely format the date value
+      const formattedSample = {
+        ...sample,
+        effectiveDate: formatDateValue(sample.effectiveDate),
+      };
 
-    // Here you would call the update API
-    // For now we'll just update the local state
+      // Here you would call the update API
+      // For now we'll just update the local state
 
-    // Simulate async operation
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        message.success(`Updated sample configuration`);
+      // Simulate async operation
+      return new Promise<void>(resolve => {
+        setTimeout(() => {
+          message.success(`Updated sample configuration`);
 
-        // If it's a new record (negative ID), assign a proper ID
-        const isNew = sample.manifestSamplePrepBatchSopId < 0;
-        const updatedSample = isNew
-          ? {
-              ...formattedSample,
-              manifestSamplePrepBatchSopId: Math.floor(Math.random() * 1000) + 100,
-            }
-          : formattedSample;
-
-        // Update the local state
-        setPrepBatchSops(prevSops =>
-          prevSops.map(sop => {
-            if (sop.batchSopId === sopId) {
-              if (isNew) {
-                // Remove the temp record and add the new one
-                return {
-                  ...sop,
-                  manifestSamplePrepBatchSopRss: [
-                    ...sop.manifestSamplePrepBatchSopRss.filter(
-                      s => s.manifestSamplePrepBatchSopId !== sample.manifestSamplePrepBatchSopId
-                    ),
-                    updatedSample,
-                  ],
-                };
-              } else {
-                // Update existing record
-                return {
-                  ...sop,
-                  manifestSamplePrepBatchSopRss: sop.manifestSamplePrepBatchSopRss.map(s =>
-                    s.manifestSamplePrepBatchSopId === sample.manifestSamplePrepBatchSopId
-                      ? updatedSample
-                      : s
-                  ),
-                };
+          // If it's a new record (negative ID), assign a proper ID
+          const isNew = sample.manifestSamplePrepBatchSopId < 0;
+          const updatedSample = isNew
+            ? {
+                ...formattedSample,
+                manifestSamplePrepBatchSopId: Math.floor(Math.random() * 1000) + 100,
               }
-            }
-            return sop;
-          })
-        );
+            : formattedSample;
 
-        resolve();
-      }, 500); // Simulate network delay
-    });
+          // Update the local state
+          setPrepBatchSops(prevSops =>
+            prevSops.map(sop => {
+              if (sop.batchSopId === sopId) {
+                if (isNew) {
+                  // Remove the temp record and add the new one
+                  return {
+                    ...sop,
+                    manifestSamplePrepBatchSopRss: [
+                      ...sop.manifestSamplePrepBatchSopRss.filter(
+                        s => s.manifestSamplePrepBatchSopId !== sample.manifestSamplePrepBatchSopId
+                      ),
+                      updatedSample,
+                    ],
+                  };
+                } else {
+                  // Update existing record
+                  return {
+                    ...sop,
+                    manifestSamplePrepBatchSopRss: sop.manifestSamplePrepBatchSopRss.map(s =>
+                      s.manifestSamplePrepBatchSopId === sample.manifestSamplePrepBatchSopId
+                        ? updatedSample
+                        : s
+                    ),
+                  };
+                }
+              }
+              return sop;
+            })
+          );
+
+          resolve();
+        }, 500); // Simulate network delay
+      });
+    } catch (error) {
+      console.error('Error saving sample:', error);
+      message.error('Failed to save sample - check console for details');
+      return Promise.reject(error);
+    }
   };
 
   // Handle deleting a sample type
@@ -359,7 +389,13 @@ const PrepBatchSopManagement: React.FC = () => {
         key: 'effectiveDate',
         editable: true,
         inputType: 'date',
-        render: (text: string) => new Date(text).toLocaleDateString(),
+        render: (text: string) => {
+          try {
+            return new Date(text).toLocaleDateString();
+          } catch (e) {
+            return 'Invalid date';
+          }
+        },
         rules: [{ required: true, message: 'Please select an effective date' }],
       },
     ];
