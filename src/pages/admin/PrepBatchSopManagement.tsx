@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Space, message, Spin, Tag, Tooltip, Card, Alert, Button } from 'antd';
+import {
+  Typography,
+  Space,
+  message,
+  Spin,
+  Tag,
+  Tooltip,
+  Card,
+  Alert,
+  Button,
+  Input,
+  Select,
+} from 'antd';
 import {
   ExperimentOutlined,
   InfoCircleOutlined,
@@ -16,7 +28,6 @@ import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
 import EditableTable from '../../components/tables/EditableTable';
 import ModelAdapter from '../../utils/ModelAdapter';
-import dayjs from 'dayjs';
 
 // Import editable table styles here to keep them scoped to this component
 import '../../styles/editableTable.css';
@@ -57,32 +68,6 @@ const PrepBatchSopManagement: React.FC = () => {
 
     loadData();
   }, []);
-
-  // Safe conversion of date values
-  const formatDateValue = (value: any): string => {
-    if (!value) {
-      return new Date().toISOString();
-    }
-
-    if (dayjs.isDayjs(value) && value.isValid()) {
-      return value.toISOString();
-    }
-
-    if (typeof value === 'string') {
-      try {
-        // Attempt to parse as ISO date
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          return date.toISOString();
-        }
-      } catch (err) {
-        console.warn('Invalid date string:', value);
-      }
-    }
-
-    // Default to current date if all else fails
-    return new Date().toISOString();
-  };
 
   // Handle adding a new SOP
   const handleAddSop = (defaultValues: Partial<PrepBatchSopSelectionRs> = {}) => {
@@ -179,12 +164,6 @@ const PrepBatchSopManagement: React.FC = () => {
   // Handle saving a sample type
   const handleSaveSample = (sample: ManifestSamplePrepBatchSopRs, sopId: number) => {
     try {
-      // Safely format the date value
-      const formattedSample = {
-        ...sample,
-        effectiveDate: formatDateValue(sample.effectiveDate),
-      };
-
       // Here you would call the update API
       // For now we'll just update the local state
 
@@ -196,11 +175,8 @@ const PrepBatchSopManagement: React.FC = () => {
           // If it's a new record (negative ID), assign a proper ID
           const isNew = sample.manifestSamplePrepBatchSopId < 0;
           const updatedSample = isNew
-            ? {
-                ...formattedSample,
-                manifestSamplePrepBatchSopId: Math.floor(Math.random() * 1000) + 100,
-              }
-            : formattedSample;
+            ? { ...sample, manifestSamplePrepBatchSopId: Math.floor(Math.random() * 1000) + 100 }
+            : sample;
 
           // Update the local state
           setPrepBatchSops(prevSops =>
@@ -273,6 +249,7 @@ const PrepBatchSopManagement: React.FC = () => {
       key: 'name',
       editable: true,
       inputType: 'text',
+      editComponent: Input,
       render: (text: string) => <Text strong>{text}</Text>,
       sorter: (a: PrepBatchSopSelectionRs, b: PrepBatchSopSelectionRs) =>
         a.name.localeCompare(b.name),
@@ -287,6 +264,7 @@ const PrepBatchSopManagement: React.FC = () => {
       key: 'sop',
       editable: true,
       inputType: 'text',
+      editComponent: Input,
       render: (text: string) => (
         <Tag color="blue" icon={<ExperimentOutlined />}>
           {text}
@@ -303,6 +281,7 @@ const PrepBatchSopManagement: React.FC = () => {
       key: 'version',
       editable: true,
       inputType: 'text',
+      editComponent: Input,
       render: (text: string) => <Tag color="green">{text}</Tag>,
       rules: [
         { required: true, message: 'Please enter the version' },
@@ -315,6 +294,7 @@ const PrepBatchSopManagement: React.FC = () => {
       key: 'sopGroup',
       editable: true,
       inputType: 'text',
+      editComponent: Input,
       rules: [
         { required: true, message: 'Please enter the SOP group' },
         { max: 50, message: 'SOP Group cannot exceed 50 characters' },
@@ -357,6 +337,7 @@ const PrepBatchSopManagement: React.FC = () => {
         key: 'manifestSampleTypeId',
         editable: true,
         inputType: 'select',
+        editComponent: Select,
         options: selectors.manifestSampleTypeItems.map(item => ({
           value: item.id,
           label: item.label,
@@ -370,6 +351,7 @@ const PrepBatchSopManagement: React.FC = () => {
         key: 'panelGroupId',
         editable: true,
         inputType: 'select',
+        editComponent: Select,
         options: selectors.panelGroupItems.map(item => ({
           value: item.id,
           label: item.label,
