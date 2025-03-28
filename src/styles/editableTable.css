@@ -1,0 +1,98 @@
+/* src/styles/editableTable.css */
+/* Styles for editable tables used in the application */
+
+.editable-row {
+  transition: all 0.3s;
+}
+
+.editable-row:hover td {
+  background-color: #e6f7ff;
+}
+
+.editable-row .ant-form-item-explain {
+  position: absolute;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Highlight the cell being edited */
+td.ant-table-cell-editing {
+  background-color: rgba(24, 144, 255, 0.1);
+  border: 1px solid #1890ff;
+  padding: 4px 8px !important;
+}
+
+/* Style for action buttons */
+.editable-row .ant-btn {
+  padding: 0 8px;
+  height: 28px;
+}
+
+.editable-row .ant-btn:not(:last-child) {
+  margin-right: 4px;
+}
+
+/* Ensure select dropdowns have proper spacing */
+.ant-select-dropdown {
+  padding: 0;
+}
+
+.ant-select-item {
+  padding: 8px 12px;
+}
+
+/* Style for validation errors */
+.ant-form-item-has-error .ant-input,
+.ant-form-item-has-error .ant-select-selector,
+.ant-form-item-has-error .ant-picker {
+  border-color: #ff4d4f !important;
+}
+
+/* Add spacing for datepicker in table cells */
+.ant-picker {
+  width: 100%;
+}
+
+/* Fix padding in form items inside tables */
+.ant-table-cell .ant-form-item {
+  margin-bottom: 0;
+}
+
+/* Style for empty data cells */
+.ant-table-cell .data-placeholder {
+  color: #d9d9d9;
+  font-style: italic;
+}
+
+/* Improve tag display in tables */
+.ant-table-cell .ant-tag {
+  margin-right: 0;
+}
+
+/* Style for action column */
+.ant-table-cell.action-column {
+  text-align: center;
+  width: 120px;
+}
+
+/* Better spacing for expanded rows */
+.ant-table-expanded-row > td {
+  padding: 16px 8px !important;
+}
+
+/* Make editable inputs more prominent */
+.ant-table-cell-editing .ant-input:focus,
+.ant-table-cell-editing .ant-select-focused .ant-select-selector,
+.ant-table-cell-editing .ant-picker-focused {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Make the action buttons more visible */
+.ant-table-row:hover .operation-buttons {
+  opacity: 1;
+}
+
+.operation-buttons {
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}

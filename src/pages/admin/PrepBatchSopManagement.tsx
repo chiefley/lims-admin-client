@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Space, message, Spin, Tag, Tooltip, Card, Alert, Modal, Button } from 'antd';
+import { Typography, Space, message, Spin, Tag, Tooltip, Card, Alert, Button } from 'antd';
 import {
-  EditOutlined,
-  DeleteOutlined,
   ExperimentOutlined,
   InfoCircleOutlined,
   UnorderedListOutlined,
@@ -16,10 +14,12 @@ import {
 } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
-import StyledTable from '../../components/tables/StyledTable';
-import PrepBatchSopForm from '../../components/forms/PrepBatchSopForm';
-import ManifestSampleForm from '../../components/forms/ManifestSampleForm';
+import EditableTable from '../../components/tables/EditableTable';
 import ModelAdapter from '../../utils/ModelAdapter';
+import dayjs from 'dayjs';
+
+// Import editable table styles here to keep them scoped to this component
+import '../../styles/editableTable.css';
 
 const { Text } = Typography;
 
@@ -31,11 +31,6 @@ const PrepBatchSopManagement: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
-  const [sampleEditModalVisible, setSampleEditModalVisible] = useState<boolean>(false);
-  const [currentSop, setCurrentSop] = useState<PrepBatchSopSelectionRs | null>(null);
-  const [currentSample, setCurrentSample] = useState<ManifestSamplePrepBatchSopRs | null>(null);
-  const [parentSopId, setParentSopId] = useState<number | null>(null);
 
   // Load prep batch SOPs and selectors for dropdowns
   useEffect(() => {
@@ -63,44 +58,237 @@ const PrepBatchSopManagement: React.FC = () => {
     loadData();
   }, []);
 
+  // Handle adding a new SOP
+  const handleAddSop = (defaultValues: Partial<PrepBatchSopSelectionRs> = {}) => {
+    // Create a new SOP with default values
+    const newSop: PrepBatchSopSelectionRs = {
+      batchSopId: -Date.now(), // Temporary negative ID
+      name: '',
+      sop: '',
+      version: '',
+      sopGroup: '',
+      labId: 1001, // Default lab ID from your config
+      $type: 'PrepBatchSopSelectionRs',
+      manifestSamplePrepBatchSopRss: [],
+      ...defaultValues,
+    };
+
+    // Add to the list
+    setPrepBatchSops([...prepBatchSops, newSop]);
+  };
+
+  // Handle saving a batch SOP record
+  const handleSaveSop = (record: PrepBatchSopSelectionRs) => {
+    // Here you would call the update API
+    // For now we'll just update the local state
+
+    // Simulate async operation
+    return new Promise<void>(resolve => {
+      setTimeout(() => {
+        message.success(`Updated Prep SOP: ${record.name}`);
+
+        // If it's a new record (negative ID), assign a proper ID
+        const isNew = record.batchSopId < 0;
+        const updatedRecord = isNew
+          ? { ...record, batchSopId: Math.floor(Math.random() * 1000) + 100 }
+          : record;
+
+        // Update the local state
+        setPrepBatchSops(prevSops => {
+          if (isNew) {
+            // Replace the temp record with the "saved" one
+            return [...prevSops.filter(sop => sop.batchSopId !== record.batchSopId), updatedRecord];
+          } else {
+            // Update existing record
+            return prevSops.map(sop =>
+              sop.batchSopId === record.batchSopId ? updatedRecord : sop
+            );
+          }
+        });
+
+        resolve();
+      }, 500); // Simulate network delay
+    });
+  };
+
+  // Handle deleting a batch SOP record
+  const handleDeleteSop = (record: PrepBatchSopSelectionRs) => {
+    // Here you would call the delete API
+    message.success(`Deleted Prep SOP: ${record.name}`);
+
+    // Update local state to reflect the deletion
+    setPrepBatchSops(prevSops => prevSops.filter(sop => sop.batchSopId !== record.batchSopId));
+  };
+
+  // Handle adding a sample type to a SOP
+  const handleAddSample = (sopId: number) => {
+    // Create a new empty sample with default values
+    const newSample: ManifestSamplePrepBatchSopRs = {
+      manifestSamplePrepBatchSopId: -Date.now(), // Temporary negative ID
+      batchSopId: sopId,
+      manifestSampleTypeId:
+        selectors.manifestSampleTypeItems.length > 0
+          ? Number(selectors.manifestSampleTypeItems[0].id)
+          : 0,
+      panelGroupId:
+        selectors.panelGroupItems.length > 0 ? Number(selectors.panelGroupItems[0].id) : 0,
+      panels: '',
+      effectiveDate: new Date().toISOString(),
+    };
+
+    // Update state to include the new sample
+    setPrepBatchSops(prevSops =>
+      prevSops.map(sop => {
+        if (sop.batchSopId === sopId) {
+          return {
+            ...sop,
+            manifestSamplePrepBatchSopRss: [...sop.manifestSamplePrepBatchSopRss, newSample],
+          };
+        }
+        return sop;
+      })
+    );
+  };
+
+  // Handle saving a sample type
+  const handleSaveSample = (sample: ManifestSamplePrepBatchSopRs, sopId: number) => {
+    // Format the date if it's a dayjs object
+    const formattedSample = {
+      ...sample,
+      effectiveDate: dayjs.isDayjs(sample.effectiveDate)
+        ? sample.effectiveDate.toISOString()
+        : sample.effectiveDate,
+    };
+
+    // Here you would call the update API
+    // For now we'll just update the local state
+
+    // Simulate async operation
+    return new Promise<void>(resolve => {
+      setTimeout(() => {
+        message.success(`Updated sample configuration`);
+
+        // If it's a new record (negative ID), assign a proper ID
+        const isNew = sample.manifestSamplePrepBatchSopId < 0;
+        const updatedSample = isNew
+          ? {
+              ...formattedSample,
+              manifestSamplePrepBatchSopId: Math.floor(Math.random() * 1000) + 100,
+            }
+          : formattedSample;
+
+        // Update the local state
+        setPrepBatchSops(prevSops =>
+          prevSops.map(sop => {
+            if (sop.batchSopId === sopId) {
+              if (isNew) {
+                // Remove the temp record and add the new one
+                return {
+                  ...sop,
+                  manifestSamplePrepBatchSopRss: [
+                    ...sop.manifestSamplePrepBatchSopRss.filter(
+                      s => s.manifestSamplePrepBatchSopId !== sample.manifestSamplePrepBatchSopId
+                    ),
+                    updatedSample,
+                  ],
+                };
+              } else {
+                // Update existing record
+                return {
+                  ...sop,
+                  manifestSamplePrepBatchSopRss: sop.manifestSamplePrepBatchSopRss.map(s =>
+                    s.manifestSamplePrepBatchSopId === sample.manifestSamplePrepBatchSopId
+                      ? updatedSample
+                      : s
+                  ),
+                };
+              }
+            }
+            return sop;
+          })
+        );
+
+        resolve();
+      }, 500); // Simulate network delay
+    });
+  };
+
+  // Handle deleting a sample type
+  const handleDeleteSample = (sample: ManifestSamplePrepBatchSopRs) => {
+    // Here you would call the delete API
+    message.success(`Deleted sample configuration`);
+
+    // Update local state to reflect the deletion
+    setPrepBatchSops(prevSops =>
+      prevSops.map(sop => ({
+        ...sop,
+        manifestSamplePrepBatchSopRss: sop.manifestSamplePrepBatchSopRss.filter(
+          s => s.manifestSamplePrepBatchSopId !== sample.manifestSamplePrepBatchSopId
+        ),
+      }))
+    );
+  };
+
+  // Show details of a SOP
+  const handleViewDetails = (record: PrepBatchSopSelectionRs) => {
+    message.info(`Viewing details of ${record.name} (${record.sop} v${record.version})`);
+    // You could implement a detail view or keep the current modal approach
+  };
+
   // Table columns for the main prep batch SOP list
   const columns = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      editable: true,
+      inputType: 'text',
       render: (text: string) => <Text strong>{text}</Text>,
       sorter: (a: PrepBatchSopSelectionRs, b: PrepBatchSopSelectionRs) =>
         a.name.localeCompare(b.name),
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => <Text strong>{text}</Text>,
-      sorter: (a: PrepBatchSopSelectionRs, b: PrepBatchSopSelectionRs) =>
-        a.name.localeCompare(b.name),
+      rules: [
+        { required: true, message: 'Please enter the Prep SOP name' },
+        { max: 150, message: 'Name cannot exceed 150 characters' },
+      ],
     },
     {
       title: 'SOP',
       dataIndex: 'sop',
       key: 'sop',
+      editable: true,
+      inputType: 'text',
       render: (text: string) => (
         <Tag color="blue" icon={<ExperimentOutlined />}>
           {text}
         </Tag>
       ),
+      rules: [
+        { required: true, message: 'Please enter the SOP identifier' },
+        { max: 50, message: 'SOP cannot exceed 50 characters' },
+      ],
     },
     {
       title: 'Version',
       dataIndex: 'version',
       key: 'version',
+      editable: true,
+      inputType: 'text',
       render: (text: string) => <Tag color="green">{text}</Tag>,
+      rules: [
+        { required: true, message: 'Please enter the version' },
+        { max: 10, message: 'Version cannot exceed 10 characters' },
+      ],
     },
     {
       title: 'SOP Group',
       dataIndex: 'sopGroup',
       key: 'sopGroup',
+      editable: true,
+      inputType: 'text',
+      rules: [
+        { required: true, message: 'Please enter the SOP group' },
+        { max: 50, message: 'SOP Group cannot exceed 50 characters' },
+      ],
     },
     {
       title: 'Sample Types',
@@ -115,35 +303,17 @@ const PrepBatchSopManagement: React.FC = () => {
       },
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: 'View',
+      key: 'view',
+      width: 80,
       render: (_: any, record: PrepBatchSopSelectionRs) => (
-        <Space size="small">
-          <Tooltip title="Edit">
-            <EditOutlined
-              onClick={() => handleEdit(record)}
-              style={{ cursor: 'pointer', color: '#1677ff' }}
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <DeleteOutlined
-              onClick={() => handleDelete(record.batchSopId)}
-              style={{ cursor: 'pointer', color: '#ff4d4f' }}
-            />
-          </Tooltip>
-          <Tooltip title="Add Sample Type">
-            <PlusOutlined
-              onClick={() => handleAddSample(record.batchSopId)}
-              style={{ cursor: 'pointer', color: '#52c41a' }}
-            />
-          </Tooltip>
-          <Tooltip title="View Details">
-            <InfoCircleOutlined
-              onClick={() => handleViewDetails(record)}
-              style={{ cursor: 'pointer', color: '#1677ff' }}
-            />
-          </Tooltip>
-        </Space>
+        <Tooltip title="View Details">
+          <Button
+            type="text"
+            icon={<InfoCircleOutlined />}
+            onClick={() => handleViewDetails(record)}
+          />
+        </Tooltip>
       ),
     },
   ];
@@ -155,49 +325,42 @@ const PrepBatchSopManagement: React.FC = () => {
         title: 'Sample Type',
         dataIndex: 'manifestSampleTypeId',
         key: 'manifestSampleTypeId',
-        render: (id: number) => {
-          return ModelAdapter.getSampleTypeLabel(selectors, id);
-        },
+        editable: true,
+        inputType: 'select',
+        options: selectors.manifestSampleTypeItems.map(item => ({
+          value: item.id,
+          label: item.label,
+        })),
+        render: (id: number) => ModelAdapter.getSampleTypeLabel(selectors, id),
+        rules: [{ required: true, message: 'Please select a sample type' }],
       },
       {
         title: 'Panel Group',
         dataIndex: 'panelGroupId',
         key: 'panelGroupId',
-        render: (id: number) => {
-          return ModelAdapter.getPanelGroupLabel(selectors, id);
-        },
+        editable: true,
+        inputType: 'select',
+        options: selectors.panelGroupItems.map(item => ({
+          value: item.id,
+          label: item.label,
+        })),
+        render: (id: number) => ModelAdapter.getPanelGroupLabel(selectors, id),
+        rules: [{ required: true, message: 'Please select a panel group' }],
       },
       {
         title: 'Panels',
         dataIndex: 'panels',
         key: 'panels',
-        render: (text: string) => <Text ellipsis={{ tooltip: text }}>{text}</Text>,
+        render: (text: string) => <Text ellipsis={{ tooltip: text }}>{text || '-'}</Text>,
       },
       {
         title: 'Effective Date',
         dataIndex: 'effectiveDate',
         key: 'effectiveDate',
+        editable: true,
+        inputType: 'date',
         render: (text: string) => new Date(text).toLocaleDateString(),
-      },
-      {
-        title: 'Actions',
-        key: 'actions',
-        render: (_: any, sample: ManifestSamplePrepBatchSopRs) => (
-          <Space size="small">
-            <Tooltip title="Edit Sample">
-              <EditOutlined
-                onClick={() => handleEditSample(sample, record.batchSopId)}
-                style={{ cursor: 'pointer', color: '#1677ff' }}
-              />
-            </Tooltip>
-            <Tooltip title="Delete Sample">
-              <DeleteOutlined
-                onClick={() => handleDeleteSample(sample.manifestSamplePrepBatchSopId)}
-                style={{ cursor: 'pointer', color: '#ff4d4f' }}
-              />
-            </Tooltip>
-          </Space>
-        ),
+        rules: [{ required: true, message: 'Please select an effective date' }],
       },
     ];
 
@@ -225,169 +388,20 @@ const PrepBatchSopManagement: React.FC = () => {
             showIcon
           />
         ) : (
-          <StyledTable
+          <EditableTable
             columns={sampleColumns}
             dataSource={record.manifestSamplePrepBatchSopRss}
             rowKey="manifestSamplePrepBatchSopId"
             pagination={false}
             size="small"
-            striped
+            onSave={updatedRecord =>
+              handleSaveSample(updatedRecord as ManifestSamplePrepBatchSopRs, record.batchSopId)
+            }
+            onDelete={handleDeleteSample as any}
           />
         )}
       </Card>
     );
-  };
-
-  // Event handlers
-  const handleEdit = (record: PrepBatchSopSelectionRs) => {
-    setCurrentSop(record);
-    setEditModalVisible(true);
-  };
-
-  const handleDelete = (id: number) => {
-    Modal.confirm({
-      title: 'Are you sure you want to delete this Prep SOP?',
-      content: 'This action cannot be undone.',
-      okText: 'Yes, Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: () => {
-        // Here you would call the delete API
-        message.success(`Deleted Prep SOP with ID: ${id}`);
-        // After successful deletion, you would refresh the data
-        setPrepBatchSops(prevSops => prevSops.filter(sop => sop.batchSopId !== id));
-      },
-    });
-  };
-
-  const handleViewDetails = (record: PrepBatchSopSelectionRs) => {
-    Modal.info({
-      title: `${record.name} (${record.sop} v${record.version})`,
-      content: (
-        <div>
-          <p>
-            <strong>SOP Group:</strong> {record.sopGroup}
-          </p>
-          <p>
-            <strong>Lab ID:</strong> {record.labId}
-          </p>
-          <p>
-            <strong>Sample Types:</strong> {record.manifestSamplePrepBatchSopRss.length}
-          </p>
-        </div>
-      ),
-      width: 500,
-    });
-  };
-
-  const handleSubmitSopEdit = (values: PrepBatchSopSelectionRs) => {
-    // Here you would call the update API
-    message.success(`Updated Prep SOP: ${values.name}`);
-
-    // Update the local state to reflect changes
-    setPrepBatchSops(prevSops =>
-      prevSops.map(sop => (sop.batchSopId === values.batchSopId ? values : sop))
-    );
-
-    setEditModalVisible(false);
-    setCurrentSop(null);
-  };
-
-  const handleAddSample = (batchSopId: number) => {
-    // Create a new empty sample with default values
-    // Note: In your model, you might want to handle the case where the dropdown needs a null/undefined
-    // initial value to show the placeholder. For this fix, we'll use actual ID values.
-    const newSample: ManifestSamplePrepBatchSopRs = {
-      manifestSamplePrepBatchSopId: 0, // Will be assigned by the server
-      batchSopId: batchSopId,
-      // If we have any selectors, use the first one as default, otherwise use null
-      manifestSampleTypeId:
-        selectors.manifestSampleTypeItems.length > 0
-          ? Number(selectors.manifestSampleTypeItems[0].id)
-          : 0,
-      panelGroupId:
-        selectors.panelGroupItems.length > 0 ? Number(selectors.panelGroupItems[0].id) : 0,
-      panels: '',
-      effectiveDate: new Date().toISOString(),
-    };
-
-    setCurrentSample(newSample);
-    setParentSopId(batchSopId);
-    setSampleEditModalVisible(true);
-  };
-
-  const handleEditSample = (sample: ManifestSamplePrepBatchSopRs, batchSopId: number) => {
-    setCurrentSample({ ...sample }); // Create a copy to avoid reference issues
-    setParentSopId(batchSopId);
-    setSampleEditModalVisible(true);
-  };
-
-  const handleDeleteSample = (id: number) => {
-    Modal.confirm({
-      title: 'Are you sure you want to delete this sample configuration?',
-      content: 'This action cannot be undone.',
-      okText: 'Yes, Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: () => {
-        // Here you would call the delete API
-        message.success(`Deleted sample configuration with ID: ${id}`);
-
-        // Update local state to reflect the deletion
-        setPrepBatchSops(prevSops =>
-          prevSops.map(sop => ({
-            ...sop,
-            manifestSamplePrepBatchSopRss: sop.manifestSamplePrepBatchSopRss.filter(
-              sample => sample.manifestSamplePrepBatchSopId !== id
-            ),
-          }))
-        );
-      },
-    });
-  };
-
-  const handleSubmitSampleEdit = (values: ManifestSamplePrepBatchSopRs) => {
-    // Here you would call the update API
-    message.success(`Updated sample configuration`);
-
-    // Update the local state to reflect changes
-    setPrepBatchSops(prevSops =>
-      prevSops.map(sop => {
-        if (sop.batchSopId === parentSopId) {
-          // If it's a new sample (id is 0), generate a temporary ID
-          if (values.manifestSamplePrepBatchSopId === 0) {
-            const newId = Math.floor(Math.random() * -1000) - 1; // Negative ID to avoid conflicts
-            const updatedSamples = [
-              ...sop.manifestSamplePrepBatchSopRss,
-              {
-                ...values,
-                manifestSamplePrepBatchSopId: newId,
-              },
-            ];
-            return {
-              ...sop,
-              manifestSamplePrepBatchSopRss: updatedSamples,
-            };
-          } else {
-            // If it's an existing sample, update it
-            const updatedSamples = sop.manifestSamplePrepBatchSopRss.map(sample =>
-              sample.manifestSamplePrepBatchSopId === values.manifestSamplePrepBatchSopId
-                ? values
-                : sample
-            );
-            return {
-              ...sop,
-              manifestSamplePrepBatchSopRss: updatedSamples,
-            };
-          }
-        }
-        return sop;
-      })
-    );
-
-    setSampleEditModalVisible(false);
-    setCurrentSample(null);
-    setParentSopId(null);
   };
 
   return (
@@ -396,7 +410,7 @@ const PrepBatchSopManagement: React.FC = () => {
         title="Prep Batch SOP Management"
         subtitle="Configure and manage standard operating procedures for sample preparation batch processing"
         extra={
-          <Button type="primary" icon={<PlusOutlined />}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => handleAddSop()}>
             Add New SOP
           </Button>
         }
@@ -414,55 +428,21 @@ const PrepBatchSopManagement: React.FC = () => {
 
       <CardSection icon={<UnorderedListOutlined />} title="Prep Batch SOPs">
         <Spin spinning={loading}>
-          <StyledTable
+          <EditableTable
             columns={columns}
             dataSource={prepBatchSops}
             rowKey="batchSopId"
             expandable={{
               expandedRowRender,
-              expandRowByClick: true,
+              expandRowByClick: false,
             }}
-            striped
+            onSave={handleSaveSop as any}
+            onDelete={handleDeleteSop as any}
+            onAdd={handleAddSop}
+            addButtonText="Add New SOP"
           />
         </Spin>
       </CardSection>
-
-      {/* Edit Prep Batch SOP Modal */}
-      <Modal
-        title="Edit Prep Batch SOP"
-        open={editModalVisible}
-        onCancel={() => setEditModalVisible(false)}
-        footer={null}
-        width={600}
-      >
-        {currentSop && (
-          <PrepBatchSopForm
-            initialValues={currentSop}
-            onSubmit={handleSubmitSopEdit}
-            onCancel={() => setEditModalVisible(false)}
-          />
-        )}
-      </Modal>
-
-      {/* Edit/Add Sample Type Modal */}
-      <Modal
-        title={
-          currentSample?.manifestSamplePrepBatchSopId === 0 ? 'Add Sample Type' : 'Edit Sample Type'
-        }
-        open={sampleEditModalVisible}
-        onCancel={() => setSampleEditModalVisible(false)}
-        footer={null}
-        width={600}
-      >
-        {currentSample && (
-          <ManifestSampleForm
-            initialValues={currentSample}
-            selectors={selectors}
-            onSubmit={handleSubmitSampleEdit}
-            onCancel={() => setSampleEditModalVisible(false)}
-          />
-        )}
-      </Modal>
     </div>
   );
 };
