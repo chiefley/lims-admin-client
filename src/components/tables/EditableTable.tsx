@@ -131,8 +131,9 @@ function EditableTable<RecordType extends Record<string, any>>({
   // Render a cell based on whether it's in edit mode and its type
   const renderCell = (value: any, record: RecordType, column: EditableColumn) => {
     const editing = isEditing(record);
+    const editable = column.editable;
 
-    if (!editing) {
+    if (!editing || !editable) {
       // Render display view
       if (column.render) {
         return column.render(value, record);
@@ -145,12 +146,12 @@ function EditableTable<RecordType extends Record<string, any>>({
       return (
         <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
           {column.editComponent ? (
-            <column.editComponent
-              options={column.options}
-              style={{ width: '100%' }}
-              allowClear={true} // Allow clearing selection (results in null)
-              placeholder="Select an option"
-            />
+            React.createElement(column.editComponent, {
+              options: column.options,
+              style: { width: '100%' },
+              allowClear: true, // Allow clearing selection (results in null)
+              placeholder: 'Select an option',
+            })
           ) : (
             <span>No editor component</span>
           )}
@@ -169,7 +170,7 @@ function EditableTable<RecordType extends Record<string, any>>({
       return (
         <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
           {column.editComponent ? (
-            <column.editComponent style={{ width: '100%' }} />
+            React.createElement(column.editComponent, { style: { width: '100%' } })
           ) : (
             <span>No editor component</span>
           )}
@@ -237,22 +238,23 @@ function EditableTable<RecordType extends Record<string, any>>({
     : null;
 
   // Enhance columns with cell rendering logic
-  const enhancedColumns = columns.map(col => ({
-    ...col,
-    onCell: (record: RecordType) => ({
-      record,
-      dataIndex: col.dataIndex,
-      title: col.title,
-      editing: isEditing(record),
-    }),
-    render: (value: any, record: RecordType) => renderCell(value, record, col),
-  }));
+  const enhancedColumns = columns.map(col => {
+    // Don't pass non-standard props to the table cells
+    const { editable, inputType, editComponent, rules, options, ...restCol } = col;
+
+    return {
+      ...restCol,
+      onCell: (record: RecordType) => ({
+        record,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        render: (value: any) => renderCell(value, record, col),
+      }),
+    };
+  });
 
   // Add action column if editable
-  const mergedColumns = [
-    ...enhancedColumns,
-    ...(actionColumn ? [actionColumn as EditableColumn] : []),
-  ];
+  const mergedColumns = [...enhancedColumns, ...(actionColumn ? [actionColumn] : [])];
 
   // Action buttons for the table (like Add button)
   const renderTableActions = () => {
@@ -264,9 +266,6 @@ function EditableTable<RecordType extends Record<string, any>>({
           onClick={() => {
             // Call onAdd with defaultValues
             onAdd(defaultValues);
-
-            // The component handling onAdd is responsible for putting the new row into edit mode
-            // This is now done in handleAddSop and handleAddSample
           }}
           type="primary"
           icon={<PlusOutlined />}

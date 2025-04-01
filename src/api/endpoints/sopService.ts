@@ -1,13 +1,15 @@
-import axios from 'axios';
+// src/api/endpoints/sopService.ts
+import { apiClient } from '../config';
 import appConfig from '../../config/appConfig';
 import {
   ServiceResponse,
   PrepBatchSopSelectionRs,
   SopMaintenanceSelectors,
+  PrepBatchSopRs,
 } from '../../models/types';
 
 // Base URL for SOP maintenance endpoints
-const baseUrl = `${appConfig.api.baseUrl}${appConfig.api.endpoints.sopMaintenance.base}`;
+const baseUrl = `${appConfig.api.baseUrl}/sopmaintenance`;
 const labId = appConfig.api.defaultLabId;
 
 /**
@@ -16,7 +18,7 @@ const labId = appConfig.api.defaultLabId;
  */
 export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
   try {
-    const response = await axios.get<ServiceResponse<SopMaintenanceSelectors>>(
+    const response = await apiClient.get<ServiceResponse<SopMaintenanceSelectors>>(
       `${baseUrl}/FetchSelectors/${labId}`
     );
 
@@ -25,7 +27,7 @@ export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
     }
 
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching selectors:', error);
     throw error;
   }
@@ -37,7 +39,7 @@ export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
  */
 export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs[]> => {
   try {
-    const response = await axios.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
+    const response = await apiClient.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
       `${baseUrl}/FetchBatchSopSelections/${labId}`
     );
 
@@ -46,24 +48,77 @@ export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs
     }
 
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching prep batch SOPs:', error);
     throw error;
   }
 };
 
 /**
- * Planned for future implementation
- * Saves a prep batch SOP selection
+ * Fetches detailed information for a specific prep batch SOP
+ * @param prepBatchSopId The ID of the prep batch SOP to fetch
+ * @returns Promise with PrepBatchSopRs data
  */
-export const savePrepBatchSopSelection = async (data: PrepBatchSopSelectionRs) => {
-  // Implementation for saving prep batch SOP will be added here
-  console.log('Saving prep batch SOP:', data);
-  // This is a placeholder for future implementation
+export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<PrepBatchSopRs> => {
+  try {
+    const response = await apiClient.get<ServiceResponse<PrepBatchSopRs>>(
+      `${baseUrl}/FetchPrepBatchSopRs/${prepBatchSopId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch prep batch SOP details');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching prep batch SOP details:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves changes to a prep batch SOP
+ * @param data The prep batch SOP data to save
+ * @returns Promise with the saved PrepBatchSopRs
+ */
+export const savePrepBatchSop = async (data: PrepBatchSopRs): Promise<PrepBatchSopRs> => {
+  try {
+    // This is a placeholder for the actual API call
+    // In a real implementation, you would make a POST/PUT request to save the data
+    console.log('Saving prep batch SOP:', data);
+
+    // Simulating a successful response
+    return data;
+  } catch (error: any) {
+    console.error('Error saving prep batch SOP:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves a prep batch SOP selection (from the list view)
+ * @param data The prep batch SOP selection data to save
+ * @returns Promise with the saved PrepBatchSopSelectionRs
+ */
+export const savePrepBatchSopSelection = async (
+  data: PrepBatchSopSelectionRs
+): Promise<PrepBatchSopSelectionRs> => {
+  try {
+    // This is a placeholder for the actual API call
+    console.log('Saving prep batch SOP selection:', data);
+
+    // Simulating a successful response
+    return data;
+  } catch (error: any) {
+    console.error('Error saving prep batch SOP selection:', error);
+    throw error;
+  }
 };
 
 export default {
   fetchSelectors,
   fetchBatchSopSelections,
+  fetchPrepBatchSopDetail,
+  savePrepBatchSop,
   savePrepBatchSopSelection,
 };

@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react';
-import { Typography, Space, Button, Divider } from 'antd';
+import { Typography, Space, Divider } from 'antd';
 
 const { Title, Text } = Typography;
 
 interface PageHeaderProps {
-  title: string;
+  title: ReactNode; // Changed from string to ReactNode to allow for elements
   subtitle?: string;
   extra?: ReactNode;
   children?: ReactNode;
@@ -18,9 +18,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, extra, childre
     <div className="page-header">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <Title level={2} style={{ margin: 0 }}>
-            {title}
-          </Title>
+          {typeof title === 'string' ? (
+            <Title level={2} style={{ margin: 0 }}>
+              {title}
+            </Title>
+          ) : (
+            title
+          )}
           {subtitle && <Text type="secondary">{subtitle}</Text>}
         </div>
         {extra && <div>{extra}</div>}
