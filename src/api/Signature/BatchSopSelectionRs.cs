@@ -1,10 +1,19 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Json.Serialization;
+using FluentValidation;
+using NCLims.Models.NewBatch;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
+
 [JsonPolymorphic]
 [JsonDerivedType(typeof(PrepBatchSopSelectionRs), nameof(PrepBatchSopSelectionRs))]
 [JsonDerivedType(typeof(AnalyticalBatchSopSelectionRs), nameof(AnalyticalBatchSopSelectionRs))]
 public abstract class BatchSopSelectionRs
 {
-    [Required]
     // Primary Key, no display, not editable.
+    [Required]
     public int BatchSopId { get; set; }
 
     // @validation: unique-combination: Name, Sop, Version
