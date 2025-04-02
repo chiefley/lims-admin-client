@@ -3,10 +3,8 @@ import { Typography, Spin, Tag, Tooltip, Alert, Button, Input, Popconfirm, Space
 import { useNavigate } from 'react-router-dom';
 import {
   ExperimentOutlined,
-  EditOutlined,
   DeleteOutlined,
   UnorderedListOutlined,
-  PlusOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
 import { fetchBatchSopSelections } from '../../api/endpoints/sopService';
@@ -33,6 +31,10 @@ const PrepBatchSopManagement: React.FC = () => {
       try {
         setLoading(true);
         const sopsData = await fetchBatchSopSelections();
+
+        // Log the data to check batchCount values
+        console.log('Fetched SOPs:', sopsData);
+
         setPrepBatchSops(sopsData);
         setError(null);
       } catch (err: any) {
@@ -45,36 +47,6 @@ const PrepBatchSopManagement: React.FC = () => {
 
     loadData();
   }, []);
-
-  // Handle adding a new SOP
-  const handleAddSop = (defaultValues: Partial<PrepBatchSopSelectionRs> = {}) => {
-    // Create a new SOP with default values
-    const newSop: PrepBatchSopSelectionRs = {
-      batchSopId: -Date.now(), // Temporary negative ID
-      name: '',
-      sop: '',
-      version: '',
-      sopGroup: '',
-      labId: 1001, // Default lab ID from your config
-      $type: 'PrepBatchSopSelectionRs',
-      manifestSamplePrepBatchSopRss: [],
-      ...defaultValues,
-    };
-
-    // Add to the list
-    setPrepBatchSops(prev => [...prev, newSop]);
-
-    // Use setTimeout to ensure the state update completes before trying to edit
-    setTimeout(() => {
-      // Find and click the edit button for the new row
-      const newRowEditButton = document.querySelector(
-        `.ant-table-row[data-row-key="${newSop.batchSopId}"] .ant-btn-text .anticon-edit`
-      );
-      if (newRowEditButton instanceof HTMLElement) {
-        (newRowEditButton.closest('button') as HTMLElement).click();
-      }
-    }, 100);
-  };
 
   // Handle saving a batch SOP record
   const handleSaveSop = (record: PrepBatchSopSelectionRs) => {
@@ -130,7 +102,7 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      editable: true,
+      editable: false,
       inputType: 'text',
       editComponent: Input,
       render: (text: string) => <Text strong>{text}</Text>,
@@ -145,7 +117,7 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'SOP',
       dataIndex: 'sop',
       key: 'sop',
-      editable: true,
+      editable: false,
       inputType: 'text',
       editComponent: Input,
       render: (text: string) => (
@@ -162,7 +134,7 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'Version',
       dataIndex: 'version',
       key: 'version',
-      editable: true,
+      editable: false,
       inputType: 'text',
       editComponent: Input,
       render: (text: string) => <Tag color="green">{text}</Tag>,
@@ -175,7 +147,7 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'SOP Group',
       dataIndex: 'sopGroup',
       key: 'sopGroup',
-      editable: true,
+      editable: false,
       inputType: 'text',
       editComponent: Input,
       rules: [
@@ -184,14 +156,13 @@ const PrepBatchSopManagement: React.FC = () => {
       ],
     },
     {
-      title: 'Sample Types',
-      key: 'sampleTypes',
-      dataIndex: 'sampleTypes',
+      title: 'Batch Count',
+      key: 'batchCount',
+      dataIndex: 'batchCount',
       editable: false,
-      render: (_: any, record: PrepBatchSopSelectionRs) => {
-        const count = record.manifestSamplePrepBatchSopRss?.length || 0;
+      render: (count: number) => {
         return (
-          <Tooltip title={`${count} sample type(s) configured`}>
+          <Tooltip title={`${count} batch(es) using this SOP`}>
             <Tag color="volcano">{count}</Tag>
           </Tooltip>
         );
@@ -203,6 +174,12 @@ const PrepBatchSopManagement: React.FC = () => {
       dataIndex: 'actions',
       width: 120,
       render: (_: any, record: PrepBatchSopSelectionRs) => {
+        // Log for debugging
+        console.log(`Row for ${record.name}, batchCount=${record.batchCount}`);
+
+        // Check if batchCount is exactly 0
+        const hasZeroBatchCount = record.batchCount === 0;
+
         return (
           <Space>
             <Tooltip title="View Details">
@@ -216,46 +193,29 @@ const PrepBatchSopManagement: React.FC = () => {
                 }}
               />
             </Tooltip>
-            <Tooltip title="Edit">
-              <Button
-                type="text"
-                icon={<EditOutlined />}
-                size="small"
-                className="edit-button"
-                onClick={e => {
-                  e.stopPropagation();
-                  // Find and click the edit button that's part of the editable table
-                  const editButton = document
-                    .querySelector(
-                      `.ant-table-row[data-row-key="${record.batchSopId}"] .ant-btn-text .anticon-edit`
-                    )
-                    ?.closest('button');
-                  if (editButton instanceof HTMLElement) {
-                    editButton.click();
-                  }
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete this SOP?"
-                onConfirm={e => {
-                  e?.stopPropagation();
-                  handleDeleteSop(record);
-                }}
-                onCancel={e => e?.stopPropagation()}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  size="small"
-                  onClick={e => e.stopPropagation()}
-                />
-              </Popconfirm>
-            </Tooltip>
+
+            {hasZeroBatchCount && (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete this SOP?"
+                  onConfirm={e => {
+                    e?.stopPropagation();
+                    handleDeleteSop(record);
+                  }}
+                  onCancel={e => e?.stopPropagation()}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    size="small"
+                    onClick={e => e.stopPropagation()}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            )}
           </Space>
         );
       },
@@ -267,11 +227,6 @@ const PrepBatchSopManagement: React.FC = () => {
       <PageHeader
         title="Prep Batch SOP Management"
         subtitle="Configure and manage standard operating procedures for sample preparation batch processing"
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => handleAddSop()}>
-            Add New SOP
-          </Button>
-        }
       />
 
       {error && (
@@ -292,8 +247,7 @@ const PrepBatchSopManagement: React.FC = () => {
             rowKey="batchSopId"
             onSave={handleSaveSop}
             onDelete={handleDeleteSop}
-            onAdd={handleAddSop}
-            addButtonText="Add New SOP"
+            editable={false}
             onRow={record => ({
               onClick: () => handleViewDetails(record),
               style: { cursor: 'pointer' },

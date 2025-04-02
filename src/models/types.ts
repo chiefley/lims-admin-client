@@ -40,6 +40,7 @@ export interface BatchSopSelectionRs {
   version: string;
   sopGroup: string;
   labId: number;
+  batchCount: number;
   $type: string;
 }
 
