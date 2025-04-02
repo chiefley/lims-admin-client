@@ -9,15 +9,16 @@ body {
   background-color: #f0f2f5;
 }
 
-/* Improved table readability */
+/* Improved table readability with more compact rows */
 .ant-table-tbody > tr > td {
-  padding: 12px 16px;
+  padding: 6px 16px; /* Reduced from 12px to 6px vertical padding */
 }
 
 .ant-table-thead > tr > th {
   font-weight: 600;
   background-color: #f5f5f5;
   border-bottom: 1px solid #f0f0f0;
+  padding: 8px 16px; /* Reduced header padding as well */
 }
 
 .ant-table-row:hover {
@@ -120,6 +121,6 @@ body {
 
   .ant-table-tbody > tr > td,
   .ant-table-thead > tr > th {
-    padding: 8px 12px;
+    padding: 4px 8px; /* Further reduced padding on small screens */
   }
 }
