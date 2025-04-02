@@ -21,6 +21,7 @@ import {
   Tooltip,
   Popconfirm,
   Alert,
+  Modal,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -121,10 +122,39 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
       setSaving(true);
       const values = await form.validateFields();
 
-      // Prepare the data to save by merging the form values with the existing SOP data
+      // Prepare procedures data to save - include procedures and procedure items
+      // Ensure all temporary IDs are handled appropriately
+      const processedProcedures = sopData.sopProcedures.map((procedure: any) => {
+        // Generate a permanent ID for new procedures (negative IDs are temporary)
+        const isProcedureNew = procedure.sopProcedureId < 0;
+        const procedureId = isProcedureNew
+          ? Math.floor(Math.random() * 10000) + 300 // Generate a "permanent" ID (in a real app this would come from the server)
+          : procedure.sopProcedureId;
+
+        // Process all procedure items
+        const processedItems = procedure.procedureItems.map((item: any) => {
+          const isItemNew = item.sopProcedurItemId < 0;
+          return {
+            ...item,
+            sopProcedureId: procedureId, // Link to the correct procedure ID
+            sopProcedurItemId: isItemNew
+              ? Math.floor(Math.random() * 10000) + 500 // Generate a "permanent" ID for new items
+              : item.sopProcedurItemId,
+          };
+        });
+
+        return {
+          ...procedure,
+          sopProcedureId: procedureId,
+          procedureItems: processedItems,
+        };
+      });
+
+      // Prepare the complete data to save by merging form values with the existing SOP data
       const dataToSave = {
         ...sopData,
         ...values,
+        sopProcedures: processedProcedures,
       };
 
       // Call the service to save the data (this is currently a mock implementation)
@@ -135,6 +165,7 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
       message.success('SOP details saved successfully');
       setEditing(false);
     } catch (error) {
+      console.error('Save error:', error);
       message.error('Validation failed. Please check the form.');
     } finally {
       setSaving(false);
@@ -660,42 +691,246 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
             }
             key="procedures"
           >
-            <CardSection title="SOP Procedures" style={stylePresets.contentCard}>
+            <CardSection
+              title="SOP Procedures"
+              style={stylePresets.contentCard}
+              extra={
+                editing ? (
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                      // Create new procedure with default values
+                      const newProcedure = {
+                        sopProcedureId: -Date.now(), // Temporary negative ID
+                        batchSopId: sopData.batchSopId,
+                        section: 'New Section',
+                        procedureName: 'New Procedure',
+                        procedureItems: [],
+                      };
+
+                      // Update local state
+                      setSopData({
+                        ...sopData,
+                        sopProcedures: [...sopData.sopProcedures, newProcedure],
+                      });
+                    }}
+                  >
+                    Add Procedure
+                  </Button>
+                ) : null
+              }
+            >
               {sopData.sopProcedures?.length === 0 ? (
                 <Alert
                   message="No Procedures Defined"
-                  description="This SOP does not have any procedures defined."
+                  description={
+                    editing
+                      ? "Click 'Add Procedure' to create a new procedure."
+                      : 'This SOP does not have any procedures defined.'
+                  }
                   type="info"
                   showIcon
                 />
               ) : (
                 <Tabs type="card">
-                  {sopData.sopProcedures?.map((procedure: any) => (
-                    <TabPane tab={procedure.procedureName} key={procedure.sopProcedureId}>
-                      <Card title={`${procedure.section}: ${procedure.procedureName}`} size="small">
-                        <Table
-                          dataSource={procedure.procedureItems}
-                          rowKey="sopProcedurItemId"
-                          pagination={false}
-                          showHeader={false}
-                          size="small"
+                  {sopData.sopProcedures?.map((procedure: any, procedureIndex: number) => (
+                    <TabPane
+                      tab={
+                        <span>
+                          {procedure.procedureName}
+                          {editing && (
+                            <Popconfirm
+                              title="Are you sure you want to delete this procedure?"
+                              onConfirm={e => {
+                                e?.stopPropagation();
+                                // Remove procedure from sopData
+                                const updatedProcedures = [...sopData.sopProcedures];
+                                updatedProcedures.splice(procedureIndex, 1);
+                                setSopData({
+                                  ...sopData,
+                                  sopProcedures: updatedProcedures,
+                                });
+                              }}
+                              okText="Yes"
+                              cancelText="No"
+                            >
+                              <DeleteOutlined
+                                style={{ marginLeft: 8, color: '#ff4d4f' }}
+                                onClick={e => e.stopPropagation()}
+                              />
+                            </Popconfirm>
+                          )}
+                        </span>
+                      }
+                      key={procedure.sopProcedureId}
+                    >
+                      <Card
+                        title={
+                          editing ? (
+                            <Row gutter={16}>
+                              <Col span={12}>
+                                <FormItem label="Section" style={{ marginBottom: 0 }}>
+                                  <Input
+                                    value={procedure.section}
+                                    onChange={e => {
+                                      const updatedProcedures = [...sopData.sopProcedures];
+                                      updatedProcedures[procedureIndex].section = e.target.value;
+                                      setSopData({
+                                        ...sopData,
+                                        sopProcedures: updatedProcedures,
+                                      });
+                                    }}
+                                    placeholder="Enter section name"
+                                  />
+                                </FormItem>
+                              </Col>
+                              <Col span={12}>
+                                <FormItem label="Procedure Name" style={{ marginBottom: 0 }}>
+                                  <Input
+                                    value={procedure.procedureName}
+                                    onChange={e => {
+                                      const updatedProcedures = [...sopData.sopProcedures];
+                                      updatedProcedures[procedureIndex].procedureName =
+                                        e.target.value;
+                                      setSopData({
+                                        ...sopData,
+                                        sopProcedures: updatedProcedures,
+                                      });
+                                    }}
+                                    placeholder="Enter procedure name"
+                                  />
+                                </FormItem>
+                              </Col>
+                            </Row>
+                          ) : (
+                            `${procedure.section}: ${procedure.procedureName}`
+                          )
+                        }
+                        size="small"
+                        extra={
+                          editing ? (
+                            <Button
+                              type="primary"
+                              size="small"
+                              icon={<PlusOutlined />}
+                              onClick={() => {
+                                // Create new procedure item
+                                const newItem = {
+                                  sopProcedurItemId: -Date.now(), // Temporary negative ID
+                                  sopProcedureId: procedure.sopProcedureId,
+                                  order: procedure.procedureItems.length + 1,
+                                  itemNumber: `${procedure.procedureItems.length + 1}`,
+                                  text: 'New procedure step',
+                                  indentLevel: 0,
+                                };
+
+                                // Update local state
+                                const updatedProcedures = [...sopData.sopProcedures];
+                                updatedProcedures[procedureIndex].procedureItems = [
+                                  ...procedure.procedureItems,
+                                  newItem,
+                                ];
+                                setSopData({
+                                  ...sopData,
+                                  sopProcedures: updatedProcedures,
+                                });
+                              }}
+                            >
+                              Add Step
+                            </Button>
+                          ) : null
+                        }
+                      >
+                        <EditableTable
                           columns={[
                             {
-                              title: 'Item',
+                              title: 'Item #',
                               dataIndex: 'itemNumber',
                               key: 'itemNumber',
                               width: 80,
+                              editable: editing,
+                              inputType: 'text',
                               render: (text: string) => text || '',
                             },
                             {
                               title: 'Text',
                               dataIndex: 'text',
                               key: 'text',
+                              editable: editing,
+                              inputType: 'textarea',
                               render: (text: string, record: any) => (
                                 <div style={{ paddingLeft: record.indentLevel * 20 }}>{text}</div>
                               ),
                             },
+                            {
+                              title: 'Indent',
+                              dataIndex: 'indentLevel',
+                              key: 'indentLevel',
+                              width: 100,
+                              editable: editing,
+                              inputType: 'number',
+                              render: (indentLevel: number) => indentLevel,
+                            },
+                            {
+                              title: 'Order',
+                              dataIndex: 'order',
+                              key: 'order',
+                              width: 100,
+                              editable: editing,
+                              inputType: 'number',
+                              render: (order: number) => order,
+                            },
                           ]}
+                          dataSource={procedure.procedureItems}
+                          rowKey="sopProcedurItemId"
+                          pagination={false}
+                          size="small"
+                          editable={editing}
+                          onSave={(item: any) => {
+                            // Find the procedure item and update it
+                            const updatedProcedures = [...sopData.sopProcedures];
+                            const procedureItemIndex = procedure.procedureItems.findIndex(
+                              (pi: any) => pi.sopProcedurItemId === item.sopProcedurItemId
+                            );
+
+                            if (procedureItemIndex !== -1) {
+                              // Convert values that should be numbers (in case they were entered as strings)
+                              item.order = Number(item.order) || 0;
+                              item.indentLevel = Number(item.indentLevel) || 0;
+
+                              // Update the item
+                              updatedProcedures[procedureIndex].procedureItems[procedureItemIndex] =
+                                item;
+
+                              // Sort items by order after update
+                              updatedProcedures[procedureIndex].procedureItems.sort(
+                                (a: any, b: any) => a.order - b.order
+                              );
+
+                              // Update state
+                              setSopData({
+                                ...sopData,
+                                sopProcedures: updatedProcedures,
+                              });
+
+                              message.success('Step updated successfully');
+                            }
+                          }}
+                          onDelete={(item: any) => {
+                            // Remove the procedure item
+                            const updatedProcedures = [...sopData.sopProcedures];
+                            const filteredItems = procedure.procedureItems.filter(
+                              (pi: any) => pi.sopProcedurItemId !== item.sopProcedurItemId
+                            );
+
+                            updatedProcedures[procedureIndex].procedureItems = filteredItems;
+                            setSopData({
+                              ...sopData,
+                              sopProcedures: updatedProcedures,
+                            });
+                            message.success('Step deleted successfully');
+                          }}
                         />
                       </Card>
                     </TabPane>

@@ -1,5 +1,14 @@
 import React, { ReactNode, useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, InputProps, SelectProps, DatePickerProps } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  InputNumber,
+  InputProps,
+  SelectProps,
+  DatePickerProps,
+} from 'antd';
 import { FormInstance } from 'antd/lib/form';
 import dayjs from 'dayjs';
 
@@ -89,7 +98,7 @@ const EditableCell: React.FC<EditableCellProps> = props => {
       inputNode = <DatePicker {...inputProps} style={{ width: '100%' }} />;
       break;
     case 'number':
-      inputNode = <Input type="number" {...inputProps} />;
+      inputNode = <InputNumber style={{ width: '100%' }} min={0} {...inputProps} />;
       break;
     case 'textarea':
       inputNode = <Input.TextArea {...inputProps} autoSize={{ minRows: 2, maxRows: 6 }} />;

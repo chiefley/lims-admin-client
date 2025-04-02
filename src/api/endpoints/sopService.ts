@@ -180,6 +180,31 @@ export const savePrepBatchSop = async (data: PrepBatchSopRs): Promise<PrepBatchS
     // In a real implementation, you would make a POST/PUT request to save the data
     console.log('Saving prep batch SOP:', data);
 
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // In a real implementation, we would make a request like:
+    // const response = await apiClient.put(`${baseUrl}/UpdatePrepBatchSop`, data);
+    // return response.data.data;
+
+    // Validate procedure data
+    if (data.sopProcedures) {
+      data.sopProcedures.forEach(procedure => {
+        // Ensure the procedure is linked to the correct SOP
+        procedure.batchSopId = data.batchSopId;
+
+        // Sort procedure items by their order property
+        if (procedure.procedureItems) {
+          procedure.procedureItems.sort((a, b) => a.order - b.order);
+
+          // Ensure each procedure item is linked to its parent procedure
+          procedure.procedureItems.forEach(item => {
+            item.sopProcedureId = procedure.sopProcedureId;
+          });
+        }
+      });
+    }
+
     // Simulating a successful response
     return data;
   } catch (error: any) {
