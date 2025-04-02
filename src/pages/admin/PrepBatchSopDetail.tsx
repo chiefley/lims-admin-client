@@ -644,6 +644,7 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
                   dataSource={sopData.manifestSamplePrepBatchSopRss}
                   rowKey="manifestSamplePrepBatchSopId"
                   pagination={false}
+                  size="small"
                   onSave={handleSaveSampleType}
                   onDelete={handleDeleteSampleType}
                 />
@@ -724,6 +725,7 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
                 <Table
                   dataSource={sopData.sopFields}
                   rowKey="sopFieldId"
+                  size="small"
                   columns={[
                     {
                       title: 'Name',

@@ -248,6 +248,7 @@ const PrepBatchSopManagement: React.FC = () => {
             onSave={handleSaveSop}
             onDelete={handleDeleteSop}
             editable={false}
+            size="small"
             onRow={record => ({
               onClick: () => handleViewDetails(record),
               style: { cursor: 'pointer' },

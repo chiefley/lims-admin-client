@@ -246,6 +246,7 @@ function EditableTable<RecordType extends Record<string, any>>({
         <Table
           components={components}
           bordered
+          size="small"
           dataSource={data}
           columns={mergedColumns}
           rowKey={rowKey}
