@@ -35,6 +35,9 @@ public abstract class BatchSopSelectionRs
     [StringLength(50)]
     public string SopGroup { get; set; }
 
+    // Display only.  Not editable.
+    public int NrBatches { get; set; }
+
     // No display, not editable.
     [Required]
     public int LabId { get; set; }
