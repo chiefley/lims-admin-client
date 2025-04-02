@@ -299,9 +299,11 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
             justifyContent: 'center',
             alignItems: 'center',
             height: '70vh',
+            flexDirection: 'column',
           }}
         >
-          <Spin size="large" tip="Loading SOP details..." />
+          <Spin size="large" />
+          <div style={{ marginTop: 16 }}>Loading SOP details...</div>
         </div>
       </div>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Spin, Tag, Tooltip, Alert, Button, Input, Popconfirm, Space } from 'antd';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ExperimentOutlined,
   EditOutlined,
@@ -68,10 +68,10 @@ const PrepBatchSopManagement: React.FC = () => {
     setTimeout(() => {
       // Find and click the edit button for the new row
       const newRowEditButton = document.querySelector(
-        `.ant-table-row[data-row-key="${newSop.batchSopId}"] .edit-button`
+        `.ant-table-row[data-row-key="${newSop.batchSopId}"] .ant-btn-text .anticon-edit`
       );
       if (newRowEditButton instanceof HTMLElement) {
-        newRowEditButton.click();
+        (newRowEditButton.closest('button') as HTMLElement).click();
       }
     }, 100);
   };
@@ -200,12 +200,22 @@ const PrepBatchSopManagement: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      dataIndex: 'actions', // Add the required dataIndex property
+      dataIndex: 'actions',
       width: 120,
-      editable: false,
       render: (_: any, record: PrepBatchSopSelectionRs) => {
         return (
           <Space>
+            <Tooltip title="View Details">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                size="small"
+                onClick={e => {
+                  e.stopPropagation();
+                  handleViewDetails(record);
+                }}
+              />
+            </Tooltip>
             <Tooltip title="Edit">
               <Button
                 type="text"
@@ -223,17 +233,6 @@ const PrepBatchSopManagement: React.FC = () => {
                   if (editButton instanceof HTMLElement) {
                     editButton.click();
                   }
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="View Details">
-              <Button
-                type="text"
-                icon={<EyeOutlined />}
-                size="small"
-                onClick={e => {
-                  e.stopPropagation();
-                  handleViewDetails(record);
                 }}
               />
             </Tooltip>
@@ -291,8 +290,8 @@ const PrepBatchSopManagement: React.FC = () => {
             columns={columns}
             dataSource={prepBatchSops}
             rowKey="batchSopId"
-            onSave={handleSaveSop as any}
-            onDelete={handleDeleteSop as any}
+            onSave={handleSaveSop}
+            onDelete={handleDeleteSop}
             onAdd={handleAddSop}
             addButtonText="Add New SOP"
             onRow={record => ({

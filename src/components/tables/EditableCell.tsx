@@ -15,26 +15,29 @@ interface EditableCellProps {
   rules?: any[];
   inputProps?: InputProps | SelectProps | DatePickerProps | any;
   options?: { value: string | number; label: string }[];
+  [key: string]: any; // Allow for additional properties
 }
 
 /**
  * A cell component that can be switched between display mode and edit mode.
  * Used for in-place table editing.
  */
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  form,
-  rules,
-  inputProps = {},
-  options,
-  ...restProps
-}) => {
+const EditableCell: React.FC<EditableCellProps> = props => {
+  const {
+    editing,
+    dataIndex,
+    title,
+    inputType,
+    record,
+    index,
+    children,
+    form,
+    rules,
+    inputProps = {},
+    options,
+    ...restProps
+  } = props;
+
   const [initialValue, setInitialValue] = useState<any>(null);
 
   useEffect(() => {

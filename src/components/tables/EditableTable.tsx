@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { TableProps } from 'antd/lib/table';
 import dayjs from 'dayjs';
+import EditableCell from './EditableCell';
 
 // Define the column interface with the additional properties we need
 export interface EditableColumn {
@@ -128,56 +129,26 @@ function EditableTable<RecordType extends Record<string, any>>({
     }
   };
 
-  // Render a cell based on whether it's in edit mode and its type
-  const renderCell = (value: any, record: RecordType, column: EditableColumn) => {
-    const editing = isEditing(record);
-    const editable = column.editable;
-
-    if (!editing || !editable) {
-      // Render display view
-      if (column.render) {
-        return column.render(value, record);
-      }
-      return value;
+  // Enhance columns with cell rendering logic
+  const enhancedColumns = columns.map(col => {
+    if (!col.editable) {
+      return col;
     }
 
-    // Render edit view based on input type
-    if (column.inputType === 'select') {
-      return (
-        <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
-          {column.editComponent ? (
-            React.createElement(column.editComponent, {
-              options: column.options,
-              style: { width: '100%' },
-              allowClear: true, // Allow clearing selection (results in null)
-              placeholder: 'Select an option',
-            })
-          ) : (
-            <span>No editor component</span>
-          )}
-        </Form.Item>
-      );
-    } else if (column.inputType === 'date') {
-      return (
-        <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
-          <DatePicker
-            style={{ width: '100%' }}
-            allowClear={true} // Allow clearing date (results in null)
-          />
-        </Form.Item>
-      );
-    } else {
-      return (
-        <Form.Item name={column.dataIndex} style={{ margin: 0 }} rules={column.rules}>
-          {column.editComponent ? (
-            React.createElement(column.editComponent, { style: { width: '100%' } })
-          ) : (
-            <span>No editor component</span>
-          )}
-        </Form.Item>
-      );
-    }
-  };
+    return {
+      ...col,
+      onCell: (record: RecordType) => ({
+        record,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        inputType: col.inputType,
+        editing: isEditing(record),
+        form,
+        rules: col.rules,
+        options: col.options,
+      }),
+    };
+  });
 
   // Add action column for edit/save/cancel buttons if editable
   const actionColumn: EditableColumn | null = editable
@@ -237,22 +208,6 @@ function EditableTable<RecordType extends Record<string, any>>({
       }
     : null;
 
-  // Enhance columns with cell rendering logic
-  const enhancedColumns = columns.map(col => {
-    // Don't pass non-standard props to the table cells
-    const { editable, inputType, editComponent, rules, options, ...restCol } = col;
-
-    return {
-      ...restCol,
-      onCell: (record: RecordType) => ({
-        record,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        render: (value: any) => renderCell(value, record, col),
-      }),
-    };
-  });
-
   // Add action column if editable
   const mergedColumns = [...enhancedColumns, ...(actionColumn ? [actionColumn] : [])];
 
@@ -277,11 +232,19 @@ function EditableTable<RecordType extends Record<string, any>>({
     );
   };
 
+  // Use our custom EditableCell component for table cells
+  const components = {
+    body: {
+      cell: EditableCell,
+    },
+  };
+
   return (
     <>
       {renderTableActions()}
       <Form form={form} component="div">
         <Table
+          components={components}
           bordered
           dataSource={data}
           columns={mergedColumns}
