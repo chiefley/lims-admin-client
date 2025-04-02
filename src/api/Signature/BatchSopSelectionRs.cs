@@ -36,7 +36,7 @@ public abstract class BatchSopSelectionRs
     public string SopGroup { get; set; }
 
     // Display only.  Not editable.
-    public int NrBatches { get; set; }
+    public int BatchCount { get; set; }
 
     // No display, not editable.
     [Required]
