@@ -478,7 +478,7 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
                     <Input placeholder="Enter SOP group" disabled={!editing} />
                   </FormItem>
                 </Col>
-                <Col span={12}>
+                <Col span={6}>
                   <FormItem
                     name="decimalFormatType"
                     label="Decimal Format Type"
@@ -492,6 +492,30 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
                         value: item.id,
                         label: item.label,
                       }))}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem
+                    name="significantDigits"
+                    label="Significant Digits"
+                    tooltip="Number of significant digits to display"
+                    rules={[
+                      { required: true, message: 'Please enter significant digits' },
+                      {
+                        type: 'number',
+                        min: 0,
+                        max: 10,
+                        message: 'Value must be between 0 and 10',
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      style={{ width: '100%' }}
+                      placeholder="Enter digits"
+                      disabled={!editing}
+                      min={0}
+                      max={10}
                     />
                   </FormItem>
                 </Col>
@@ -613,33 +637,6 @@ const PrepBatchSopDetail: React.FC<PrepBatchSopDetailProps> = () => {
                       disabled={!editing}
                       min={0}
                       step={0.1}
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
-
-              <Row gutter={24}>
-                <Col span={8}>
-                  <FormItem
-                    name="significantDigits"
-                    label="Significant Digits"
-                    tooltip="Number of significant digits to display"
-                    rules={[
-                      { required: true, message: 'Please enter significant digits' },
-                      {
-                        type: 'number',
-                        min: 0,
-                        max: 10,
-                        message: 'Value must be between 0 and 10',
-                      },
-                    ]}
-                  >
-                    <InputNumber
-                      style={{ width: '100%' }}
-                      placeholder="Enter digits"
-                      disabled={!editing}
-                      min={0}
-                      max={10}
                     />
                   </FormItem>
                 </Col>
