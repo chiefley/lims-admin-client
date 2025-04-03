@@ -12,6 +12,7 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import Dashboard from './pages/dashboard/Dashboard';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
+import CompoundManagement from './pages/admin/CompoundManagement';
 import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
@@ -25,6 +26,7 @@ const App: React.FC = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="admin/prep-batch-sop" element={<PrepBatchSopManagement />} />
                 <Route path="admin/prep-batch-sop/:id" element={<PrepBatchSopDetail />} />
+                <Route path="admin/compound-management" element={<CompoundManagement />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

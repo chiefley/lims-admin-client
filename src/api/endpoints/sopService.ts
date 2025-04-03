@@ -110,6 +110,55 @@ export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs
 };
 
 /**
+ * Fetches all compounds
+ * @returns Promise with array of CompoundRs data
+ */
+export const fetchCompounds = async () => {
+  try {
+    console.log(`Fetching compounds from ${baseUrl}/FetchCompoundRss`);
+
+    // Skip API call if mock data is enabled
+    if (appConfig.features.useMockData) {
+      return getMockCompounds();
+    }
+
+    const response = await apiClient.get<ServiceResponse<any[]>>(
+      `/sopmaintenance/FetchCompoundRss`
+    );
+
+    // Log the response for debugging
+    console.log('API Response (Compounds):', response);
+
+    // Check if response has the expected structure
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Invalid response format from API');
+    }
+
+    // Check success flag
+    if (response.data.success === false) {
+      throw new Error(response.data.message || 'Failed to fetch compounds');
+    }
+
+    // Ensure we have data
+    if (!response.data.data) {
+      throw new Error('No data returned from API');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching compounds:', error);
+
+    // Return mock data if fetching fails and fallback is enabled
+    if (appConfig.features.useMockDataAsFallback) {
+      console.warn('Using mock compound data as fallback');
+      return getMockCompounds();
+    }
+
+    throw error;
+  }
+};
+
+/**
  * Fetches detailed information for a specific prep batch SOP
  * @param prepBatchSopId The ID of the prep batch SOP to fetch
  * @returns Promise with PrepBatchSopRs data
@@ -323,6 +372,24 @@ function getMockBatchSopSelections(): PrepBatchSopSelectionRs[] {
 }
 
 /**
+ * Mock data for compounds when the API is unavailable
+ */
+function getMockCompounds() {
+  return [
+    { analyteId: 1, cas: '71-43-2', name: 'Benzene', ccCompoundName: 'Benzol' },
+    { analyteId: 2, cas: '108-88-3', name: 'Toluene', ccCompoundName: 'Methylbenzene' },
+    { analyteId: 3, cas: '1330-20-7', name: 'Xylene', ccCompoundName: 'Dimethylbenzene' },
+    { analyteId: 4, cas: '67-66-3', name: 'Chloroform', ccCompoundName: 'Trichloromethane' },
+    { analyteId: 5, cas: '75-09-2', name: 'Methylene Chloride', ccCompoundName: 'Dichloromethane' },
+    { analyteId: 6, cas: '67-64-1', name: 'Acetone', ccCompoundName: 'Propanone' },
+    { analyteId: 7, cas: '64-17-5', name: 'Ethanol', ccCompoundName: 'Ethyl Alcohol' },
+    { analyteId: 8, cas: '67-56-1', name: 'Methanol', ccCompoundName: 'Methyl Alcohol' },
+    { analyteId: 9, cas: '141-78-6', name: 'Ethyl Acetate', ccCompoundName: 'Ethyl Ethanoate' },
+    { analyteId: 10, cas: '67-63-0', name: 'Isopropanol', ccCompoundName: '2-Propanol' },
+  ];
+}
+
+/**
  * Mock data for a specific prep batch SOP detail when the API is unavailable
  */
 function getMockPrepBatchSopDetail(sopId: number): PrepBatchSopRs {
@@ -405,6 +472,7 @@ export default {
   fetchSelectors,
   fetchBatchSopSelections,
   fetchPrepBatchSopDetail,
+  fetchCompounds,
   savePrepBatchSop,
   savePrepBatchSopSelection,
 };
