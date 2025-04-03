@@ -117,6 +117,45 @@ const CompoundManagement: React.FC = () => {
       key: 'cas',
       editable: true,
       inputType: 'text',
+      sorter: (a: Compound, b: Compound) => a.cas.localeCompare(b.cas),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: {
+        setSelectedKeys: React.Dispatch<React.SetStateAction<React.Key[]>>;
+        selectedKeys: React.Key[];
+        confirm: () => void;
+        clearFilters: () => void;
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="Search CAS"
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ width: 188, marginBottom: 8, display: 'block' }}
+          />
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90, marginRight: 8 }}
+          >
+            Search
+          </Button>
+          <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+            Reset
+          </Button>
+        </div>
+      ),
+      onFilter: (value: string | number | boolean, record: Compound) =>
+        record.cas.toLowerCase().includes(value.toString().toLowerCase()),
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+      ),
       rules: [
         { required: true, message: 'Please enter the CAS number' },
         { max: 50, message: 'CAS number cannot exceed 50 characters' },
@@ -132,18 +171,57 @@ const CompoundManagement: React.FC = () => {
       key: 'name',
       editable: true,
       inputType: 'text',
+      sorter: (a: Compound, b: Compound) => a.name.localeCompare(b.name),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: {
+        setSelectedKeys: React.Dispatch<React.SetStateAction<React.Key[]>>;
+        selectedKeys: React.Key[];
+        confirm: () => void;
+        clearFilters: () => void;
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="Search name"
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ width: 188, marginBottom: 8, display: 'block' }}
+          />
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90, marginRight: 8 }}
+          >
+            Search
+          </Button>
+          <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+            Reset
+          </Button>
+        </div>
+      ),
+      onFilter: (value: string | number | boolean, record: Compound) =>
+        record.name.toLowerCase().includes(value.toString().toLowerCase()),
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+      ),
       rules: [
         { required: true, message: 'Please enter the compound name' },
         { max: 150, message: 'Name cannot exceed 150 characters' },
       ],
     },
     {
-      title: 'Alternative Name',
+      title: 'CC Name',
       dataIndex: 'ccCompoundName',
       key: 'ccCompoundName',
       editable: true,
       inputType: 'text',
-      rules: [{ max: 150, message: 'Alternative name cannot exceed 150 characters' }],
+      rules: [{ max: 150, message: 'CC Name cannot exceed 150 characters' }],
     },
   ];
 
