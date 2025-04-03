@@ -1,3 +1,6 @@
+// There is only one controller at /api/sopMaintenance.
+// All api methods are at this controller at the BaseUrl below.
+
 BaseUrl = http://localhost:50511/api/sopmaintenance
 LabId = 1001
 
@@ -16,8 +19,8 @@ public async Task<IActionResult> FetchPrepBatchSopRs(int prepBatchSopId)
 
 // Use this for the Compound Maintenance page.
 // Returns ServiceResponse<List<CompoundRs>>
-[HttpGet("FetchCompoundRs")]
-public async Task<IActionResult> FetchCompoundRs()
+[HttpGet("FetchCompoundRss")]
+public async Task<IActionResult> FetchCompoundRss()
 
 // Use this as needed.
 // Returns ServiceResponse<SopMaintenanceSelectors>
