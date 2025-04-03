@@ -1,6 +1,7 @@
 // src/api/endpoints/sopService.ts
-import { apiClient } from '../config';
+import { apiClient, DEFAULT_LAB_ID } from '../config';
 import appConfig from '../../config/appConfig';
+import { FEATURES } from '../../config/constants';
 import {
   ServiceResponse,
   PrepBatchSopSelectionRs,
@@ -10,7 +11,7 @@ import {
 
 // Base URL for SOP maintenance endpoints
 const baseUrl = `${appConfig.api.baseUrl}/sopmaintenance`;
-const labId = appConfig.api.defaultLabId;
+const labId = DEFAULT_LAB_ID;
 
 /**
  * Fetches selector values for SOP maintenance dropdowns
@@ -20,16 +21,13 @@ export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
   try {
     console.log(`Fetching selectors from ${baseUrl}/FetchSelectors/${labId}`);
 
-    // For testing/debugging, log the full URL
-    console.log(`Full URL: ${baseUrl}/FetchSelectors/${labId}`);
-
     // Skip API call if mock data is enabled
     if (appConfig.features.useMockData) {
       return getMockSelectors();
     }
 
     const response = await apiClient.get<ServiceResponse<SopMaintenanceSelectors>>(
-      `${baseUrl}/FetchSelectors/${labId}`
+      `/sopmaintenance/FetchSelectors/${labId}`
     );
 
     // Log the response for debugging
@@ -76,7 +74,7 @@ export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs
     }
 
     const response = await apiClient.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
-      `${baseUrl}/FetchBatchSopSelections/${labId}`
+      `/sopmaintenance/FetchBatchSopSelections/${labId}`
     );
 
     // Log the response for debugging
@@ -127,7 +125,8 @@ export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<P
       return getMockPrepBatchSopDetail(prepBatchSopId);
     }
 
-    const response = await apiClient.get(`${baseUrl}/FetchPrepBatchSopRs/${prepBatchSopId}`);
+    // Don't specify the return type here to allow for different response formats
+    const response = await apiClient.get(`/sopmaintenance/FetchPrepBatchSopRs/${prepBatchSopId}`);
 
     // Log the raw response for debugging
     console.log('Raw API Response (SOP Detail):', response);
@@ -138,20 +137,25 @@ export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<P
       throw new Error('Invalid response format from API');
     }
 
-    // Check success flag - handle both boolean and undefined cases
-    if (response.data.success === false) {
-      console.error('API returned success: false');
-      throw new Error(response.data.message || 'Failed to fetch prep batch SOP details');
+    // Check if the data looks like a PrepBatchSopRs object directly
+    const dataAsAny = response.data as any;
+    if (dataAsAny.batchSopId !== undefined) {
+      // The response appears to be the PrepBatchSopRs object directly
+      return dataAsAny as PrepBatchSopRs;
     }
 
-    // If data is directly in the response (not wrapped in ServiceResponse)
-    if (response.data.batchSopId) {
-      return response.data;
-    }
+    // Check if it's wrapped in a ServiceResponse
+    if ('success' in dataAsAny) {
+      // It's a ServiceResponse format
+      if (dataAsAny.success === false) {
+        console.error('API returned success: false');
+        throw new Error(dataAsAny.message || 'Failed to fetch prep batch SOP details');
+      }
 
-    // If data is wrapped in the data property
-    if (response.data.data) {
-      return response.data.data;
+      // Return the data property if it exists
+      if (dataAsAny.data) {
+        return dataAsAny.data as PrepBatchSopRs;
+      }
     }
 
     console.error('No valid data structure found in API response:', response.data);
@@ -184,7 +188,7 @@ export const savePrepBatchSop = async (data: PrepBatchSopRs): Promise<PrepBatchS
     await new Promise(resolve => setTimeout(resolve, 800));
 
     // In a real implementation, we would make a request like:
-    // const response = await apiClient.put(`${baseUrl}/UpdatePrepBatchSop`, data);
+    // const response = await apiClient.put(`/sopmaintenance/UpdatePrepBatchSop`, data);
     // return response.data.data;
 
     // Validate procedure data
