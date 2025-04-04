@@ -16,4 +16,7 @@ public class SopMaintenanceSelectors
     public List<DropDownItem> ControlSamplePassCriteria { get; set; }
     public List<DropDownItem> QCConditions { get; set; }
     public List<DropDownItem> Compounds { get; set; }
+    public List<DropDownItem> PanelGroups { get; set; }
+    public List<DropDownItem> PanelTypes { get; set; }
+    public List<DropDownItem> TestCategoryTypes { get; set; }
 }

@@ -22,6 +22,10 @@ public async Task<IActionResult> FetchPrepBatchSopRs(int prepBatchSopId)
 [HttpGet("FetchCompoundRss")]
 public async Task<IActionResult> FetchCompoundRss()
 
+// Returns ServiceResponse<List<PanelRs>>
+[HttpGet("FetchPanelRss/{labId}")]
+public async Task<IActionResult> FetchPanelRss(int labId)
+
 // Use this as needed.
 // Returns ServiceResponse<SopMaintenanceSelectors>
 [HttpGet("FetchSelectors/{labId}")]
