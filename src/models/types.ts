@@ -28,6 +28,17 @@ export interface SopMaintenanceSelectors {
   instrumentTypes: DropDownItem[];
   userRoles: DropDownItem[];
   decimalFormatTypes: DropDownItem[];
+  sopBatchPositionTypes: DropDownItem[];
+  controlSampleTypes: DropDownItem[];
+  controlSampleCategories: DropDownItem[];
+  controlSampleAnalyses: DropDownItem[];
+  controlSampleQCSources: DropDownItem[];
+  controlSamplePassCriteria: DropDownItem[];
+  qCConditions: DropDownItem[];
+  compounds: DropDownItem[];
+  panelGroups: DropDownItem[];
+  panelTypes: DropDownItem[];
+  testCategoryTypes: DropDownItem[];
 }
 
 // ============ Base Types ============
@@ -380,6 +391,35 @@ export interface PrepBatchSopRs {
   sopFields: SopFieldRs[];
   sopProcedures: SopProcedureRs[];
   $type: string;
+}
+
+// PanelRs interface based on the C# model
+export interface PanelRs {
+  panelId: number;
+  name: string;
+  slug: string;
+  subordinateToPanelGroup: boolean;
+  panelGroupId: number | null;
+  significantDigits: number;
+  decimalFormatType: number | null;
+  panelType: string;
+  qualitativeFirst: boolean;
+  requiresMoistureContent: boolean;
+  allowPartialAnalytes: boolean;
+  plantSop: string;
+  nonPlantSop: string;
+  scaleFactor: number | null;
+  units: string | null;
+  measuredUnits: string | null;
+  limitUnits: string;
+  defaultExtractionVolumeMl: number | null;
+  defaultDilution: number | null;
+  instrumentTypeId: number | null;
+  ccTestPackageId: number | null;
+  ccCategoryName: string | null;
+  testCategoryId: number | null;
+  sampleCount: number;
+  childPanels: string[];
 }
 
 // Other types you may need based on your API

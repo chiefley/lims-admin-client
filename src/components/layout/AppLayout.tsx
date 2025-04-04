@@ -73,10 +73,14 @@ const AppLayout: React.FC = () => {
                 },
                 {
                   key: '2-3',
-                  label: 'User Management',
+                  label: <Link to="/admin/panel-management">Panel Management</Link>,
                 },
                 {
                   key: '2-4',
+                  label: 'User Management',
+                },
+                {
+                  key: '2-5',
                   label: 'Lab Settings',
                 },
               ],

@@ -7,6 +7,7 @@ import {
   PrepBatchSopSelectionRs,
   SopMaintenanceSelectors,
   PrepBatchSopRs,
+  PanelRs,
 } from '../../models/types';
 
 // Base URL for SOP maintenance endpoints
@@ -159,6 +160,55 @@ export const fetchCompounds = async () => {
 };
 
 /**
+ * Fetches all panels for the lab
+ * @returns Promise with array of PanelRs data
+ */
+export const fetchPanels = async (): Promise<PanelRs[]> => {
+  try {
+    console.log(`Fetching panels from ${baseUrl}/FetchPanelRss/${labId}`);
+
+    // Skip API call if mock data is enabled
+    if (appConfig.features.useMockData) {
+      return getMockPanels();
+    }
+
+    const response = await apiClient.get<ServiceResponse<PanelRs[]>>(
+      `/sopmaintenance/FetchPanelRss/${labId}`
+    );
+
+    // Log the response for debugging
+    console.log('API Response (Panels):', response);
+
+    // Check if response has the expected structure
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Invalid response format from API');
+    }
+
+    // Check success flag
+    if (response.data.success === false) {
+      throw new Error(response.data.message || 'Failed to fetch panels');
+    }
+
+    // Ensure we have data
+    if (!response.data.data) {
+      throw new Error('No data returned from API');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching panels:', error);
+
+    // Return mock data if fetching fails and fallback is enabled
+    if (appConfig.features.useMockDataAsFallback) {
+      console.warn('Using mock panel data as fallback');
+      return getMockPanels();
+    }
+
+    throw error;
+  }
+};
+
+/**
  * Fetches detailed information for a specific prep batch SOP
  * @param prepBatchSopId The ID of the prep batch SOP to fetch
  * @returns Promise with PrepBatchSopRs data
@@ -267,6 +317,31 @@ export const savePrepBatchSop = async (data: PrepBatchSopRs): Promise<PrepBatchS
 };
 
 /**
+ * Saves a panel
+ * @param panel The panel data to save
+ * @returns Promise with the saved PanelRs
+ */
+export const savePanel = async (panel: PanelRs): Promise<PanelRs> => {
+  try {
+    // This is a placeholder for the actual API call
+    console.log('Saving panel:', panel);
+
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // In a real implementation, we would make a request like:
+    // const response = await apiClient.put(`/sopmaintenance/UpdatePanel`, panel);
+    // return response.data.data;
+
+    // Simulating a successful response
+    return panel;
+  } catch (error: any) {
+    console.error('Error saving panel:', error);
+    throw error;
+  }
+};
+
+/**
  * Saves a prep batch SOP selection (from the list view)
  * @param data The prep batch SOP selection data to save
  * @returns Promise with the saved PrepBatchSopSelectionRs
@@ -327,6 +402,57 @@ function getMockSelectors(): SopMaintenanceSelectors {
       { id: 2, label: 'Scientific' },
       { id: 3, label: 'Fixed Decimal' },
     ],
+    sopBatchPositionTypes: [
+      { id: 1, label: 'Beginning' },
+      { id: 2, label: 'Middle' },
+      { id: 3, label: 'End' },
+    ],
+    controlSampleTypes: [
+      { id: 1, label: 'Blank' },
+      { id: 2, label: 'Spike' },
+      { id: 3, label: 'Duplicate' },
+    ],
+    controlSampleCategories: [
+      { id: 1, label: 'Quality Control' },
+      { id: 2, label: 'Method Validation' },
+    ],
+    controlSampleAnalyses: [
+      { id: 1, label: 'Full Analysis' },
+      { id: 2, label: 'Partial Analysis' },
+    ],
+    controlSampleQCSources: [
+      { id: 1, label: 'Internal' },
+      { id: 2, label: 'External' },
+    ],
+    controlSamplePassCriteria: [
+      { id: 1, label: 'Recovery Range' },
+      { id: 2, label: 'Statistical Control' },
+    ],
+    qCConditions: [
+      { id: 1, label: 'Normal' },
+      { id: 2, label: 'Warning' },
+      { id: 3, label: 'Action' },
+    ],
+    compounds: [
+      { id: 1, label: 'Benzene' },
+      { id: 2, label: 'Toluene' },
+      { id: 3, label: 'Xylene' },
+    ],
+    panelGroups: [
+      { id: 1, label: 'Metals' },
+      { id: 2, label: 'Pesticides' },
+      { id: 3, label: 'Nutrients' },
+      { id: 4, label: 'Microbial' },
+    ],
+    panelTypes: [
+      { id: 1, label: 'Quantitative' },
+      { id: 2, label: 'Qualitative' },
+    ],
+    testCategoryTypes: [
+      { id: 1, label: 'Potency' },
+      { id: 2, label: 'Contamination' },
+      { id: 3, label: 'Microbial' },
+    ],
   };
 }
 
@@ -386,6 +512,149 @@ function getMockCompounds() {
     { analyteId: 8, cas: '67-56-1', name: 'Methanol', ccCompoundName: 'Methyl Alcohol' },
     { analyteId: 9, cas: '141-78-6', name: 'Ethyl Acetate', ccCompoundName: 'Ethyl Ethanoate' },
     { analyteId: 10, cas: '67-63-0', name: 'Isopropanol', ccCompoundName: '2-Propanol' },
+  ];
+}
+
+/**
+ * Mock data for panels when the API is unavailable
+ */
+function getMockPanels(): PanelRs[] {
+  return [
+    {
+      panelId: 1,
+      name: 'Metals Panel',
+      slug: 'MTLS',
+      subordinateToPanelGroup: true,
+      panelGroupId: 1,
+      significantDigits: 3,
+      decimalFormatType: 1,
+      panelType: 'Quantitative',
+      qualitativeFirst: false,
+      requiresMoistureContent: true,
+      allowPartialAnalytes: false,
+      plantSop: 'PLANT-SOP-001',
+      nonPlantSop: 'NONPLANT-SOP-001',
+      scaleFactor: 1.0,
+      units: 'mg/kg',
+      measuredUnits: 'mg/L',
+      limitUnits: 'mg/kg',
+      defaultExtractionVolumeMl: 10.0,
+      defaultDilution: 1.0,
+      instrumentTypeId: 3,
+      ccTestPackageId: 101,
+      ccCategoryName: 'Metals',
+      testCategoryId: 1,
+      sampleCount: 128,
+      childPanels: ['HMTLS', 'LEAD'],
+    },
+    {
+      panelId: 2,
+      name: 'Heavy Metals Panel',
+      slug: 'HMTLS',
+      subordinateToPanelGroup: true,
+      panelGroupId: 1,
+      significantDigits: 3,
+      decimalFormatType: 1,
+      panelType: 'Quantitative',
+      qualitativeFirst: false,
+      requiresMoistureContent: true,
+      allowPartialAnalytes: false,
+      plantSop: 'PLANT-SOP-002',
+      nonPlantSop: 'NONPLANT-SOP-002',
+      scaleFactor: 1.0,
+      units: 'mg/kg',
+      measuredUnits: 'mg/L',
+      limitUnits: 'mg/kg',
+      defaultExtractionVolumeMl: 10.0,
+      defaultDilution: 1.0,
+      instrumentTypeId: 3,
+      ccTestPackageId: 102,
+      ccCategoryName: 'Heavy Metals',
+      testCategoryId: 1,
+      sampleCount: 94,
+      childPanels: ['LEAD'],
+    },
+    {
+      panelId: 3,
+      name: 'Lead Panel',
+      slug: 'LEAD',
+      subordinateToPanelGroup: true,
+      panelGroupId: 1,
+      significantDigits: 3,
+      decimalFormatType: 1,
+      panelType: 'Quantitative',
+      qualitativeFirst: false,
+      requiresMoistureContent: true,
+      allowPartialAnalytes: false,
+      plantSop: 'PLANT-SOP-003',
+      nonPlantSop: 'NONPLANT-SOP-003',
+      scaleFactor: 1.0,
+      units: 'mg/kg',
+      measuredUnits: 'mg/L',
+      limitUnits: 'mg/kg',
+      defaultExtractionVolumeMl: 10.0,
+      defaultDilution: 1.0,
+      instrumentTypeId: 3,
+      ccTestPackageId: 103,
+      ccCategoryName: 'Lead',
+      testCategoryId: 1,
+      sampleCount: 87,
+      childPanels: [],
+    },
+    {
+      panelId: 4,
+      name: 'Pesticides Panel',
+      slug: 'PEST',
+      subordinateToPanelGroup: true,
+      panelGroupId: 2,
+      significantDigits: 2,
+      decimalFormatType: 1,
+      panelType: 'Quantitative',
+      qualitativeFirst: true,
+      requiresMoistureContent: false,
+      allowPartialAnalytes: true,
+      plantSop: 'PLANT-SOP-004',
+      nonPlantSop: 'NONPLANT-SOP-004',
+      scaleFactor: 0.5,
+      units: 'mg/kg',
+      measuredUnits: 'mg/L',
+      limitUnits: 'mg/kg',
+      defaultExtractionVolumeMl: 15.0,
+      defaultDilution: 2.0,
+      instrumentTypeId: 2,
+      ccTestPackageId: 201,
+      ccCategoryName: 'Pesticides',
+      testCategoryId: 2,
+      sampleCount: 112,
+      childPanels: [],
+    },
+    {
+      panelId: 5,
+      name: 'Microbial Panel',
+      slug: 'MICRO',
+      subordinateToPanelGroup: true,
+      panelGroupId: 4,
+      significantDigits: 0,
+      decimalFormatType: 1,
+      panelType: 'Qualitative',
+      qualitativeFirst: true,
+      requiresMoistureContent: false,
+      allowPartialAnalytes: true,
+      plantSop: 'PLANT-SOP-005',
+      nonPlantSop: 'NONPLANT-SOP-005',
+      scaleFactor: 1.0,
+      units: 'CFU/g',
+      measuredUnits: 'CFU/g',
+      limitUnits: 'CFU/g',
+      defaultExtractionVolumeMl: 100.0,
+      defaultDilution: 10.0,
+      instrumentTypeId: 1,
+      ccTestPackageId: 301,
+      ccCategoryName: 'Microbial',
+      testCategoryId: 3,
+      sampleCount: 65,
+      childPanels: [],
+    },
   ];
 }
 
@@ -475,4 +744,6 @@ export default {
   fetchCompounds,
   savePrepBatchSop,
   savePrepBatchSopSelection,
+  fetchPanels,
+  savePanel,
 };
