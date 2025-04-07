@@ -8,6 +8,7 @@ import {
   SopMaintenanceSelectors,
   PrepBatchSopRs,
   PanelRs,
+  InstrumentFileParserType,
 } from '../../models/types';
 
 // Base URL for SOP maintenance endpoints
@@ -452,6 +453,23 @@ function getMockSelectors(): SopMaintenanceSelectors {
       { id: 1, label: 'Potency' },
       { id: 2, label: 'Contamination' },
       { id: 3, label: 'Microbial' },
+    ],
+    // New properties to match updated interface
+    instrumentFileParserTypes: [
+      { id: 0, label: 'None' },
+      { id: 1, label: 'Default' },
+      { id: 2, label: 'Agilent' },
+      { id: 3, label: 'PerkinElmer' },
+      { id: 4, label: 'Shimadzu' },
+      { id: 5, label: 'ThermoFisher' },
+      { id: 6, label: 'Waters' },
+    ],
+    durableLabAssets: [
+      { id: 1, label: 'Autosampler' },
+      { id: 2, label: 'Detector' },
+      { id: 3, label: 'Column' },
+      { id: 4, label: 'Pump' },
+      { id: 5, label: 'Degasser' },
     ],
   };
 }

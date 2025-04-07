@@ -19,6 +19,19 @@ export interface DropDownItem {
   label: string;
 }
 
+// ============ Enums ============
+// These should match the C# enums in your backend code
+
+export enum InstrumentFileParserType {
+  None = 0,
+  Default = 1,
+  Agilent = 2,
+  PerkinElmer = 3,
+  Shimadzu = 4,
+  ThermoFisher = 5,
+  Waters = 6,
+}
+
 // SOP Maintenance selectors
 export interface SopMaintenanceSelectors {
   manifestSampleTypeItems: DropDownItem[];
@@ -39,6 +52,8 @@ export interface SopMaintenanceSelectors {
   panelGroups: DropDownItem[];
   panelTypes: DropDownItem[];
   testCategoryTypes: DropDownItem[];
+  instrumentFileParserTypes: DropDownItem[];
+  durableLabAssets: DropDownItem[];
 }
 
 // ============ Base Types ============
@@ -420,6 +435,47 @@ export interface PanelRs {
   testCategoryId: number | null;
   sampleCount: number;
   childPanels: string[];
+}
+
+// ============ Instrument Types ============
+
+// Instrument Peripheral Response
+export interface InstrumentPeripheralRs {
+  instrumentPeripheralId: number;
+  instrumentId: number;
+  durableLabAssetId: number | null;
+  peripheralType: string | null;
+}
+
+// Instrument Response
+export interface InstrumentRs {
+  instrumentId: number;
+  instrumentTypeId: number;
+  name: string | null;
+  lastPM?: Date | string | null;
+  nextPm?: Date | string | null;
+  outOfService: boolean;
+  instrumentPeripherals: InstrumentPeripheralRs[];
+}
+
+// Instrument Type Analyte Response
+export interface InstrumentTypeAnalyteRs {
+  instrumentTypeAnalyteId?: number;
+  instrumentTypeId: number;
+  analyteId: number;
+  analyteName?: string;
+}
+
+// Instrument Type Response
+export interface InstrumentTypeRs {
+  instrumentTypeId: number;
+  name: string | null;
+  measurementType: string;
+  dataFolder: string;
+  peakAreaSaturationThreshold: number | null;
+  instrumentFileParser: InstrumentFileParserType | null;
+  instrumentRss: InstrumentRs[];
+  instrumentTypeAnalyteRss: InstrumentTypeAnalyteRs[];
 }
 
 // Other types you may need based on your API

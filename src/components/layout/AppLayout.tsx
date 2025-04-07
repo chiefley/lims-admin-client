@@ -95,6 +95,22 @@ const AppLayout: React.FC = () => {
               icon: <TeamOutlined />,
               label: 'User Directory',
             },
+            {
+              key: '2-3',
+              label: <Link to="/admin/panel-management">Panel Management</Link>,
+            },
+            {
+              key: '2-4',
+              label: <Link to="/admin/instrument-management">Instrument Management</Link>,
+            },
+            {
+              key: '2-5',
+              label: 'User Management',
+            },
+            {
+              key: '2-6',
+              label: 'Lab Settings',
+            },
           ]}
         />
       </Sider>
