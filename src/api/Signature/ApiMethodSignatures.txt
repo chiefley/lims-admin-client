@@ -31,3 +31,6 @@ public async Task<IActionResult> FetchPanelRss(int labId)
 [HttpGet("FetchSelectors/{labId}")]
 public async Task<IActionResult> FetchSelectors(int labId)
 
+// Returns ServiceResponse<List<InstrumentTypeRs>>
+[HttpGet("FetchInstrumentTypeRss/{labId}")]
+public async Task<IActionResult> FetchInstrumentTypeRss(int labId)
