@@ -3,7 +3,6 @@ public class InstrumentRs
     // Primary Key.  No display. No edit
     public int InstrumentId { get; set; }
     // Foreign Key to parent.  No display, No edit.
-    // @validation, Unique over Name, InstrumentTypeId
     public int InstrumentTypeId { get; set; }
     // @validation, Unique for all Names.
     [Required]
