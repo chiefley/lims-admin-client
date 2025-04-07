@@ -19,4 +19,6 @@ public class SopMaintenanceSelectors
     public List<DropDownItem> PanelGroups { get; set; }
     public List<DropDownItem> PanelTypes { get; set; }
     public List<DropDownItem> TestCategoryTypes { get; set; }
+    public List<DropDownItem> InstrumentFileParserTypes { get; set; }
+    public List<DropDownItem> DurableLabAssets { get; set; }
 }
