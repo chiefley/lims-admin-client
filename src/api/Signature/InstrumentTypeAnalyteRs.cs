@@ -1,17 +1,15 @@
-public class InstrumentRs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
+
+public class InstrumentTypeAnalyteRs
 {
-    // Primary Key.  No display. No edit
-    public int InstrumentId { get; set; }
-    // Foreign Key to parent.  No display, No edit.
-    // @validation, Unique over Name, InstrumentTypeId
+    // Foreign key.  No display, no edit.
     public int InstrumentTypeId { get; set; }
-    // @validation, Unique for all Names.
     [Required]
     [StringLength(150)]
-    public string? Name { get; set; }
-    public DateTime? LastPM { get; set; }
-    public DateTime? NextPm { get; set; }
-    public bool OutOfService { get; set; }
-
-    public ICollection<InstrumentPeripheral> InstrumentPeripherals { get; set; } = [];
+    public string AnalyteAlias { get; set; }
+    // Dropdown control.  Use SopMaintenanceSelectors.Compounds
+    [Required]
+    public int? AnalyteId { get; set; }
 }

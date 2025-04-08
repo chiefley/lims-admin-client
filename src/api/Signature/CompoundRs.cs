@@ -1,3 +1,11 @@
+﻿using NCLims.Models;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
 
 public class CompoundRs
 {
@@ -15,4 +23,17 @@ public class CompoundRs
 
     [StringLength(150)] 
     public string CcCompoundName { get; set; }
+
+    public static async Task<List<CompoundRs>> FetchAnalyteRs(IQueryable<Analyte> query)
+    {
+        var ret = await query.Select(an => new CompoundRs
+        {
+            Name = an.Name,
+            CcCompoundName = an.CcCompoundName,
+            AnalyteId = an.Id,
+            Cas = an.Cas
+        }).ToListAsync();
+
+        return ret;
+    }
 }

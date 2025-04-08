@@ -1,3 +1,13 @@
+﻿using System.Collections.Generic;
+using NCLims.Models.Enums;
+using NCLims.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
+
 public class PanelRs
 {
     public int PanelId { get; set; }
@@ -55,4 +65,37 @@ public class PanelRs
 
     // Dropdown control.  Choices come from the panel slugs in the list of panels.
     public List<string> ChildPanels { get; set; }
+
+    public static async Task<List<PanelRs>> FetchPanelRss(IQueryable<Panel> query)
+    {
+        var ret = await query.Select(p => new PanelRs
+        {
+            Name = p.Name,
+            AllowPartialAnalytes = p.AllowPartialAnalytes,
+            CcCategoryName = p.CcCategoryName,
+            CcTestPackageId = p.CcTestPackageId,
+            PanelGroupId = p.PanelGroupId,
+            DecimalFormatType = p.DecimalFormatType,
+            DefaultDilution = p.DefaultDilution,
+            DefaultExtractionVolumeMl = p.DefaultExtractionVolumeMl,
+            InstrumentTypeId = p.InstrumentTypeId,
+            LimitUnits = p.LimitUnits,
+            MeasuredUnits = p.MeasuredUnits,
+            PanelId = p.Id,
+            SignificantDigits = p.SignificantDigits,
+            PanelType = p.PanelType,
+            NonPlantSop = p.NonPlantSop,
+            PlantSop = p.PlantSop,
+            QualitativeFirst = p.QualitativeFirst,
+            RequiresMoistureContent = p.RequiresMoistureContent,
+            SampleCount = p.SamplePanels.Count,
+            ScaleFactor = p.ScaleFactor,
+            Slug = p.Slug,
+            SubordinateToPanelGroup = p.SubordinateToPanelGroup,
+            TestCategoryId = p.TestCategoryId,
+            Units = p.Units,
+            ChildPanels = p.ChildPanelPanels.Select(cpp => cpp.ChildPanel.Name).ToList()
+        }).ToListAsync();
+        return ret;
+    }
 }

@@ -1,6 +1,6 @@
+﻿using System.Collections.Generic;
 
-// This is the form of the response from all of the API methods.  
-// The actual payload is in the Data property.
+namespace NCLims.Business.NewBatch.Sop.Responses;
 
 public class ServiceResponse<T>
 {

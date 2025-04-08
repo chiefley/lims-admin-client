@@ -1,3 +1,14 @@
+﻿using System.Collections.Generic;
+using NCLims.Models.NewBatch.Analytical;
+using NCLims.Models.NewBatch;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
+
 public class PrepBatchSopControlSampleRs
 {
     // Primary Key.   No display.
@@ -31,4 +42,29 @@ public class PrepBatchSopControlSampleRs
     [Required] public ControlSamplePassCriteria? PassCriteria { get; set; }
     // Dropdown control.  Use SopMaintenanceSelectors.ControlSampleConditions
     [Required] public QCCondition? QCCondition { get; set; }
+
+    public static async Task<List<PrepBatchSopControlSampleRs>> FetchPrepBatchSopControlSampleRss(
+        IQueryable<PrepBatchSopControlSample> query)
+    {
+        var ret = await query.Select(pbsop => new PrepBatchSopControlSampleRs
+        {
+            PrepBatchSopControlSampleId = pbsop.Id,
+            PrepBatchSopId = pbsop.PrepBatchSopId,
+            AnalysisType = pbsop.ControlSampleSpecification.AnalysisType,
+            Category = pbsop.ControlSampleSpecification.Category,
+            ControlSampleOrder = pbsop.ControlSampleOrder,
+            ControlSampleType = pbsop.ControlSampleSpecification.ControlSampleType,
+            Description = pbsop.ControlSampleSpecification.Description,
+            HistoricalDays = pbsop.HistoricalDays,
+            PassCriteria = pbsop.ControlSampleSpecification.PassCriteria,
+            QCCondition = pbsop.ControlSampleSpecification.QCCondition,
+            QCFactor1 = pbsop.QCFactor1,
+            QCFactor2 = pbsop.QCFactor2,
+            QCSource = pbsop.ControlSampleSpecification.QCSource,
+            QCTargetRangeHigh = pbsop.QCTargetRangeHigh,
+            QCTargetRangeLow = pbsop.QCTargetRangeLow
+        }).ToListAsync();
+
+        return ret;
+    }
 }

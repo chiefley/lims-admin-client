@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
@@ -8,8 +8,6 @@ using NCLims.Utilities;
 namespace NCLims.Business.NewBatch.Sop.Responses;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
-[JsonDerivedType(typeof(SingleValueSopFieldRs), typeDiscriminator: nameof(SingleValueSopFieldRs))]
-[JsonDerivedType(typeof(TableColumnSopFieldRs), typeDiscriminator: nameof(TableColumnSopFieldRs))]
 [JsonDerivedType(typeof(DateTimeSopFieldRs), typeDiscriminator: nameof(DateTimeSopFieldRs))]
 [JsonDerivedType(typeof(DoubleSopFieldRs), typeDiscriminator: nameof(DoubleSopFieldRs))]
 [JsonDerivedType(typeof(LabAssetSopFieldRs), typeDiscriminator: nameof(LabAssetSopFieldRs))]

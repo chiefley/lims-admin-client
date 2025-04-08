@@ -1,3 +1,7 @@
+﻿using System.Collections.Generic;
+using NCLims.Models.DTOs;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
 
 public class SopMaintenanceSelectors
 {
@@ -21,4 +25,5 @@ public class SopMaintenanceSelectors
     public List<DropDownItem> TestCategoryTypes { get; set; }
     public List<DropDownItem> InstrumentFileParserTypes { get; set; }
     public List<DropDownItem> DurableLabAssets { get; set; }
+
 }

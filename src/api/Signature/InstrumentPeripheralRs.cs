@@ -1,3 +1,13 @@
+﻿using NCLims.Models.NewBatch.LabAssets;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NCLims.Business.NewBatch.Sop.Responses;
+
 public class InstrumentPeripheralRs
 {
     // Primary Key.   No display, no edit
