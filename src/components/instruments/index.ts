@@ -5,3 +5,4 @@ export { default as InstrumentTypeDetail } from './InstrumentTypeDetail';
 // Export tabs
 export { default as InstrumentsTab } from './tabs/InstrumentsTab';
 export { default as AnalytesTab } from './tabs/AnalytesTab';
+export { default as PeripheralsTab } from './tabs/PeripheralsTab';

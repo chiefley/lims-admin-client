@@ -462,10 +462,10 @@ export interface InstrumentRs {
 export interface InstrumentTypeAnalyteRs {
   instrumentTypeAnalyteId?: number;
   instrumentTypeId: number;
-  analyteId: number;
+  analyteId: number; // Changed from number | null to just number
+  analyteAlias: string; // Required field from backend
   analyteName?: string;
 }
-
 // Instrument Type Response
 export interface InstrumentTypeRs {
   instrumentTypeId: number;
@@ -476,6 +476,14 @@ export interface InstrumentTypeRs {
   instrumentFileParser: InstrumentFileParserType | null;
   instrumentRss: InstrumentRs[];
   instrumentTypeAnalyteRss: InstrumentTypeAnalyteRs[];
+}
+
+// Instrument Peripheral Response
+export interface InstrumentPeripheralRs {
+  instrumentPeripheralId: number;
+  instrumentId: number;
+  durableLabAssetId: number | null; // Nullable in C# model
+  peripheralType: string | null; // This should be string not int (appears to be a typo in C# model)
 }
 
 // Other types you may need based on your API

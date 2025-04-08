@@ -1,11 +1,18 @@
 import React from 'react';
-import { Button, Alert, DatePicker, Switch, message } from 'antd';
+import { Button, Alert, DatePicker, Switch, message, Tabs } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { InstrumentRs, SopMaintenanceSelectors } from '../../../models/types';
+import {
+  InstrumentRs,
+  InstrumentPeripheralRs,
+  SopMaintenanceSelectors,
+} from '../../../models/types';
 import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
 import { stylePresets } from '../../../config/theme';
 import dayjs from 'dayjs';
+import PeripheralsTab from './PeripheralsTab';
+
+const { TabPane } = Tabs;
 
 interface InstrumentsTabProps {
   instruments: InstrumentRs[];
@@ -88,6 +95,18 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
     message.success(`Instrument ${instrument.name || 'New Instrument'} deleted`);
   };
 
+  // Handle updating peripherals for an instrument
+  const handlePeripheralsChange = (instrumentId: number, peripherals: InstrumentPeripheralRs[]) => {
+    // Update the specific instrument's peripherals
+    const updatedInstruments = instruments.map(instrument =>
+      instrument.instrumentId === instrumentId
+        ? { ...instrument, instrumentPeripherals: peripherals }
+        : instrument
+    );
+
+    onChange(updatedInstruments);
+  };
+
   // Define columns for the instruments table
   const columns: EditableColumn[] = [
     {
@@ -152,7 +171,28 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       ],
       render: (value: boolean) => <Switch checked={value} disabled />,
     },
+    {
+      title: 'Peripherals',
+      dataIndex: 'instrumentPeripherals', // Add the missing dataIndex property
+      key: 'peripheralsCount',
+      editable: false, // Make sure it's not editable
+      render: (peripherals: InstrumentPeripheralRs[], record: InstrumentRs) => {
+        const count = peripherals?.length || 0;
+        return `${count} ${count === 1 ? 'peripheral' : 'peripherals'}`;
+      },
+    },
   ];
+
+  // Configure expanded row rendering to show peripherals
+  const expandedRowRender = (record: InstrumentRs) => {
+    return (
+      <PeripheralsTab
+        instrument={record}
+        selectors={selectors}
+        onChange={peripherals => handlePeripheralsChange(record.instrumentId, peripherals)}
+      />
+    );
+  };
 
   return (
     <CardSection title="Instruments" style={stylePresets.contentCard}>
@@ -179,6 +219,9 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
           onSave={handleSaveInstrument}
           onDelete={handleDeleteInstrument}
           editable={true}
+          expandable={{
+            expandedRowRender,
+          }}
         />
       )}
     </CardSection>

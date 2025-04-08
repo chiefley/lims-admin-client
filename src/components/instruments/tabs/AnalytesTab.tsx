@@ -25,7 +25,8 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
     const newAnalyte: InstrumentTypeAnalyteRs = {
       instrumentTypeAnalyteId: -Date.now(), // Temporary negative ID
       instrumentTypeId: instrumentTypeId,
-      analyteId: 0,
+      analyteId: 0, // Initialize with 0 instead of null
+      analyteAlias: '', // New field for AnalyteAlias
     };
 
     // Add to the analytes array
@@ -35,6 +36,17 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
 
   // Handle saving an analyte
   const handleSaveAnalyte = (analyte: InstrumentTypeAnalyteRs) => {
+    // Validate required fields
+    if (!analyte.analyteId) {
+      message.error('Please select an analyte');
+      return Promise.reject('Please select an analyte');
+    }
+
+    if (!analyte.analyteAlias) {
+      message.error('Please enter an analyte alias');
+      return Promise.reject('Please enter an analyte alias');
+    }
+
     // Simulate API call
     return new Promise<void>(resolve => {
       setTimeout(() => {
@@ -107,6 +119,18 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
         const compound = selectors.compounds?.find(c => c.id === analyteId);
         return compound ? compound.label : `Analyte ID: ${analyteId}`;
       },
+    },
+    {
+      title: 'Analyte Alias',
+      dataIndex: 'analyteAlias',
+      key: 'analyteAlias',
+      editable: true,
+      inputType: 'text',
+      rules: [
+        { required: true, message: 'Please enter an analyte alias' },
+        { max: 150, message: 'Alias cannot exceed 150 characters' },
+      ],
+      render: (text: string) => text || '-',
     },
   ];
 
