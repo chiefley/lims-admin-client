@@ -1,9 +1,11 @@
-﻿using NCLims.Models.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using NCLims.Business.NewBatch.Sop.Responses.AnalyticalBatchSops;
+using NCLims.Business.NewBatch.Sop.Responses.PrepBatchSops;
+using NCLims.Models.Enums;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.BatchSops;
 
 [JsonPolymorphic]
 [JsonDerivedType(typeof(PrepBatchSopRs), nameof(PrepBatchSopRs))]

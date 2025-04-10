@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NCLims.Models.NewBatch;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.PrepBatchSops;
 
 public class ManifestSamplePrepBatchSopRs
 {
@@ -48,8 +48,8 @@ public class ManifestSamplePrepBatchSopRs
         foreach (var response in responses)
         {
             ManifestSampleTypePrepBatchSop? model = null;
-            model = response.ManifestSamplePrepBatchSopId == 0 
-                ? response.Create() 
+            model = response.ManifestSamplePrepBatchSopId == 0
+                ? response.Create()
                 : models.Single(m => m.Id == response.ManifestSamplePrepBatchSopId);
             response.Update(model);
         }

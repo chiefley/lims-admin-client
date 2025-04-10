@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.Lab_Assets;
 
 public class InstrumentTypeAnalyteRs
 {

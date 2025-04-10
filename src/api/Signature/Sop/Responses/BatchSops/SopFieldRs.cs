@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using NCLims.Models.NewBatch;
 using NCLims.Utilities;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.BatchSops;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(DateTimeSopFieldRs), typeDiscriminator: nameof(DateTimeSopFieldRs))]
@@ -29,12 +29,15 @@ public abstract class SopFieldRs
     // Primary key.  No display, no edit.
     public int SopFieldId { get; set; }
     // Foreign key to parent.  No display, no edit.
+    // @validation: unique-combination: BatchSopId, Section, Name
     public int BatchSopId { get; set; }
     [Required]
     [StringLength(150)]
+    // @validation: unique-combination: BatchSopId, Section, Name
     public string? Section { get; set; }
     [Required]
     [StringLength(150)]
+    // @validation: unique-combination: BatchSopId, Section, Name
     public string? Name { get; set; }
     [Required]
     [StringLength(150)]
@@ -81,37 +84,37 @@ public abstract class SopFieldRs
                 sopFieldRs = DoubleSopFieldRs.CreateRs(doubleSopField);
                 break;
             case InstrumentTypeSopField instrumentTypeSopField:
-                sopFieldRs =  InstrumentTypeSopFieldRs.CreateRs(instrumentTypeSopField);
+                sopFieldRs = InstrumentTypeSopFieldRs.CreateRs(instrumentTypeSopField);
                 break;
             case LabAssetSopField labAssetSopField:
-                sopFieldRs =  LabAssetSopFieldRs.CreateRs(labAssetSopField);
+                sopFieldRs = LabAssetSopFieldRs.CreateRs(labAssetSopField);
                 break;
             case DateTimeSopField dateTimeSopField:
-                sopFieldRs =  DateTimeSopFieldRs.CreateRs(dateTimeSopField);
+                sopFieldRs = DateTimeSopFieldRs.CreateRs(dateTimeSopField);
                 break;
             case SopEnumSopField sopEnumSopField:
-                sopFieldRs =  SopEnumSopFieldRs.CreateRs(sopEnumSopField);
+                sopFieldRs = SopEnumSopFieldRs.CreateRs(sopEnumSopField);
                 break;
             case TextSopField textSopField:
-                sopFieldRs =  TextSopFieldRs.CreateRs(textSopField);
+                sopFieldRs = TextSopFieldRs.CreateRs(textSopField);
                 break;
             case UserSopField userSopField:
-                sopFieldRs =  UserSopFieldRs.CreateRs(userSopField);
+                sopFieldRs = UserSopFieldRs.CreateRs(userSopField);
                 break;
             case TableColumnDateTimeField tableColumnDateTimeField:
-                sopFieldRs =  TableColumnDateTimeFieldRs.CreateRs(tableColumnDateTimeField);
+                sopFieldRs = TableColumnDateTimeFieldRs.CreateRs(tableColumnDateTimeField);
                 break;
             case TableColumnDoubleSopField tableColumnDoubleSopField:
-                sopFieldRs =  TableColumnDoubleSopFieldRs.CreateRs(tableColumnDoubleSopField);
+                sopFieldRs = TableColumnDoubleSopFieldRs.CreateRs(tableColumnDoubleSopField);
                 break;
             case TableColumnIntSopField tableColumnIntSopField:
-                sopFieldRs =  TableColumnIntSopFieldRs.CreateRs(tableColumnIntSopField);
+                sopFieldRs = TableColumnIntSopFieldRs.CreateRs(tableColumnIntSopField);
                 break;
             case TableColumnSopEnumField tableColumnSopEnumField:
-                sopFieldRs =  TableColumnSopEnumFieldRs.CreateRs(tableColumnSopEnumField);
+                sopFieldRs = TableColumnSopEnumFieldRs.CreateRs(tableColumnSopEnumField);
                 break;
             case TableColumnTextSopField tableColumnTextSopField:
-                sopFieldRs =  TableColumnTextSopFieldRs.CreateRs(tableColumnTextSopField);
+                sopFieldRs = TableColumnTextSopFieldRs.CreateRs(tableColumnTextSopField);
                 break;
 
             default:
@@ -160,9 +163,9 @@ public class DoubleSopFieldRs : SingleValueSopFieldRs
     {
         var sopFieldRs = new DoubleSopFieldRs
         {
-           MaxDoubleValue = model.MinDoubleValue,
-           MinDoubleValue = model.MinDoubleValue,
-           Precision = model.Precision
+            MaxDoubleValue = model.MinDoubleValue,
+            MinDoubleValue = model.MinDoubleValue,
+            Precision = model.Precision
         };
         sopFieldRs.Map(model);
         return sopFieldRs;
@@ -260,7 +263,7 @@ public class TextSopFieldRs : SingleValueSopFieldRs
     {
         var sopFieldRs = new TextSopFieldRs
         {
-            
+
         };
         sopFieldRs.Map(model);
         return sopFieldRs;
@@ -284,7 +287,7 @@ public abstract class TableColumnSopFieldRs : SopFieldRs
     public TableColumnSopFieldRs MapTable(TableColumnSopField model)
     {
         TableName = model.TableName;
-        ColumnWidth = (model.ColumnWidth.IsNullOrEmpty() || !model.ColumnWidth.IsDigitsOnly()) ? null : int.Parse(model.ColumnWidth);
+        ColumnWidth = model.ColumnWidth.IsNullOrEmpty() || !model.ColumnWidth.IsDigitsOnly() ? null : int.Parse(model.ColumnWidth);
         VmPropertyName = model.VmPropertyName;
         Map(model);
         return this;

@@ -3,9 +3,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using NCLims.Business.NewBatch.Sop.Responses.AnalyticalBatchSops;
+using NCLims.Business.NewBatch.Sop.Responses.PrepBatchSops;
 using NCLims.Models.NewBatch;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.BatchSops;
 
 [JsonPolymorphic]
 [JsonDerivedType(typeof(PrepBatchSopSelectionRs), nameof(PrepBatchSopSelectionRs))]

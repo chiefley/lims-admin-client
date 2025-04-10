@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using NCLims.Models.NewBatch.Analytical;
-using NCLims.Models.NewBatch;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Serialization;
+using NCLims.Models.NewBatch;
+using NCLims.Models.NewBatch.Analytical;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.PrepBatchSops;
 
 public class PrepBatchSopControlSampleRs
 {
@@ -32,7 +31,7 @@ public class PrepBatchSopControlSampleRs
     [StringLength(250)]
     public string Description { get; set; }
     // Dropdown control.  Use SopMaintenanceSelectors.ControlSampleCategories
-    [Required] 
+    [Required]
     public ControlSampleCategory? Category { get; set; }
     // Dropdown control.  Use SopMaintenanceSelectors.ControlSampleAnalyses
     [Required] public ControlSampleAnalysis? AnalysisType { get; set; }

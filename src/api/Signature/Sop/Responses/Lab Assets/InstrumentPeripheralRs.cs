@@ -1,12 +1,6 @@
-﻿using NCLims.Models.NewBatch.LabAssets;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.Lab_Assets;
 
 public class InstrumentPeripheralRs
 {

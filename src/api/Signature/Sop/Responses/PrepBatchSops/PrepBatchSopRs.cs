@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NCLims.Business.NewBatch.Sop.Responses.BatchSops;
 using NCLims.Models.NewBatch;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.PrepBatchSops;
 
 public class PrepBatchSopRs : BatchSopRs
 {
@@ -26,7 +27,7 @@ public class PrepBatchSopRs : BatchSopRs
     [JsonPropertyOrder(110)]  // Ensure this appears after primitive properties
     public List<ManifestSamplePrepBatchSopRs> ManifestSamplePrepBatchSopRss { get; set; } = [];
 
-    [JsonPropertyOrder(120)] 
+    [JsonPropertyOrder(120)]
     public List<PrepBatchSopControlSampleRs> PrepBatchSopControlSamples { get; set; } = [];
 
     public override string Type => nameof(PrepBatchSopSelectionRs);

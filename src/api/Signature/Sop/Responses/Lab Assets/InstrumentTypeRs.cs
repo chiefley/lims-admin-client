@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using NCLims.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NCLims.Models;
+using NCLims.Models.Enums;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop.Responses.Lab_Assets;
 
 public class InstrumentTypeRs
 {

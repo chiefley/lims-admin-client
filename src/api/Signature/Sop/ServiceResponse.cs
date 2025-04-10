@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NCLims.Business.NewBatch.Sop.Responses;
+namespace NCLims.Business.NewBatch.Sop;
 
 public class ServiceResponse<T>
 {

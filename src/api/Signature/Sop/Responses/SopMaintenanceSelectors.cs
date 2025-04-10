@@ -25,5 +25,10 @@ public class SopMaintenanceSelectors
     public List<DropDownItem> TestCategoryTypes { get; set; }
     public List<DropDownItem> InstrumentFileParserTypes { get; set; }
     public List<DropDownItem> DurableLabAssets { get; set; }
+    public List<DropDownItem> AnalysisMethodTypes { get; set; }
+    public List<DropDownItem> ReportPercentTypes { get; set; }
+    public List<DropDownItem> ComparisonTypes { get; set; }
+    public List<DropDownItem> AggregateRollupMethodTypes { get; set; }
+
 
 }
