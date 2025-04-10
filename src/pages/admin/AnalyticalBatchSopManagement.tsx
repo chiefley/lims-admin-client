@@ -7,7 +7,7 @@ import {
   UnorderedListOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { fetchAnalyticalBatchSopSelections } from '../../api/endpoints/sopService';
+import sopService from '../../api/endpoints/sopService'; // Changed import to use default export
 import { AnalyticalBatchSopSelectionRs } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
@@ -32,7 +32,7 @@ const AnalyticalBatchSopManagement: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const sopsData = await fetchAnalyticalBatchSopSelections();
+        const sopsData = await sopService.fetchAnalyticalBatchSopSelections(); // Changed to use default export
 
         // Log the data to check batchCount values
         console.log('Fetched Analytical SOPs:', sopsData);
@@ -108,7 +108,6 @@ const AnalyticalBatchSopManagement: React.FC = () => {
       key: 'name',
       editable: false,
       inputType: 'text',
-      editComponent: Input,
       render: (text: string) => <Text strong>{text}</Text>,
       sorter: (a: AnalyticalBatchSopSelectionRs, b: AnalyticalBatchSopSelectionRs) =>
         a.name.localeCompare(b.name),
@@ -123,7 +122,6 @@ const AnalyticalBatchSopManagement: React.FC = () => {
       key: 'sop',
       editable: false,
       inputType: 'text',
-      editComponent: Input,
       render: (text: string) => (
         <Tag color="blue" icon={<ExperimentOutlined />}>
           {text}
@@ -140,7 +138,6 @@ const AnalyticalBatchSopManagement: React.FC = () => {
       key: 'version',
       editable: false,
       inputType: 'text',
-      editComponent: Input,
       render: (text: string) => <Tag color="green">{text}</Tag>,
       rules: [
         { required: true, message: 'Please enter the version' },
@@ -153,7 +150,6 @@ const AnalyticalBatchSopManagement: React.FC = () => {
       key: 'sopGroup',
       editable: false,
       inputType: 'text',
-      editComponent: Input,
       rules: [
         { required: true, message: 'Please enter the SOP group' },
         { max: 50, message: 'SOP Group cannot exceed 50 characters' },

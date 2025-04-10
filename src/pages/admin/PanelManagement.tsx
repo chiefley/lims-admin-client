@@ -4,7 +4,8 @@ import { SearchOutlined, ExperimentOutlined, EditOutlined } from '@ant-design/ic
 import type { ColumnsType } from 'antd/es/table';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
-import { fetchPanels, fetchSelectors } from '../../api/endpoints/sopService';
+// UPDATED: Import the service as a default import
+import sopService from '../../api/endpoints/sopService';
 import { PanelRs, SopMaintenanceSelectors } from '../../models/types';
 import PanelEditDrawer from '../../components/panels/PanelEditDrawer';
 
@@ -27,8 +28,12 @@ const PanelManagement: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
+        // UPDATED: Use the function from the service object
         // Fetch panels and selectors in parallel
-        const [panelsData, selectorsData] = await Promise.all([fetchPanels(), fetchSelectors()]);
+        const [panelsData, selectorsData] = await Promise.all([
+          sopService.fetchPanels(),
+          sopService.fetchSelectors(),
+        ]);
 
         setPanels(panelsData);
         setSelectors(selectorsData);
@@ -91,7 +96,7 @@ const PanelManagement: React.FC = () => {
 
   // Handle saving a panel after editing
   const handleSavePanel = (updatedPanel: PanelRs) => {
-    // Here you would call the API to save the panel
+    // UPDATED: Use the function from the service object if needed
     // For now we'll just update the local state
     setPanels(prevPanels =>
       prevPanels.map(p => (p.panelId === updatedPanel.panelId ? updatedPanel : p))

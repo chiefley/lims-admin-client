@@ -6,8 +6,8 @@ import CardSection from '../../components/common/CardSection';
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import { stylePresets } from '../../config/theme';
 
-// Import API service function
-import { fetchCompounds } from '../../api/endpoints/sopService';
+// UPDATED: Import the service as a default import
+import sopService from '../../api/endpoints/sopService';
 
 // Define the Compound type based on the C# model
 interface Compound {
@@ -29,8 +29,8 @@ const CompoundManagement: React.FC = () => {
       try {
         setLoading(true);
 
-        // Fetch compounds from API
-        const compoundsData = await fetchCompounds();
+        // UPDATED: Use the function from the service object
+        const compoundsData = await sopService.fetchCompounds();
 
         setCompounds(compoundsData);
         setError(null);

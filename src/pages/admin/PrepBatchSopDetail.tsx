@@ -23,11 +23,8 @@ import {
   CloseOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import {
-  fetchPrepBatchSopDetail,
-  fetchSelectors,
-  savePrepBatchSop,
-} from '../../api/endpoints/sopService';
+// UPDATED: Import the service as a default import
+import sopService from '../../api/endpoints/sopService';
 import { SopFieldRs, ManifestSamplePrepBatchSopRs, SopProcedureRs } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 
@@ -65,10 +62,11 @@ const PrepBatchSopDetail: React.FC = () => {
       try {
         setLoading(true);
 
+        // UPDATED: Use the functions from the service object
         // Fetch both the SOP details and selectors in parallel
         const [sopData, selectorsData] = await Promise.all([
-          fetchPrepBatchSopDetail(Number(id)),
-          fetchSelectors(),
+          sopService.fetchPrepBatchSopDetail(Number(id)),
+          sopService.fetchSelectors(),
         ]);
 
         // Update state with fetched data
@@ -105,8 +103,9 @@ const PrepBatchSopDetail: React.FC = () => {
         ...values,
       };
 
+      // UPDATED: Use the function from the service object
       // Call the service to save the data
-      await savePrepBatchSop(dataToSave);
+      await sopService.savePrepBatchSop(dataToSave);
 
       // Update local state with the saved data
       setSopData(dataToSave);

@@ -7,7 +7,8 @@ import {
   UnorderedListOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { fetchBatchSopSelections } from '../../api/endpoints/sopService';
+// UPDATED: Import the service as a default import
+import sopService from '../../api/endpoints/sopService';
 import { PrepBatchSopSelectionRs } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
@@ -30,7 +31,8 @@ const PrepBatchSopManagement: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const sopsData = await fetchBatchSopSelections();
+        // UPDATED: Use the function from the service object
+        const sopsData = await sopService.fetchBatchSopSelections();
 
         // Log the data to check batchCount values
         console.log('Fetched SOPs:', sopsData);
