@@ -58,6 +58,8 @@ export interface SopMaintenanceSelectors {
   reportPercentTypes: DropDownItem[];
   comparisonTypes: DropDownItem[];
   aggregateRollupMethodTypes: DropDownItem[];
+  prepBatchSops: DropDownItem[];
+  analyticalBatchSops: DropDownItem[];
 }
 
 // ============ Base Types ============
@@ -95,26 +97,7 @@ export interface AnalyticalBatchSopSelectionRs extends BatchSopSelectionRs {
   $type: 'AnalyticalBatchSopSelectionRs';
 }
 
-// ============ Detailed Types for SOP Detail View ============
-
-// SOP Procedure Item Response
-export interface SopProcedureItemRs {
-  sopProcedurItemId: number;
-  sopProcedureId: number;
-  order: number;
-  itemNumber: string | null;
-  text: string;
-  indentLevel: number;
-}
-
-// SOP Procedure Response
-export interface SopProcedureRs {
-  batchSopId: number;
-  sopProcedureId: number;
-  section: string;
-  procedureName: string;
-  procedureItems: SopProcedureItemRs[];
-}
+// ============ SOP Field Types - Polymorphic ============
 
 // Base SOP Field Response
 export interface SopFieldRs {
@@ -135,265 +118,118 @@ export interface SopFieldRs {
   $type: string;
 }
 
-// DateTime SOP Field Response
-export interface DateTimeSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Base Single Value SOP Field
+export interface SingleValueSopFieldRs extends SopFieldRs {
+  $type: 'SingleValueSopFieldRs';
+}
+
+// DateTime SOP Field
+export interface DateTimeSopFieldRs extends SingleValueSopFieldRs {
   $type: 'DateTimeSopFieldRs';
   datePartOnly: boolean;
 }
 
-// Double SOP Field Response
-export interface DoubleSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Double SOP Field
+export interface DoubleSopFieldRs extends SingleValueSopFieldRs {
   $type: 'DoubleSopFieldRs';
   minDoubleValue: number | null;
   maxDoubleValue: number | null;
   precision: number | null;
 }
 
-// LabAsset SOP Field Response
-export interface LabAssetSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Lab Asset SOP Field
+export interface LabAssetSopFieldRs extends SingleValueSopFieldRs {
   $type: 'LabAssetSopFieldRs';
   labAssetTypeId: number | null;
 }
 
-// InstrumentType SOP Field Response
-export interface InstrumentTypeSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Instrument Type SOP Field
+export interface InstrumentTypeSopFieldRs extends SingleValueSopFieldRs {
   $type: 'InstrumentTypeSopFieldRs';
   instrumentTypeId: number | null;
 }
 
-// SopEnum SOP Field Response
-export interface SopEnumSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// SOP Enum SOP Field
+export interface SopEnumSopFieldRs extends SingleValueSopFieldRs {
   $type: 'SopEnumSopFieldRs';
   sopEnumTypeId: number | null;
 }
 
-// User SOP Field Response
-export interface UserSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// User SOP Field
+export interface UserSopFieldRs extends SingleValueSopFieldRs {
   $type: 'UserSopFieldRs';
   applicationRoleId: number | null;
 }
 
-// Text SOP Field Response
-export interface TextSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Text SOP Field
+export interface TextSopFieldRs extends SingleValueSopFieldRs {
   $type: 'TextSopFieldRs';
 }
 
-// Table Column Text SOP Field Response
-export interface TableColumnTextSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
-  $type: 'TableColumnTextSopFieldRs';
+// Base Table Column SOP Field
+export interface TableColumnSopFieldRs extends SopFieldRs {
+  $type: 'TableColumnSopFieldRs';
   tableName: string;
   columnWidth: number | null;
   vmPropertyName: string;
+}
+
+// Table Column Text SOP Field
+export interface TableColumnTextSopFieldRs extends TableColumnSopFieldRs {
+  $type: 'TableColumnTextSopFieldRs';
   validationRegex: string | null;
   minLength: number | null;
   maxLength: number | null;
 }
 
-// Table Column Int SOP Field Response
-export interface TableColumnIntSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Table Column Int SOP Field
+export interface TableColumnIntSopFieldRs extends TableColumnSopFieldRs {
   $type: 'TableColumnIntSopFieldRs';
-  tableName: string;
-  columnWidth: number | null;
-  vmPropertyName: string;
   minIntValue: number | null;
   maxIntValue: number | null;
 }
 
-// Table Column Double SOP Field Response
-export interface TableColumnDoubleSopFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Table Column Double SOP Field
+export interface TableColumnDoubleSopFieldRs extends TableColumnSopFieldRs {
   $type: 'TableColumnDoubleSopFieldRs';
-  tableName: string;
-  columnWidth: number | null;
-  vmPropertyName: string;
   minDoubleValue: number | null;
   maxDoubleValue: number | null;
   precision: number;
 }
 
-// Table Column DateTime Field Response
-export interface TableColumnDateTimeFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Table Column DateTime SOP Field
+export interface TableColumnDateTimeFieldRs extends TableColumnSopFieldRs {
   $type: 'TableColumnDateTimeFieldRs';
-  tableName: string;
-  columnWidth: number | null;
-  vmPropertyName: string;
   datePartOnly: boolean;
 }
 
-// Table Column SopEnum Field Response
-export interface TableColumnSopEnumFieldRs {
-  sopFieldId: number;
-  batchSopId: number;
-  section: string | null;
-  name: string | null;
-  displayName: string | null;
-  row: number;
-  column: number;
-  batchPropertyName: string | null;
-  required: boolean;
-  readOnly: boolean;
-  requiredMessage: string | null;
-  minValueMessage: string | null;
-  maxValueMessage: string | null;
-  regexMessage: string | null;
+// Table Column SOP Enum SOP Field
+export interface TableColumnSopEnumFieldRs extends TableColumnSopFieldRs {
   $type: 'TableColumnSopEnumFieldRs';
-  tableName: string;
-  columnWidth: number | null;
-  vmPropertyName: string;
 }
+
+// ============ SOP Procedure Types ============
+
+// SOP Procedure Item Response
+export interface SopProcedureItemRs {
+  sopProcedurItemId: number;
+  sopProcedureId: number;
+  order: number;
+  itemNumber: string | null;
+  text: string;
+  indentLevel: number;
+}
+
+// SOP Procedure Response
+export interface SopProcedureRs {
+  sopProcedureId: number;
+  batchSopId: number;
+  section: string;
+  procedureName: string;
+  procedureItems: SopProcedureItemRs[];
+}
+
+// ============ Detailed Types for SOP Detail View ============
 
 // Detailed Prep Batch SOP Response
 export interface PrepBatchSopRs {
@@ -415,6 +251,111 @@ export interface PrepBatchSopRs {
   sopFields: SopFieldRs[];
   sopProcedures: SopProcedureRs[];
   $type: string;
+}
+
+// ============ Analytical Batch SOP Types ============
+
+// Computed Analyte Constituent Response
+export interface ComputedAnalyteConstituentRs {
+  computedAnalyteConstituentId: number;
+  analyticalBatchSopAnalyteId: number;
+  analyteId: number;
+  cas?: string;
+}
+
+// Analytical Batch SOP Analyte Response
+export interface AnalyticalBatchSopAnalyteRs {
+  analyticalBatchSopAnalyteId: number;
+  analyticalBatchSopId: number;
+  analyteId: number | null;
+  computed: boolean;
+  computeAggregateAnalyte: boolean;
+  isInternalStandard: boolean;
+  warningStd: number | null;
+  confidenceStd: number | null;
+  testStd: number | null;
+  analystDisplayOrder: number | null;
+  computedAnalyteConstituentRss: ComputedAnalyteConstituentRs[];
+}
+
+// Analytical Batch Control Analyte SOP Specification Response
+export interface AnalyticalBatchControlAnalyteSopSpecificationRs {
+  controlSampleAnalyteSopSpecificationId: number;
+  analyticalBatchSopControlSampleId: number;
+  analyteId: number | null;
+  expectedRecovery: number | null;
+  qCType: number | null;
+}
+
+// Analytical Batch SOP Control Sample Response
+export interface AnalyticalBatchSopControlSampleRs {
+  analyticalBatchSopControlSampleId: number;
+  analyticalBatchSopId: number;
+  sopBatchPositionType: number | null;
+  everyNSamples: number | null;
+  controlSampleOrder: number | null;
+  qCFactor1: number | null;
+  qCFactor2: number | null;
+  qCTargetRangeLow: number | null;
+  qCTargetRangeHigh: number | null;
+  historicalDays: number | null;
+  controlSampleAnalyteSopSpecificationRss: AnalyticalBatchControlAnalyteSopSpecificationRs[];
+}
+
+// SOP Analysis Review Component Response
+export interface SopAnalysisReviewComponentRs {
+  sopAnalysisReviewComponentId: number;
+  analyticalBatchSopId: number;
+  componentName: string | null;
+  displayName: string | null;
+  parameter: string | null;
+  collection: string | null;
+}
+
+// Prep Batch SOP to Analytical Batch SOP Link Response
+export interface PrepBatchSopAnalyticalBatchSopRs {
+  prepBatchSopAnalyticalBatchSopId: number;
+  prepBatchSopId: number | null;
+  analyticalBatchSopId: number | null;
+  effectiveDate: string | null;
+}
+
+// Full Analytical Batch SOP Response
+export interface AnalyticalBatchSopRs {
+  batchSopId: number;
+  name: string;
+  sop: string;
+  version: string;
+  sopGroup: string;
+  labId: number;
+  significantDigits: number | null;
+  decimalFormatType: number | null;
+  instrumentTypeId: number | null;
+  suppressLoqsForComputedAnalytes: boolean;
+  requiresMoistureCorrection: boolean;
+  requiresServingAndContainerResults: boolean;
+  reportPercentType: number | null;
+  concentrationScaleFactor: number | null;
+  percentScaleFactor: number | null;
+  measuredUnits: string | null;
+  reportingUnits: string | null;
+  rsaUseNominalValues: boolean;
+  rsaNominalSampleWeightG: number | null;
+  rsaNominalExtractionVolumeL: number | null;
+  analysisMethodType: number | null;
+  aggregateRollupMethodType: number | null;
+  lLoqComparisonType: number | null;
+  uLoqComparisonType: number | null;
+  actionLimitComparisonType: number | null;
+  rollupRsd: boolean;
+  allPartialAnalyteResults: boolean;
+  batchCount: number;
+  analyticalBatchSopControlSampleRss: AnalyticalBatchSopControlSampleRs[];
+  analyticalBatchSopAnalytesRss: AnalyticalBatchSopAnalyteRs[];
+  sopAnalysisReviewComponentRss: SopAnalysisReviewComponentRs[];
+  prepBatchSopAnalyticalBatchSopRss: PrepBatchSopAnalyticalBatchSopRs[];
+  sopProcedures: SopProcedureRs[];
+  sopFields: SopFieldRs[];
 }
 
 // PanelRs interface based on the C# model
@@ -471,10 +412,11 @@ export interface InstrumentRs {
 export interface InstrumentTypeAnalyteRs {
   instrumentTypeAnalyteId?: number;
   instrumentTypeId: number;
-  analyteId: number; // Changed from number | null to just number
-  analyteAlias: string; // Required field from backend
+  analyteId: number;
+  analyteAlias: string;
   analyteName?: string;
 }
+
 // Instrument Type Response
 export interface InstrumentTypeRs {
   instrumentTypeId: number;
@@ -485,18 +427,4 @@ export interface InstrumentTypeRs {
   instrumentFileParser: InstrumentFileParserType | null;
   instrumentRss: InstrumentRs[];
   instrumentTypeAnalyteRss: InstrumentTypeAnalyteRs[];
-}
-
-// Instrument Peripheral Response
-export interface InstrumentPeripheralRs {
-  instrumentPeripheralId: number;
-  instrumentId: number;
-  durableLabAssetId: number | null; // Nullable in C# model
-  peripheralType: string | null; // This should be string not int (appears to be a typo in C# model)
-}
-
-// Other types you may need based on your API
-export interface AnalyticalBatchSopSelectionRs extends BatchSopSelectionRs {
-  // Add specific properties if needed
-  $type: 'AnalyticalBatchSopSelectionRs';
 }

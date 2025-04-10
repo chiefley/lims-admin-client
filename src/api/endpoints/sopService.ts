@@ -8,6 +8,7 @@ import {
   AnalyticalBatchSopSelectionRs,
   SopMaintenanceSelectors,
   PrepBatchSopRs,
+  AnalyticalBatchSopRs,
   PanelRs,
   InstrumentFileParserType,
 } from '../../models/types';
@@ -324,6 +325,74 @@ export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<P
 };
 
 /**
+ * Fetches detailed information for a specific analytical batch SOP
+ * @param anBatchSopId The ID of the analytical batch SOP to fetch
+ * @returns Promise with AnalyticalBatchSopRs data
+ */
+export const fetchAnalyticalBatchSopRs = async (
+  anBatchSopId: number
+): Promise<AnalyticalBatchSopRs> => {
+  try {
+    console.log(
+      `Fetching SOP detail for ID ${anBatchSopId} from ${baseUrl}/FetchAnalyticalBatchSopRs/${anBatchSopId}`
+    );
+
+    // Skip API call if mock data is enabled
+    if (appConfig.features.useMockData) {
+      return getMockAnalyticalBatchSopDetail(anBatchSopId);
+    }
+
+    // Don't specify the return type here to allow for different response formats
+    const response = await apiClient.get(
+      `/sopmaintenance/FetchAnalyticalBatchSopRs/${anBatchSopId}`
+    );
+
+    // Log the raw response for debugging
+    console.log('Raw API Response (SOP Detail):', response);
+
+    // Check if response has the expected structure
+    if (!response.data || typeof response.data !== 'object') {
+      console.error('Invalid API response format:', response.data);
+      throw new Error('Invalid response format from API');
+    }
+
+    // Check if the data looks like an AnalyticalBatchSopRs object directly
+    const dataAsAny = response.data as any;
+    if (dataAsAny.batchSopId !== undefined) {
+      // The response appears to be the AnalyticalBatchSopRs object directly
+      return dataAsAny as AnalyticalBatchSopRs;
+    }
+
+    // Check if it's wrapped in a ServiceResponse
+    if ('success' in dataAsAny) {
+      // It's a ServiceResponse format
+      if (dataAsAny.success === false) {
+        console.error('API returned success: false');
+        throw new Error(dataAsAny.message || 'Failed to fetch analytical batch SOP details');
+      }
+
+      // Return the data property if it exists
+      if (dataAsAny.data) {
+        return dataAsAny.data as AnalyticalBatchSopRs;
+      }
+    }
+
+    console.error('No valid data structure found in API response:', response.data);
+    throw new Error('Could not extract data from API response');
+  } catch (error: any) {
+    console.error('Error fetching analytical batch SOP details:', error);
+
+    // Return mock data if fetching fails and fallback is enabled
+    if (appConfig.features.useMockDataAsFallback) {
+      console.warn('Using mock SOP detail data as fallback');
+      return getMockAnalyticalBatchSopDetail(anBatchSopId);
+    }
+
+    throw error;
+  }
+};
+
+/**
  * Saves changes to a prep batch SOP
  * @param data The prep batch SOP data to save
  * @returns Promise with the saved PrepBatchSopRs
@@ -363,6 +432,34 @@ export const savePrepBatchSop = async (data: PrepBatchSopRs): Promise<PrepBatchS
     return data;
   } catch (error: any) {
     console.error('Error saving prep batch SOP:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves changes to an analytical batch SOP
+ * @param data The analytical batch SOP data to save
+ * @returns Promise with the saved AnalyticalBatchSopRs
+ */
+export const saveAnalyticalBatchSop = async (
+  data: AnalyticalBatchSopRs
+): Promise<AnalyticalBatchSopRs> => {
+  try {
+    // This is a placeholder for the actual API call
+    // In a real implementation, you would make a POST/PUT request to save the data
+    console.log('Saving analytical batch SOP:', data);
+
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // In a real implementation, we would make a request like:
+    // const response = await apiClient.put(`/sopmaintenance/UpdateAnalyticalBatchSop`, data);
+    // return response.data.data;
+
+    // Simulating a successful response
+    return data;
+  } catch (error: any) {
+    console.error('Error saving analytical batch SOP:', error);
     throw error;
   }
 };
@@ -542,6 +639,16 @@ function getMockSelectors(): SopMaintenanceSelectors {
       { id: 2, label: 'Average' },
       { id: 3, label: 'Maximum' },
       { id: 4, label: 'Minimum' },
+    ],
+    prepBatchSops: [
+      { id: 1, label: 'PREP-001: Soil Sample Preparation v1.0' },
+      { id: 2, label: 'PREP-002: Water Sample Preparation v2.1' },
+      { id: 3, label: 'PREP-003: Plant Tissue Preparation v1.5' },
+    ],
+    analyticalBatchSops: [
+      { id: 101, label: 'AN-HPLC-001: HPLC Analysis Standard Method v2.0' },
+      { id: 102, label: 'AN-ICPMS-001: ICP-MS Metal Analysis v1.5' },
+      { id: 103, label: 'AN-GCMS-001: GC-MS Pesticide Analysis v3.2' },
     ],
   };
 }
@@ -875,13 +982,280 @@ function getMockPrepBatchSopDetail(sopId: number): PrepBatchSopRs {
   return sop;
 }
 
+/**
+ * Mock data for a specific analytical batch SOP detail when the API is unavailable
+ */
+function getMockAnalyticalBatchSopDetail(sopId: number): AnalyticalBatchSopRs {
+  // Base SOP details
+  const sop: AnalyticalBatchSopRs = {
+    batchSopId: sopId,
+    name: `Mock Analytical SOP ${sopId}`,
+    sop: `AN-00${sopId}`,
+    version: '1.0',
+    sopGroup: 'Analytical Methods',
+    labId: 1001,
+    significantDigits: 3,
+    instrumentTypeId: 1,
+    suppressLoqsForComputedAnalytes: false,
+    requiresMoistureCorrection: true,
+    requiresServingAndContainerResults: false,
+    reportPercentType: 1,
+    concentrationScaleFactor: 1.0,
+    percentScaleFactor: 100.0,
+    measuredUnits: 'mg/L',
+    reportingUnits: 'mg/kg',
+    rsaUseNominalValues: false,
+    rsaNominalSampleWeightG: null,
+    rsaNominalExtractionVolumeL: null,
+    analysisMethodType: 1,
+    aggregateRollupMethodType: 1,
+    lLoqComparisonType: 1,
+    uLoqComparisonType: 1,
+    actionLimitComparisonType: 1,
+    rollupRsd: false,
+    allPartialAnalyteResults: false,
+    batchCount: 3,
+    analyticalBatchSopControlSampleRss: [
+      {
+        analyticalBatchSopControlSampleId: 201,
+        analyticalBatchSopId: sopId,
+        sopBatchPositionType: 1,
+        everyNSamples: 10,
+        controlSampleOrder: 1,
+        qCFactor1: 2,
+        qCFactor2: 3,
+        qCTargetRangeLow: 80,
+        qCTargetRangeHigh: 120,
+        historicalDays: 30,
+        controlSampleAnalyteSopSpecificationRss: [
+          {
+            controlSampleAnalyteSopSpecificationId: 301,
+            analyticalBatchSopControlSampleId: 201,
+            analyteId: 1,
+            expectedRecovery: 100.0,
+            qCType: 1,
+          },
+        ],
+      },
+      {
+        analyticalBatchSopControlSampleId: 202,
+        analyticalBatchSopId: sopId,
+        sopBatchPositionType: 3,
+        everyNSamples: 20,
+        controlSampleOrder: 2,
+        qCFactor1: 1,
+        qCFactor2: 2,
+        qCTargetRangeLow: 85,
+        qCTargetRangeHigh: 115,
+        historicalDays: 30,
+        controlSampleAnalyteSopSpecificationRss: [
+          {
+            controlSampleAnalyteSopSpecificationId: 302,
+            analyticalBatchSopControlSampleId: 202,
+            analyteId: 2,
+            expectedRecovery: 95.0,
+            qCType: 1,
+          },
+        ],
+      },
+    ],
+    analyticalBatchSopAnalytesRss: [
+      {
+        analyticalBatchSopAnalyteId: 401,
+        analyticalBatchSopId: sopId,
+        analyteId: 1,
+        computed: false,
+        computeAggregateAnalyte: false,
+        isInternalStandard: false,
+        warningStd: 2,
+        confidenceStd: 3,
+        testStd: 4,
+        analystDisplayOrder: 1,
+        computedAnalyteConstituentRss: [],
+      },
+      {
+        analyticalBatchSopAnalyteId: 402,
+        analyticalBatchSopId: sopId,
+        analyteId: 2,
+        computed: false,
+        computeAggregateAnalyte: false,
+        isInternalStandard: true,
+        warningStd: 1,
+        confidenceStd: 2,
+        testStd: 3,
+        analystDisplayOrder: 2,
+        computedAnalyteConstituentRss: [],
+      },
+      {
+        analyticalBatchSopAnalyteId: 403,
+        analyticalBatchSopId: sopId,
+        analyteId: 3,
+        computed: true,
+        computeAggregateAnalyte: true,
+        isInternalStandard: false,
+        warningStd: null,
+        confidenceStd: null,
+        testStd: null,
+        analystDisplayOrder: 3,
+        computedAnalyteConstituentRss: [
+          {
+            computedAnalyteConstituentId: 501,
+            analyticalBatchSopAnalyteId: 403,
+            analyteId: 1,
+            cas: '71-43-2',
+          },
+          {
+            computedAnalyteConstituentId: 502,
+            analyticalBatchSopAnalyteId: 403,
+            analyteId: 2,
+            cas: '108-88-3',
+          },
+        ],
+      },
+    ],
+    sopAnalysisReviewComponentRss: [
+      {
+        sopAnalysisReviewComponentId: 601,
+        analyticalBatchSopId: sopId,
+        componentName: 'RetentionTime',
+        displayName: 'Retention Time',
+        parameter: 'RT',
+        collection: 'Chromatography',
+      },
+      {
+        sopAnalysisReviewComponentId: 602,
+        analyticalBatchSopId: sopId,
+        componentName: 'PeakArea',
+        displayName: 'Peak Area',
+        parameter: 'Area',
+        collection: 'Chromatography',
+      },
+    ],
+    prepBatchSopAnalyticalBatchSopRss: [
+      {
+        prepBatchSopAnalyticalBatchSopId: 701,
+        prepBatchSopId: 1,
+        analyticalBatchSopId: sopId,
+        effectiveDate: new Date().toISOString(),
+      },
+      {
+        prepBatchSopAnalyticalBatchSopId: 702,
+        prepBatchSopId: 2,
+        analyticalBatchSopId: sopId,
+        effectiveDate: new Date().toISOString(),
+      },
+    ],
+    sopProcedures: [
+      {
+        sopProcedureId: 801,
+        batchSopId: sopId,
+        section: 'Sample Preparation',
+        procedureName: 'Sample Extraction',
+        procedureItems: [
+          {
+            sopProcedurItemId: 901,
+            sopProcedureId: 801,
+            order: 1,
+            itemNumber: '1',
+            text: 'Clean all equipment with appropriate solvent.',
+            indentLevel: 0,
+          },
+          {
+            sopProcedurItemId: 902,
+            sopProcedureId: 801,
+            order: 2,
+            itemNumber: '2',
+            text: 'Prepare extraction solution according to specifications.',
+            indentLevel: 0,
+          },
+          {
+            sopProcedurItemId: 903,
+            sopProcedureId: 801,
+            order: 3,
+            itemNumber: '3',
+            text: 'Extract samples using the validated method.',
+            indentLevel: 0,
+          },
+        ],
+      },
+      {
+        sopProcedureId: 802,
+        batchSopId: sopId,
+        section: 'Analysis',
+        procedureName: 'Instrumental Analysis',
+        procedureItems: [
+          {
+            sopProcedurItemId: 904,
+            sopProcedureId: 802,
+            order: 1,
+            itemNumber: '1',
+            text: 'Calibrate instrument according to specifications.',
+            indentLevel: 0,
+          },
+          {
+            sopProcedurItemId: 905,
+            sopProcedureId: 802,
+            order: 2,
+            itemNumber: '2',
+            text: 'Run samples in order specified by batch protocol.',
+            indentLevel: 0,
+          },
+        ],
+      },
+    ],
+    sopFields: [
+      {
+        sopFieldId: 1001,
+        batchSopId: sopId,
+        section: 'Instrument',
+        name: 'InstrumentId',
+        displayName: 'Instrument',
+        row: 1,
+        column: 1,
+        batchPropertyName: 'InstrumentId',
+        required: true,
+        readOnly: false,
+        requiredMessage: 'Please select an instrument',
+        minValueMessage: null,
+        maxValueMessage: null,
+        regexMessage: null,
+        $type: 'InstrumentTypeSopFieldRs',
+        instrumentTypeId: 1,
+      },
+      {
+        sopFieldId: 1002,
+        batchSopId: sopId,
+        section: 'Parameters',
+        name: 'Column',
+        displayName: 'Column',
+        row: 2,
+        column: 1,
+        batchPropertyName: 'ColumnId',
+        required: true,
+        readOnly: false,
+        requiredMessage: 'Please select a column',
+        minValueMessage: null,
+        maxValueMessage: null,
+        regexMessage: null,
+        $type: 'LabAssetSopFieldRs',
+        labAssetTypeId: 1,
+      },
+    ],
+    decimalFormatType: 1,
+  };
+
+  return sop;
+}
+
 export default {
   fetchSelectors,
   fetchBatchSopSelections,
   fetchAnalyticalBatchSopSelections,
   fetchPrepBatchSopDetail,
+  fetchAnalyticalBatchSopRs,
   fetchCompounds,
   savePrepBatchSop,
+  saveAnalyticalBatchSop,
   savePrepBatchSopSelection,
   fetchPanels,
   savePanel,
