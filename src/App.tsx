@@ -13,6 +13,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
 import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
+import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
 import CompoundManagement from './pages/admin/CompoundManagement';
 import PanelManagement from './pages/admin/PanelManagement';
 import InstrumentManagement from './pages/admin/InstrumentManagement';
@@ -33,6 +34,11 @@ const App: React.FC = () => {
                   path="admin/analytical-batch-sop"
                   element={<AnalyticalBatchSopManagement />}
                 />
+                <Route
+                  path="admin/analytical-batch-sop/:id"
+                  element={<AnalyticalBatchSopDetail />}
+                />
+
                 <Route path="admin/compound-management" element={<CompoundManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />

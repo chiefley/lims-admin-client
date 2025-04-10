@@ -20,6 +20,7 @@ export interface EditableColumn {
   editComponent?: React.ComponentType<any>;
   rules?: any[];
   options?: { value: string | number; label: string }[];
+  inputProps?: any;
   render?: (value: any, record: any) => React.ReactNode;
   [key: string]: any; // Allow for additional properties
 }
@@ -81,6 +82,11 @@ function EditableTable<RecordType extends Record<string, any>>({
           console.warn(`Failed to convert date field ${col.dataIndex}`, e);
         }
       }
+
+      // Convert boolean fields to strings for select dropdowns
+      if (col.inputType === 'select' && typeof record[dataIndex] === 'boolean') {
+        formValues[dataIndex] = record[dataIndex].toString();
+      }
     });
 
     form.setFieldsValue(formValues);
@@ -114,6 +120,9 @@ function EditableTable<RecordType extends Record<string, any>>({
         } else if (column?.inputType === 'date' && !value) {
           // If date value is null or undefined, explicitly set to null
           (updatedRecord as any)[key] = null;
+        } else if (column?.inputType === 'select' && (value === 'true' || value === 'false')) {
+          // Convert string 'true' or 'false' back to boolean
+          (updatedRecord as any)[key] = value === 'true';
         } else {
           // For all other types, use the value as is (which might be null)
           (updatedRecord as any)[key] = value;
@@ -146,6 +155,7 @@ function EditableTable<RecordType extends Record<string, any>>({
         form,
         rules: col.rules,
         options: col.options,
+        inputProps: col.inputProps,
       }),
     };
   });

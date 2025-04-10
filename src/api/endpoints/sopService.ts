@@ -1,276 +1,318 @@
 // src/api/endpoints/sopService.ts
+import { apiClient, DEFAULT_LAB_ID } from '../config';
+import appConfig from '../../config/appConfig';
+import {
+  ServiceResponse,
+  SopMaintenanceSelectors,
+  PrepBatchSopSelectionRs,
+  AnalyticalBatchSopSelectionRs,
+  PrepBatchSopRs,
+  AnalyticalBatchSopRs,
+  CompoundRs,
+  PanelRs,
+} from '../../models/types';
 
-// ... [keeping all the imports and existing code before the mock functions] ...
+// Base URL for SOP maintenance endpoints
+const baseUrl = `${appConfig.api.baseUrl}/sopmaintenance`;
+const labId = DEFAULT_LAB_ID;
 
 /**
- * Mock data for a specific analytical batch SOP detail when the API is unavailable
+ * Fetches all selectors for dropdowns
+ * @returns Promise with selectors data
  */
-function getMockAnalyticalBatchSopDetail(sopId: number): AnalyticalBatchSopRs {
-  // Base SOP details
-  const sop: AnalyticalBatchSopRs = {
-    batchSopId: sopId,
-    name: `Mock Analytical SOP ${sopId}`,
-    sop: `AN-00${sopId}`,
-    version: '1.0',
-    sopGroup: 'Analytical Methods',
-    labId: 1001,
-    significantDigits: 3,
-    instrumentTypeId: 1,
-    suppressLoqsForComputedAnalytes: false,
-    requiresMoistureCorrection: true,
-    requiresServingAndContainerResults: false,
-    reportPercentType: 1,
-    concentrationScaleFactor: 1.0,
-    percentScaleFactor: 100.0,
-    measuredUnits: 'mg/L',
-    reportingUnits: 'mg/kg',
-    rsaUseNominalValues: false,
-    rsaNominalSampleWeightG: null,
-    rsaNominalExtractionVolumeL: null,
-    analysisMethodType: 1,
-    aggregateRollupMethodType: 1,
-    lLoqComparisonType: 1,
-    uLoqComparisonType: 1,
-    actionLimitComparisonType: 1,
-    rollupRsd: false,
-    allPartialAnalyteResults: false,
-    batchCount: 3,
-    analyticalBatchSopControlSampleRss: [
-      {
-        analyticalBatchSopControlSampleId: 201,
-        analyticalBatchSopId: sopId,
-        sopBatchPositionType: 1,
-        everyNSamples: 10,
-        controlSampleOrder: 1,
-        qCFactor1: 2,
-        qCFactor2: 3,
-        qCTargetRangeLow: 80,
-        qCTargetRangeHigh: 120,
-        historicalDays: 30,
-        controlSampleAnalyteSopSpecificationRss: [
-          {
-            controlSampleAnalyteSopSpecificationId: 301,
-            analyticalBatchSopControlSampleId: 201,
-            analyteId: 1,
-            expectedRecovery: 100.0,
-            qCType: 1,
-          },
-        ],
-      },
-      {
-        analyticalBatchSopControlSampleId: 202,
-        analyticalBatchSopId: sopId,
-        sopBatchPositionType: 3,
-        everyNSamples: 20,
-        controlSampleOrder: 2,
-        qCFactor1: 1,
-        qCFactor2: 2,
-        qCTargetRangeLow: 85,
-        qCTargetRangeHigh: 115,
-        historicalDays: 30,
-        controlSampleAnalyteSopSpecificationRss: [
-          {
-            controlSampleAnalyteSopSpecificationId: 302,
-            analyticalBatchSopControlSampleId: 202,
-            analyteId: 2,
-            expectedRecovery: 95.0,
-            qCType: 1,
-          },
-        ],
-      },
-    ],
-    analyticalBatchSopAnalytesRss: [
-      {
-        analyticalBatchSopAnalyteId: 401,
-        analyticalBatchSopId: sopId,
-        analyteId: 1,
-        computed: false,
-        computeAggregateAnalyte: false,
-        isInternalStandard: false,
-        warningStd: 2,
-        confidenceStd: 3,
-        testStd: 4,
-        analystDisplayOrder: 1,
-        computedAnalyteConstituentRss: [],
-      },
-      {
-        analyticalBatchSopAnalyteId: 402,
-        analyticalBatchSopId: sopId,
-        analyteId: 2,
-        computed: false,
-        computeAggregateAnalyte: false,
-        isInternalStandard: true,
-        warningStd: 1,
-        confidenceStd: 2,
-        testStd: 3,
-        analystDisplayOrder: 2,
-        computedAnalyteConstituentRss: [],
-      },
-      {
-        analyticalBatchSopAnalyteId: 403,
-        analyticalBatchSopId: sopId,
-        analyteId: 3,
-        computed: true,
-        computeAggregateAnalyte: true,
-        isInternalStandard: false,
-        warningStd: null,
-        confidenceStd: null,
-        testStd: null,
-        analystDisplayOrder: 3,
-        computedAnalyteConstituentRss: [
-          {
-            computedAnalyteConstituentId: 501,
-            analyticalBatchSopAnalyteId: 403,
-            analyteId: 1,
-            cas: '71-43-2',
-          },
-          {
-            computedAnalyteConstituentId: 502,
-            analyticalBatchSopAnalyteId: 403,
-            analyteId: 2,
-            cas: '108-88-3',
-          },
-        ],
-      },
-    ],
-    sopAnalysisReviewComponentRss: [
-      {
-        sopAnalysisReviewComponentId: 601,
-        analyticalBatchSopId: sopId,
-        componentName: 'RetentionTime',
-        displayName: 'Retention Time',
-        parameter: 'RT',
-        collection: 'Chromatography',
-      },
-      {
-        sopAnalysisReviewComponentId: 602,
-        analyticalBatchSopId: sopId,
-        componentName: 'PeakArea',
-        displayName: 'Peak Area',
-        parameter: 'Area',
-        collection: 'Chromatography',
-      },
-    ],
-    prepBatchSopAnalyticalBatchSopRss: [
-      {
-        prepBatchSopAnalyticalBatchSopId: 701,
-        prepBatchSopId: 1,
-        analyticalBatchSopId: sopId,
-        effectiveDate: new Date().toISOString(),
-      },
-      {
-        prepBatchSopAnalyticalBatchSopId: 702,
-        prepBatchSopId: 2,
-        analyticalBatchSopId: sopId,
-        effectiveDate: new Date().toISOString(),
-      },
-    ],
-    sopProcedures: [
-      {
-        sopProcedureId: 801,
-        batchSopId: sopId,
-        section: 'Sample Preparation',
-        procedureName: 'Sample Extraction',
-        procedureItems: [
-          {
-            sopProcedurItemId: 901,
-            sopProcedureId: 801,
-            order: 1,
-            itemNumber: '1',
-            text: 'Clean all equipment with appropriate solvent.',
-            indentLevel: 0,
-          },
-          {
-            sopProcedurItemId: 902,
-            sopProcedureId: 801,
-            order: 2,
-            itemNumber: '2',
-            text: 'Prepare extraction solution according to specifications.',
-            indentLevel: 0,
-          },
-          {
-            sopProcedurItemId: 903,
-            sopProcedureId: 801,
-            order: 3,
-            itemNumber: '3',
-            text: 'Extract samples using the validated method.',
-            indentLevel: 0,
-          },
-        ],
-      },
-      {
-        sopProcedureId: 802,
-        batchSopId: sopId,
-        section: 'Analysis',
-        procedureName: 'Instrumental Analysis',
-        procedureItems: [
-          {
-            sopProcedurItemId: 904,
-            sopProcedureId: 802,
-            order: 1,
-            itemNumber: '1',
-            text: 'Calibrate instrument according to specifications.',
-            indentLevel: 0,
-          },
-          {
-            sopProcedurItemId: 905,
-            sopProcedureId: 802,
-            order: 2,
-            itemNumber: '2',
-            text: 'Run samples in order specified by batch protocol.',
-            indentLevel: 0,
-          },
-        ],
-      },
-    ],
-    sopFields: [
-      {
-        sopFieldId: 1001,
-        batchSopId: sopId,
-        section: 'Instrument',
-        name: 'InstrumentId',
-        displayName: 'Instrument',
-        row: 1,
-        column: 1,
-        batchPropertyName: 'InstrumentId',
-        required: true,
-        readOnly: false,
-        requiredMessage: 'Please select an instrument',
-        minValueMessage: null,
-        maxValueMessage: null,
-        regexMessage: null,
-        $type: 'InstrumentTypeSopFieldRs',
-        instrumentTypeId: 1,
-      } as InstrumentTypeSopFieldRs, // Type casting to the appropriate type
+export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
+  try {
+    console.log(`Fetching selectors from ${baseUrl}/FetchSelectors/${labId}`);
 
-      {
-        sopFieldId: 1002,
-        batchSopId: sopId,
-        section: 'Parameters',
-        name: 'Column',
-        displayName: 'Column',
-        row: 2,
-        column: 1,
-        batchPropertyName: 'ColumnId',
-        required: true,
-        readOnly: false,
-        requiredMessage: 'Please select a column',
-        minValueMessage: null,
-        maxValueMessage: null,
-        regexMessage: null,
-        $type: 'LabAssetSopFieldRs',
-        labAssetTypeId: 1,
-      } as LabAssetSopFieldRs, // Type casting to the appropriate type
-    ],
-    decimalFormatType: 1,
-  };
+    const response = await apiClient.get<ServiceResponse<SopMaintenanceSelectors>>(
+      `/sopmaintenance/FetchSelectors/${labId}`
+    );
 
-  return sop;
-}
+    // Check if response has the expected structure
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Invalid response format from API');
+    }
 
-// ... [keeping the rest of the file] ...
+    // Check success flag
+    if (response.data.success === false) {
+      throw new Error(response.data.message || 'Failed to fetch selectors');
+    }
 
-// Replace the export default section at the end of your sopService.ts file with this:
+    // Ensure we have data
+    if (!response.data.data) {
+      throw new Error('No data returned from API');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching selectors:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches all prep batch SOP selections
+ * @returns Promise with array of PrepBatchSopSelectionRs data
+ */
+export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs[]> => {
+  try {
+    console.log(`Fetching batch SOP selections from ${baseUrl}/FetchBatchSopSelections/${labId}`);
+
+    const response = await apiClient.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
+      `/sopmaintenance/FetchBatchSopSelections/${labId}`
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch batch SOP selections');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching batch SOP selections:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches all analytical batch SOP selections
+ * @returns Promise with array of AnalyticalBatchSopSelectionRs data
+ */
+export const fetchAnalyticalBatchSopSelections = async (): Promise<
+  AnalyticalBatchSopSelectionRs[]
+> => {
+  try {
+    console.log(
+      `Fetching analytical batch SOP selections from ${baseUrl}/FetchAnalyticalBatchSopSelections/${labId}`
+    );
+
+    const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopSelectionRs[]>>(
+      `/sopmaintenance/FetchAnalyticalBatchSopSelections/${labId}`
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch analytical batch SOP selections');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching analytical batch SOP selections:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches a specific prep batch SOP detail
+ * @param prepBatchSopId ID of the prep batch SOP to fetch
+ * @returns Promise with PrepBatchSopRs data
+ */
+export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<PrepBatchSopRs> => {
+  try {
+    console.log(
+      `Fetching prep batch SOP detail from ${baseUrl}/FetchPrepBatchSopRs/${prepBatchSopId}`
+    );
+
+    const response = await apiClient.get<ServiceResponse<PrepBatchSopRs>>(
+      `/sopmaintenance/FetchPrepBatchSopRs/${prepBatchSopId}`
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch prep batch SOP detail');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching prep batch SOP detail:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches a specific analytical batch SOP detail
+ * @param analyticalBatchSopId ID of the analytical batch SOP to fetch
+ * @returns Promise with AnalyticalBatchSopRs data
+ */
+export const fetchAnalyticalBatchSopRs = async (
+  analyticalBatchSopId: number
+): Promise<AnalyticalBatchSopRs> => {
+  try {
+    console.log(
+      `Fetching analytical batch SOP detail from ${baseUrl}/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
+    );
+
+    const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopRs>>(
+      `/sopmaintenance/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch analytical batch SOP detail');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching analytical batch SOP detail:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches all compounds
+ * @returns Promise with array of CompoundRs data
+ */
+export const fetchCompounds = async (): Promise<CompoundRs[]> => {
+  try {
+    console.log(`Fetching compounds from ${baseUrl}/FetchCompoundRss`);
+
+    const response = await apiClient.get<ServiceResponse<CompoundRs[]>>(
+      `/sopmaintenance/FetchCompoundRss`
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch compounds');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching compounds:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches all panels for the lab
+ * @returns Promise with array of PanelRs data
+ */
+export const fetchPanels = async (): Promise<PanelRs[]> => {
+  try {
+    console.log(`Fetching panels from ${baseUrl}/FetchPanelRss/${labId}`);
+
+    const response = await apiClient.get<ServiceResponse<PanelRs[]>>(
+      `/sopmaintenance/FetchPanelRss/${labId}`
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch panels');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching panels:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves changes to a prep batch SOP
+ * @param prepBatchSop The prep batch SOP data to save
+ * @returns Promise with the saved PrepBatchSopRs
+ */
+export const savePrepBatchSop = async (prepBatchSop: PrepBatchSopRs): Promise<PrepBatchSopRs> => {
+  try {
+    console.log(`Saving prep batch SOP to ${baseUrl}/SavePrepBatchSop`);
+
+    const response = await apiClient.put<ServiceResponse<PrepBatchSopRs>>(
+      `/sopmaintenance/SavePrepBatchSop`,
+      prepBatchSop
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to save prep batch SOP');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error saving prep batch SOP:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves changes to an analytical batch SOP
+ * @param analyticalBatchSop The analytical batch SOP data to save
+ * @returns Promise with the saved AnalyticalBatchSopRs
+ */
+export const saveAnalyticalBatchSop = async (
+  analyticalBatchSop: AnalyticalBatchSopRs
+): Promise<AnalyticalBatchSopRs> => {
+  try {
+    console.log(`Saving analytical batch SOP to ${baseUrl}/SaveAnalyticalBatchSop`);
+
+    const response = await apiClient.put<ServiceResponse<AnalyticalBatchSopRs>>(
+      `/sopmaintenance/SaveAnalyticalBatchSop`,
+      analyticalBatchSop
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to save analytical batch SOP');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error saving analytical batch SOP:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves changes to a prep batch SOP selection
+ * @param prepBatchSopSelection The prep batch SOP selection data to save
+ * @returns Promise with the saved PrepBatchSopSelectionRs
+ */
+export const savePrepBatchSopSelection = async (
+  prepBatchSopSelection: PrepBatchSopSelectionRs
+): Promise<PrepBatchSopSelectionRs> => {
+  try {
+    console.log(`Saving prep batch SOP selection to ${baseUrl}/SavePrepBatchSopSelection`);
+
+    const response = await apiClient.put<ServiceResponse<PrepBatchSopSelectionRs>>(
+      `/sopmaintenance/SavePrepBatchSopSelection`,
+      prepBatchSopSelection
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to save prep batch SOP selection');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error saving prep batch SOP selection:', error);
+    throw error;
+  }
+};
+
+/**
+ * Saves changes to a panel
+ * @param panel The panel data to save
+ * @returns Promise with the saved PanelRs
+ */
+export const savePanel = async (panel: PanelRs): Promise<PanelRs> => {
+  try {
+    console.log(`Saving panel to ${baseUrl}/SavePanel`);
+
+    const response = await apiClient.put<ServiceResponse<PanelRs>>(
+      `/sopmaintenance/SavePanel`,
+      panel
+    );
+
+    // Check response structure and success
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to save panel');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error saving panel:', error);
+    throw error;
+  }
+};
 
 // Export all functions individually and also as a default object
 export default {
@@ -280,9 +322,9 @@ export default {
   fetchPrepBatchSopDetail,
   fetchAnalyticalBatchSopRs,
   fetchCompounds,
+  fetchPanels,
   savePrepBatchSop,
   saveAnalyticalBatchSop,
   savePrepBatchSopSelection,
-  fetchPanels,
   savePanel,
 };

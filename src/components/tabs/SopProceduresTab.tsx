@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Tabs, Button, Alert, Row, Col, Input, Popconfirm, message, Form } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { PrepBatchSopRs, SopProcedureRs, SopProcedureItemRs } from '../../models/types';
+import { SopProcedureRs, SopProcedureItemRs } from '../../models/types';
 import CardSection from '../common/CardSection';
 import FormItem from '../common/FormItem';
 import EditableTable, { EditableColumn } from '../tables/EditableTable';
@@ -9,8 +9,14 @@ import { stylePresets } from '../../config/theme';
 
 const { TabPane } = Tabs;
 
+// Create a generic SopData type that includes only the properties we need
+interface SopData {
+  batchSopId: number;
+  sopProcedures: SopProcedureRs[];
+}
+
 interface SopProceduresTabProps {
-  sopData: PrepBatchSopRs;
+  sopData: SopData;
   editing: boolean;
   onProceduresChange: (procedures: SopProcedureRs[]) => void;
 }

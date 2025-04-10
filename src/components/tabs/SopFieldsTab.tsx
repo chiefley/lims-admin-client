@@ -6,7 +6,6 @@ import {
   DateTimeSopFieldRs,
   LabAssetSopFieldRs,
   TableColumnTextSopFieldRs,
-  PrepBatchSopRs,
   InstrumentTypeSopFieldRs,
   SopEnumSopFieldRs,
   UserSopFieldRs,
@@ -19,8 +18,13 @@ import {
 import CardSection from '../common/CardSection';
 import { stylePresets } from '../../config/theme';
 
+// Create a generic SopData type that includes only the properties we need
+interface SopData {
+  sopFields: SopFieldRs[];
+}
+
 interface SopFieldsTabProps {
-  sopData: PrepBatchSopRs;
+  sopData: SopData;
   editing: boolean;
   onFieldsChange?: (fields: SopFieldRs[]) => void;
 }

@@ -30,6 +30,8 @@ import {
   ApartmentOutlined,
   ExceptionOutlined,
   DatabaseOutlined,
+  PlusOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { fetchAnalyticalBatchSopRs, fetchSelectors } from '../../api/endpoints/sopService';
 import {
@@ -895,8 +897,8 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       editable: true,
       inputType: 'select',
       options: [
-        { value: true, label: 'Yes' },
-        { value: false, label: 'No' },
+        { value: 'true', label: 'Yes' },
+        { value: 'false', label: 'No' },
       ],
       render: (value: boolean) => (value ? 'Yes' : 'No'),
     },
@@ -907,8 +909,8 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       editable: true,
       inputType: 'select',
       options: [
-        { value: true, label: 'Yes' },
-        { value: false, label: 'No' },
+        { value: 'true', label: 'Yes' },
+        { value: 'false', label: 'No' },
       ],
       render: (value: boolean) => (value ? 'Yes' : 'No'),
     },

@@ -120,17 +120,17 @@ export interface SopFieldRs {
 
 // Base Single Value SOP Field
 export interface SingleValueSopFieldRs extends SopFieldRs {
-  $type: 'SingleValueSopFieldRs';
+  $type: string;
 }
 
 // DateTime SOP Field
-export interface DateTimeSopFieldRs extends SingleValueSopFieldRs {
+export interface DateTimeSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'DateTimeSopFieldRs';
   datePartOnly: boolean;
 }
 
 // Double SOP Field
-export interface DoubleSopFieldRs extends SingleValueSopFieldRs {
+export interface DoubleSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'DoubleSopFieldRs';
   minDoubleValue: number | null;
   maxDoubleValue: number | null;
@@ -138,36 +138,36 @@ export interface DoubleSopFieldRs extends SingleValueSopFieldRs {
 }
 
 // Lab Asset SOP Field
-export interface LabAssetSopFieldRs extends SingleValueSopFieldRs {
+export interface LabAssetSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'LabAssetSopFieldRs';
   labAssetTypeId: number | null;
 }
 
 // Instrument Type SOP Field
-export interface InstrumentTypeSopFieldRs extends SingleValueSopFieldRs {
+export interface InstrumentTypeSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'InstrumentTypeSopFieldRs';
   instrumentTypeId: number | null;
 }
 
 // SOP Enum SOP Field
-export interface SopEnumSopFieldRs extends SingleValueSopFieldRs {
+export interface SopEnumSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'SopEnumSopFieldRs';
   sopEnumTypeId: number | null;
 }
 
 // User SOP Field
-export interface UserSopFieldRs extends SingleValueSopFieldRs {
+export interface UserSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'UserSopFieldRs';
   applicationRoleId: number | null;
 }
 
 // Text SOP Field
-export interface TextSopFieldRs extends SingleValueSopFieldRs {
+export interface TextSopFieldRs extends Omit<SingleValueSopFieldRs, '$type'> {
   $type: 'TextSopFieldRs';
 }
 
 // Base Table Column SOP Field
-export interface TableColumnSopFieldRs extends SopFieldRs {
+export interface TableColumnSopFieldRs extends Omit<SopFieldRs, '$type'> {
   $type: 'TableColumnSopFieldRs';
   tableName: string;
   columnWidth: number | null;
@@ -175,7 +175,7 @@ export interface TableColumnSopFieldRs extends SopFieldRs {
 }
 
 // Table Column Text SOP Field
-export interface TableColumnTextSopFieldRs extends TableColumnSopFieldRs {
+export interface TableColumnTextSopFieldRs extends Omit<TableColumnSopFieldRs, '$type'> {
   $type: 'TableColumnTextSopFieldRs';
   validationRegex: string | null;
   minLength: number | null;
@@ -183,14 +183,14 @@ export interface TableColumnTextSopFieldRs extends TableColumnSopFieldRs {
 }
 
 // Table Column Int SOP Field
-export interface TableColumnIntSopFieldRs extends TableColumnSopFieldRs {
+export interface TableColumnIntSopFieldRs extends Omit<TableColumnSopFieldRs, '$type'> {
   $type: 'TableColumnIntSopFieldRs';
   minIntValue: number | null;
   maxIntValue: number | null;
 }
 
 // Table Column Double SOP Field
-export interface TableColumnDoubleSopFieldRs extends TableColumnSopFieldRs {
+export interface TableColumnDoubleSopFieldRs extends Omit<TableColumnSopFieldRs, '$type'> {
   $type: 'TableColumnDoubleSopFieldRs';
   minDoubleValue: number | null;
   maxDoubleValue: number | null;
@@ -198,13 +198,13 @@ export interface TableColumnDoubleSopFieldRs extends TableColumnSopFieldRs {
 }
 
 // Table Column DateTime SOP Field
-export interface TableColumnDateTimeFieldRs extends TableColumnSopFieldRs {
+export interface TableColumnDateTimeFieldRs extends Omit<TableColumnSopFieldRs, '$type'> {
   $type: 'TableColumnDateTimeFieldRs';
   datePartOnly: boolean;
 }
 
 // Table Column SOP Enum SOP Field
-export interface TableColumnSopEnumFieldRs extends TableColumnSopFieldRs {
+export interface TableColumnSopEnumFieldRs extends Omit<TableColumnSopFieldRs, '$type'> {
   $type: 'TableColumnSopEnumFieldRs';
 }
 
@@ -356,6 +356,14 @@ export interface AnalyticalBatchSopRs {
   prepBatchSopAnalyticalBatchSopRss: PrepBatchSopAnalyticalBatchSopRs[];
   sopProcedures: SopProcedureRs[];
   sopFields: SopFieldRs[];
+}
+
+// ============ CompoundRs interface based on the C# model ============
+export interface CompoundRs {
+  analyteId: number;
+  cas: string;
+  name: string;
+  ccCompoundName: string | null;
 }
 
 // PanelRs interface based on the C# model
