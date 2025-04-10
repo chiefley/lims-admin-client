@@ -29,6 +29,6 @@ public class SopMaintenanceSelectors
     public List<DropDownItem> ReportPercentTypes { get; set; }
     public List<DropDownItem> ComparisonTypes { get; set; }
     public List<DropDownItem> AggregateRollupMethodTypes { get; set; }
-
-
+    public List<DropDownItem> PrepBatchSops { get; set; }
+    public List<DropDownItem> AnalyticalBatchSops { get; set; }
 }

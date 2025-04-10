@@ -69,18 +69,26 @@ const AppLayout: React.FC = () => {
                 },
                 {
                   key: '2-2',
-                  label: <Link to="/admin/compound-management">Compound Management</Link>,
+                  label: <Link to="/admin/analytical-batch-sop">Analytical Batch SOP</Link>,
                 },
                 {
                   key: '2-3',
-                  label: <Link to="/admin/panel-management">Panel Management</Link>,
+                  label: <Link to="/admin/compound-management">Compound Management</Link>,
                 },
                 {
                   key: '2-4',
-                  label: 'User Management',
+                  label: <Link to="/admin/panel-management">Panel Management</Link>,
                 },
                 {
                   key: '2-5',
+                  label: <Link to="/admin/instrument-management">Instrument Management</Link>,
+                },
+                {
+                  key: '2-6',
+                  label: 'User Management',
+                },
+                {
+                  key: '2-7',
                   label: 'Lab Settings',
                 },
               ],
@@ -94,22 +102,6 @@ const AppLayout: React.FC = () => {
               key: '4',
               icon: <TeamOutlined />,
               label: 'User Directory',
-            },
-            {
-              key: '2-3',
-              label: <Link to="/admin/panel-management">Panel Management</Link>,
-            },
-            {
-              key: '2-4',
-              label: <Link to="/admin/instrument-management">Instrument Management</Link>,
-            },
-            {
-              key: '2-5',
-              label: 'User Management',
-            },
-            {
-              key: '2-6',
-              label: 'Lab Settings',
             },
           ]}
         />

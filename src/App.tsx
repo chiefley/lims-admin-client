@@ -12,6 +12,7 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import Dashboard from './pages/dashboard/Dashboard';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
+import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
 import CompoundManagement from './pages/admin/CompoundManagement';
 import PanelManagement from './pages/admin/PanelManagement';
 import InstrumentManagement from './pages/admin/InstrumentManagement';
@@ -28,10 +29,10 @@ const App: React.FC = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="admin/prep-batch-sop" element={<PrepBatchSopManagement />} />
                 <Route path="admin/prep-batch-sop/:id" element={<PrepBatchSopDetail />} />
-                <Route path="admin/compound-management" element={<CompoundManagement />} />
-                <Route path="admin/panel-management" element={<PanelManagement />} />
-                <Route path="admin/prep-batch-sop" element={<PrepBatchSopManagement />} />
-                <Route path="admin/prep-batch-sop/:id" element={<PrepBatchSopDetail />} />
+                <Route
+                  path="admin/analytical-batch-sop"
+                  element={<AnalyticalBatchSopManagement />}
+                />
                 <Route path="admin/compound-management" element={<CompoundManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />

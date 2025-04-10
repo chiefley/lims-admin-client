@@ -66,10 +66,16 @@ public class AnalyticalBatchSopRs : BatchSopRs
     [JsonPropertyOrder(110)]  // Ensure this appears after primitive properties
 
     public List<AnalyticalBatchSopControlSampleRs> AnalyticalBatchSopControlSampleRss { get; set; } = [];
-    [JsonPropertyOrder(120)]  // Ensure this appears after primitive properties
-    public List<AnalyticalBatchSopAnalyteRs> AnalyticalBatchSopAnalytesRss { get; set; }
-    [JsonPropertyOrder(130)]  // Ensure this appears after primitive properties
-    public List<SopAnalysisReviewComponentRs> SopAnalysisReviewComponentRss { get; set; }
+
+    [JsonPropertyOrder(120)] // Ensure this appears after primitive properties
+    public List<AnalyticalBatchSopAnalyteRs> AnalyticalBatchSopAnalytesRss { get; set; } = [];
+
+    [JsonPropertyOrder(130)] // Ensure this appears after primitive properties
+    public List<SopAnalysisReviewComponentRs> SopAnalysisReviewComponentRss { get; set; } = [];
+
+    [JsonPropertyOrder(140)] // Ensure this appears after primitive properties
+    public List<PrepBatchSopAnalyticalBatchSopRs> PrepBatchSopAnalyticalBatchSopRss { get; set; } = [];
+
     public override string Type => nameof(AnalyticalBatchSopRs);
 
     public static async Task<List<AnalyticalBatchSopRs>> FetchAnalyticalBatchSopRss(IQueryable<AnalyticalBatchSop> query, SelectorVm analytes)
@@ -152,6 +158,12 @@ public class AnalyticalBatchSopRs : BatchSopRs
                 Parameter = src.Parameter,
                 SopAnalysisReviewComponentId = src.Id
             }).ToList(),
+            PrepBatchSopAnalyticalBatchSopRss = absop.PrepBatchSopAnalyticalBatchSops.Select(sop => new PrepBatchSopAnalyticalBatchSopRs
+            {
+                PrepBatchSopAnalyticalBatchSopId = sop.Id,
+                PrepBatchSopId = sop.PrepBatchSopId,
+                AnalyticalBatchSopId = sop.AnalyticalBatchSopId
+            }).ToList()
         }).ToListAsync();
 
         var computedAnalyteConstituents = ret

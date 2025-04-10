@@ -54,6 +54,10 @@ export interface SopMaintenanceSelectors {
   testCategoryTypes: DropDownItem[];
   instrumentFileParserTypes: DropDownItem[];
   durableLabAssets: DropDownItem[];
+  analysisMethodTypes: DropDownItem[];
+  reportPercentTypes: DropDownItem[];
+  comparisonTypes: DropDownItem[];
+  aggregateRollupMethodTypes: DropDownItem[];
 }
 
 // ============ Base Types ============
@@ -84,6 +88,11 @@ export interface ManifestSamplePrepBatchSopRs {
 export interface PrepBatchSopSelectionRs extends BatchSopSelectionRs {
   manifestSamplePrepBatchSopRss: ManifestSamplePrepBatchSopRs[];
   $type: 'PrepBatchSopSelectionRs';
+}
+
+// Analytical Batch SOP Selection Response
+export interface AnalyticalBatchSopSelectionRs extends BatchSopSelectionRs {
+  $type: 'AnalyticalBatchSopSelectionRs';
 }
 
 // ============ Detailed Types for SOP Detail View ============

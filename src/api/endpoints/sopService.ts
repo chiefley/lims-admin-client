@@ -5,6 +5,7 @@ import { FEATURES } from '../../config/constants';
 import {
   ServiceResponse,
   PrepBatchSopSelectionRs,
+  AnalyticalBatchSopSelectionRs,
   SopMaintenanceSelectors,
   PrepBatchSopRs,
   PanelRs,
@@ -105,6 +106,55 @@ export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs
     if (appConfig.features.useMockDataAsFallback) {
       console.warn('Using mock batch SOP data as fallback');
       return getMockBatchSopSelections();
+    }
+
+    throw error;
+  }
+};
+
+/**
+ * Fetches all analytical batch SOP selections for the lab
+ * @returns Promise with array of AnalyticalBatchSopSelectionRs data
+ */
+export const fetchAnalyticalBatchSopSelections = async (): Promise<
+  AnalyticalBatchSopSelectionRs[]
+> => {
+  try {
+    // Skip API call if mock data is enabled
+    if (appConfig.features.useMockData) {
+      return getMockAnalyticalBatchSopSelections();
+    }
+
+    const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopSelectionRs[]>>(
+      `/sopmaintenance/FetchAnalyticalBatchSopSelections/${labId}`
+    );
+
+    // Log the response for debugging
+    console.log('API Response (Analytical Batch SOP Selections):', response);
+
+    // Check if response has the expected structure
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Invalid response format from API');
+    }
+
+    // Check success flag
+    if (response.data.success === false) {
+      throw new Error(response.data.message || 'Failed to fetch analytical batch SOPs');
+    }
+
+    // Ensure we have data
+    if (!response.data.data) {
+      throw new Error('No data returned from API');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching analytical batch SOPs:', error);
+
+    // Return mock data if fetching fails and fallback is enabled
+    if (appConfig.features.useMockDataAsFallback) {
+      console.warn('Using mock analytical batch SOP data as fallback');
+      return getMockAnalyticalBatchSopSelections();
     }
 
     throw error;
@@ -471,6 +521,28 @@ function getMockSelectors(): SopMaintenanceSelectors {
       { id: 4, label: 'Pump' },
       { id: 5, label: 'Degasser' },
     ],
+    analysisMethodTypes: [
+      { id: 1, label: 'HPLC' },
+      { id: 2, label: 'GC-MS' },
+      { id: 3, label: 'ICP-MS' },
+    ],
+    reportPercentTypes: [
+      { id: 1, label: 'Dry Weight' },
+      { id: 2, label: 'Wet Weight' },
+      { id: 3, label: 'As Received' },
+    ],
+    comparisonTypes: [
+      { id: 1, label: 'Greater Than' },
+      { id: 2, label: 'Less Than' },
+      { id: 3, label: 'Equal To' },
+      { id: 4, label: 'Not Equal To' },
+    ],
+    aggregateRollupMethodTypes: [
+      { id: 1, label: 'Sum' },
+      { id: 2, label: 'Average' },
+      { id: 3, label: 'Maximum' },
+      { id: 4, label: 'Minimum' },
+    ],
   };
 }
 
@@ -511,6 +583,54 @@ function getMockBatchSopSelections(): PrepBatchSopSelectionRs[] {
       batchCount: 2,
       $type: 'PrepBatchSopSelectionRs',
       manifestSamplePrepBatchSopRss: [],
+    },
+  ];
+}
+
+/**
+ * Mock data for analytical batch SOP selections when the API is unavailable
+ */
+function getMockAnalyticalBatchSopSelections(): AnalyticalBatchSopSelectionRs[] {
+  return [
+    {
+      batchSopId: 101,
+      name: 'HPLC Analysis Standard Method',
+      sop: 'AN-HPLC-001',
+      version: '2.0',
+      sopGroup: 'Analytical Methods',
+      labId: 1001,
+      batchCount: 12,
+      $type: 'AnalyticalBatchSopSelectionRs',
+    },
+    {
+      batchSopId: 102,
+      name: 'ICP-MS Metal Analysis',
+      sop: 'AN-ICPMS-001',
+      version: '1.5',
+      sopGroup: 'Analytical Methods',
+      labId: 1001,
+      batchCount: 8,
+      $type: 'AnalyticalBatchSopSelectionRs',
+    },
+    {
+      batchSopId: 103,
+      name: 'GC-MS Pesticide Analysis',
+      sop: 'AN-GCMS-001',
+      version: '3.2',
+      sopGroup: 'Analytical Methods',
+      labId: 1001,
+      batchCount: 0,
+      $type: 'AnalyticalBatchSopSelectionRs',
+    },
+    {
+      batchSopId: 104,
+      name: 'UV-Vis Spectroscopy',
+      sop: 'AN-UVVIS-001',
+      version: '1.0',
+      sopGroup: 'Analytical Methods',
+      labId: 1001,
+      batchCount: 4,
+      $type: 'AnalyticalBatchSopSelectionRs',
     },
   ];
 }
@@ -758,6 +878,7 @@ function getMockPrepBatchSopDetail(sopId: number): PrepBatchSopRs {
 export default {
   fetchSelectors,
   fetchBatchSopSelections,
+  fetchAnalyticalBatchSopSelections,
   fetchPrepBatchSopDetail,
   fetchCompounds,
   savePrepBatchSop,
