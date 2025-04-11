@@ -1,4 +1,4 @@
-BaseUrl = http://localhost:50511/api/sopmaintenance
+BaseUrl = http://localhost:50511/api/configurationmaintenance
 LabId = 1001
 
 Server setup.

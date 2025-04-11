@@ -3,7 +3,7 @@ import { Button, Alert, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import {
   PrepBatchSopRs,
-  SopMaintenanceSelectors,
+  ConfigurationMaintenanceSelectors,
   ManifestSamplePrepBatchSopRs,
 } from '../../models/types';
 import CardSection from '../common/CardSection';
@@ -14,7 +14,7 @@ import { Typography } from 'antd';
 
 interface SampleConfigurationsTabProps {
   sopData: PrepBatchSopRs;
-  selectors: SopMaintenanceSelectors;
+  selectors: ConfigurationMaintenanceSelectors;
   editing: boolean;
   onSampleConfigChange: (samples: ManifestSamplePrepBatchSopRs[]) => void;
 }

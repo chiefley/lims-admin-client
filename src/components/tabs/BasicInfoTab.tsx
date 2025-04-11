@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, InputNumber, Select, Row, Col } from 'antd';
-import { PrepBatchSopRs, SopMaintenanceSelectors } from '../../models/types';
+import { PrepBatchSopRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 import FormItem from '../common/FormItem';
 import CardSection from '../common/CardSection';
 import { stylePresets } from '../../config/theme';
@@ -8,7 +8,7 @@ import { stylePresets } from '../../config/theme';
 interface BasicInfoTabProps {
   sopData: PrepBatchSopRs;
   editing: boolean;
-  selectors: SopMaintenanceSelectors;
+  selectors: ConfigurationMaintenanceSelectors;
   form: any; // Form instance passed from parent
   onDataChange?: (fieldName: string, value: any) => void;
 }

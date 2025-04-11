@@ -404,7 +404,7 @@ const AnalyticalBatchSopDetail: React.FC = () => {
 // Basic Information Tab Component
 interface TabProps {
   sopData: AnalyticalBatchSopRs;
-  selectors: SopMaintenanceSelectors | null;
+  selectors: ConfigurationMaintenanceSelectors | null;
   editing: boolean;
   form: any;
 }
@@ -791,7 +791,7 @@ const BasicInfoTab: React.FC<TabProps> = ({ sopData, editing, selectors, form })
 // Analytes Tab Component
 interface AnalytesTabProps {
   sopData: AnalyticalBatchSopRs;
-  selectors: SopMaintenanceSelectors | null;
+  selectors: ConfigurationMaintenanceSelectors | null;
   editing: boolean;
   onAnalytesChange: (analytes: AnalyticalBatchSopAnalyteRs[]) => void;
 }
@@ -1046,7 +1046,7 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
 // Control Samples Tab Component
 interface ControlSamplesTabProps {
   sopData: AnalyticalBatchSopRs;
-  selectors: SopMaintenanceSelectors | null;
+  selectors: ConfigurationMaintenanceSelectors | null;
   editing: boolean;
   onControlSamplesChange: (controlSamples: AnalyticalBatchSopControlSampleRs[]) => void;
 }
@@ -1448,7 +1448,7 @@ const ReviewComponentsTab: React.FC<ReviewComponentsTabProps> = ({
 // Prep Batch SOPs Tab Component
 interface PrepBatchSopsTabProps {
   sopData: AnalyticalBatchSopRs;
-  selectors: SopMaintenanceSelectors | null;
+  selectors: ConfigurationMaintenanceSelectors | null;
   editing: boolean;
   onPrepBatchSopsChange: (prepBatchSops: PrepBatchSopAnalyticalBatchSopRs[]) => void;
 }
