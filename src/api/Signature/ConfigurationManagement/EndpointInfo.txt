@@ -1,0 +1,20 @@
+BaseUrl = http://localhost:50511/api/configurationmaintenance
+LabId = 1001
+
+Server setup.
+
+  services.AddControllers()
+      .AddJsonOptions(options =>
+      {
+          options.JsonSerializerOptions.ConfigureForPolymorphism();
+      });
+
+  services.AddCors(options =>
+  {
+      options.AddPolicy("AllowAll", policy =>
+      {
+          policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+      });
+  });
