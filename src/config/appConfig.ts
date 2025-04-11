@@ -5,8 +5,8 @@ const appConfig = {
   api: {
     baseUrl: 'http://localhost:50511/api',
     endpoints: {
-      sopMaintenance: {
-        base: '/sopmaintenance',
+      configurationMaintenance: {
+        base: '/configurationmaintenance',
         fetchSelectors: '/FetchSelectors',
         fetchBatchSopSelections: '/FetchBatchSopSelections',
       },

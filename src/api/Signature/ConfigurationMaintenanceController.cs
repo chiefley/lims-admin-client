@@ -3,35 +3,35 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NCLims.Data;
 using System.Threading.Tasks;
-using NCLims.Business.NewBatch.Sop;
-using NCLims.Business.NewBatch.Sop.Responses;
-using NCLims.Business.NewBatch.Sop.Responses.Basic_Tables;
-using NCLims.Business.NewBatch.Sop.Responses.PrepBatchSops;
-using NCLims.Business.NewBatch.Sop.Responses.AnalyticalBatchSops;
-using NCLims.Business.NewBatch.Sop.Responses.Lab_Assets;
+using NCLims.Business.NewBatch.ConfigurationManagement;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 
 namespace NCLims.App.Controllers;
 
-[Route("api/SopMaintenance")]
-public class SopMaintenanceController : BaseController
+[Route("api/ConfigurationMaintenance")]
+public class ConfigurationMaintenanceController : BaseController
 {
-    private readonly ISopMaintenanceService _sopService;
+    private readonly IConfigurationMaintenanceService _sopService;
 
-    public SopMaintenanceController(
+    public ConfigurationMaintenanceController(
         NCLimsContextFactory ctxFactory,
-        ISopMaintenanceService sopService) : base(ctxFactory)
+        IConfigurationMaintenanceService sopService) : base(ctxFactory)
     {
         _sopService = sopService;
     }
 
-    // Returns ServiceResponse<SopMaintenanceSelectors>
+    // Returns ServiceResponse<ConfigurationMaintenanceSelectors>
     [HttpGet("FetchSelectors/{labId}")]
     public async Task<IActionResult> FetchSelectors(int labId)
     {
         try
         {
             var payload = await _sopService.FetchSelectors(labId);
-            var sr = new ServiceResponse<SopMaintenanceSelectors>
+            var sr = new ServiceResponse<ConfigurationMaintenanceSelectors>
             {
                 Data = payload,
                 Message = "Success",

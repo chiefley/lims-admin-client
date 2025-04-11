@@ -1,9 +1,9 @@
-// src/api/endpoints/sopService.ts
+// src/api/endpoints/sopService.ts (to be renamed to configurationService.ts)
 import { apiClient, DEFAULT_LAB_ID } from '../config';
 import appConfig from '../../config/appConfig';
 import {
   ServiceResponse,
-  SopMaintenanceSelectors,
+  ConfigurationMaintenanceSelectors, // Renamed from SopMaintenanceSelectors
   PrepBatchSopSelectionRs,
   AnalyticalBatchSopSelectionRs,
   PrepBatchSopRs,
@@ -12,20 +12,20 @@ import {
   PanelRs,
 } from '../../models/types';
 
-// Base URL for SOP maintenance endpoints
-const baseUrl = `${appConfig.api.baseUrl}/sopmaintenance`;
+// Updated base URL for configuration maintenance endpoints
+const baseUrl = `${appConfig.api.baseUrl}/configurationmaintenance`;
 const labId = DEFAULT_LAB_ID;
 
 /**
  * Fetches all selectors for dropdowns
  * @returns Promise with selectors data
  */
-export const fetchSelectors = async (): Promise<SopMaintenanceSelectors> => {
+export const fetchSelectors = async (): Promise<ConfigurationMaintenanceSelectors> => {
   try {
     console.log(`Fetching selectors from ${baseUrl}/FetchSelectors/${labId}`);
 
-    const response = await apiClient.get<ServiceResponse<SopMaintenanceSelectors>>(
-      `/sopmaintenance/FetchSelectors/${labId}`
+    const response = await apiClient.get<ServiceResponse<ConfigurationMaintenanceSelectors>>(
+      `/configurationmaintenance/FetchSelectors/${labId}`
     );
 
     // Check if response has the expected structure
@@ -59,7 +59,7 @@ export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs
     console.log(`Fetching batch SOP selections from ${baseUrl}/FetchBatchSopSelections/${labId}`);
 
     const response = await apiClient.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
-      `/sopmaintenance/FetchBatchSopSelections/${labId}`
+      `/configurationmaintenance/FetchBatchSopSelections/${labId}`
     );
 
     // Check response structure and success
@@ -87,7 +87,7 @@ export const fetchAnalyticalBatchSopSelections = async (): Promise<
     );
 
     const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopSelectionRs[]>>(
-      `/sopmaintenance/FetchAnalyticalBatchSopSelections/${labId}`
+      `/configurationmaintenance/FetchAnalyticalBatchSopSelections/${labId}`
     );
 
     // Check response structure and success
@@ -114,7 +114,7 @@ export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<P
     );
 
     const response = await apiClient.get<ServiceResponse<PrepBatchSopRs>>(
-      `/sopmaintenance/FetchPrepBatchSopRs/${prepBatchSopId}`
+      `/configurationmaintenance/FetchPrepBatchSopRs/${prepBatchSopId}`
     );
 
     // Check response structure and success
@@ -143,7 +143,7 @@ export const fetchAnalyticalBatchSopRs = async (
     );
 
     const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopRs>>(
-      `/sopmaintenance/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
+      `/configurationmaintenance/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
     );
 
     // Check response structure and success
@@ -167,7 +167,7 @@ export const fetchCompounds = async (): Promise<CompoundRs[]> => {
     console.log(`Fetching compounds from ${baseUrl}/FetchCompoundRss`);
 
     const response = await apiClient.get<ServiceResponse<CompoundRs[]>>(
-      `/sopmaintenance/FetchCompoundRss`
+      `/configurationmaintenance/FetchCompoundRss`
     );
 
     // Check response structure and success
@@ -191,7 +191,7 @@ export const fetchPanels = async (): Promise<PanelRs[]> => {
     console.log(`Fetching panels from ${baseUrl}/FetchPanelRss/${labId}`);
 
     const response = await apiClient.get<ServiceResponse<PanelRs[]>>(
-      `/sopmaintenance/FetchPanelRss/${labId}`
+      `/configurationmaintenance/FetchPanelRss/${labId}`
     );
 
     // Check response structure and success
@@ -216,7 +216,7 @@ export const savePrepBatchSop = async (prepBatchSop: PrepBatchSopRs): Promise<Pr
     console.log(`Saving prep batch SOP to ${baseUrl}/SavePrepBatchSop`);
 
     const response = await apiClient.put<ServiceResponse<PrepBatchSopRs>>(
-      `/sopmaintenance/SavePrepBatchSop`,
+      `/configurationmaintenance/SavePrepBatchSop`,
       prepBatchSop
     );
 
@@ -244,7 +244,7 @@ export const saveAnalyticalBatchSop = async (
     console.log(`Saving analytical batch SOP to ${baseUrl}/SaveAnalyticalBatchSop`);
 
     const response = await apiClient.put<ServiceResponse<AnalyticalBatchSopRs>>(
-      `/sopmaintenance/SaveAnalyticalBatchSop`,
+      `/configurationmaintenance/SaveAnalyticalBatchSop`,
       analyticalBatchSop
     );
 
@@ -272,7 +272,7 @@ export const savePrepBatchSopSelection = async (
     console.log(`Saving prep batch SOP selection to ${baseUrl}/SavePrepBatchSopSelection`);
 
     const response = await apiClient.put<ServiceResponse<PrepBatchSopSelectionRs>>(
-      `/sopmaintenance/SavePrepBatchSopSelection`,
+      `/configurationmaintenance/SavePrepBatchSopSelection`,
       prepBatchSopSelection
     );
 
@@ -298,7 +298,7 @@ export const savePanel = async (panel: PanelRs): Promise<PanelRs> => {
     console.log(`Saving panel to ${baseUrl}/SavePanel`);
 
     const response = await apiClient.put<ServiceResponse<PanelRs>>(
-      `/sopmaintenance/SavePanel`,
+      `/configurationmaintenance/SavePanel`,
       panel
     );
 

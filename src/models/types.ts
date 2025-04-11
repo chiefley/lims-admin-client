@@ -32,8 +32,7 @@ export enum InstrumentFileParserType {
   Waters = 6,
 }
 
-// SOP Maintenance selectors
-export interface SopMaintenanceSelectors {
+export interface ConfigurationMaintenanceSelectors {
   manifestSampleTypeItems: DropDownItem[];
   panelGroupItems: DropDownItem[];
   labAssetTypes: DropDownItem[];

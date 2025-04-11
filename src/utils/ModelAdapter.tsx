@@ -1,5 +1,5 @@
 import React from 'react';
-import { SopMaintenanceSelectors } from '../models/types';
+import { ConfigurationMaintenanceSelectors } from '../models/types';
 
 /**
  * Utility functions to help with model-to-view conversions
@@ -29,7 +29,10 @@ export const ModelAdapter = {
    * @param panelGroupId The panel group ID
    * @returns The label or fallback
    */
-  getPanelGroupLabel: (selectors: SopMaintenanceSelectors, panelGroupId: number | null): string => {
+  getPanelGroupLabel: (
+    selectors: ConfigurationMaintenanceSelectors,
+    panelGroupId: number | null
+  ): string => {
     return ModelAdapter.findLabel(selectors.panelGroupItems, panelGroupId);
   },
 
@@ -39,7 +42,10 @@ export const ModelAdapter = {
    * @param sampleTypeId The sample type ID
    * @returns The label or fallback
    */
-  getSampleTypeLabel: (selectors: SopMaintenanceSelectors, sampleTypeId: number | null): string => {
+  getSampleTypeLabel: (
+    selectors: ConfigurationMaintenanceSelectors,
+    sampleTypeId: number | null
+  ): string => {
     return ModelAdapter.findLabel(selectors.manifestSampleTypeItems, sampleTypeId);
   },
 };
