@@ -6,16 +6,13 @@ import {
   DeleteOutlined,
   UnorderedListOutlined,
   EyeOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
-// UPDATED: Import the service as a default import
-import sopService from '../../api/endpoints/sopService';
+import configurationService from '../../api/endpoints/configurationService';
 import { PrepBatchSopSelectionRs } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
-
-// Import editable table styles here to keep them scoped to this component
-import '../../styles/editableTable.css';
 import { message } from 'antd';
 
 const { Text } = Typography;
@@ -25,19 +22,17 @@ const PrepBatchSopManagement: React.FC = () => {
   const [prepBatchSops, setPrepBatchSops] = useState<PrepBatchSopSelectionRs[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchText, setSearchText] = useState('');
+  const [filteredSops, setFilteredSops] = useState<PrepBatchSopSelectionRs[]>([]);
 
   // Load prep batch SOPs
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // UPDATED: Use the function from the service object
-        const sopsData = await sopService.fetchBatchSopSelections();
-
-        // Log the data to check batchCount values
-        console.log('Fetched SOPs:', sopsData);
-
+        const sopsData = await configurationService.fetchBatchSopSelections();
         setPrepBatchSops(sopsData);
+        setFilteredSops(sopsData);
         setError(null);
       } catch (err: any) {
         setError(err.message || 'Failed to load data');
@@ -50,11 +45,28 @@ const PrepBatchSopManagement: React.FC = () => {
     loadData();
   }, []);
 
+  // Filter SOPs based on search text
+  useEffect(() => {
+    if (!prepBatchSops.length) return;
+
+    if (!searchText) {
+      setFilteredSops(prepBatchSops);
+      return;
+    }
+
+    const filtered = prepBatchSops.filter(
+      sop =>
+        sop.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        sop.sop.toLowerCase().includes(searchText.toLowerCase()) ||
+        sop.version.toLowerCase().includes(searchText.toLowerCase()) ||
+        sop.sopGroup.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    setFilteredSops(filtered);
+  }, [searchText, prepBatchSops]);
+
   // Handle saving a batch SOP record
   const handleSaveSop = (record: PrepBatchSopSelectionRs) => {
-    // Here you would call the update API
-    // For now we'll just update the local state
-
     // Simulate async operation
     return new Promise<void>(resolve => {
       setTimeout(() => {
@@ -79,6 +91,20 @@ const PrepBatchSopManagement: React.FC = () => {
           }
         });
 
+        // Update filtered list
+        setFilteredSops(prevFiltered => {
+          if (isNew) {
+            return [
+              ...prevFiltered.filter(sop => sop.batchSopId !== record.batchSopId),
+              updatedRecord,
+            ];
+          } else {
+            return prevFiltered.map(sop =>
+              sop.batchSopId === record.batchSopId ? updatedRecord : sop
+            );
+          }
+        });
+
         resolve();
       }, 500); // Simulate network delay
     });
@@ -91,6 +117,29 @@ const PrepBatchSopManagement: React.FC = () => {
 
     // Update local state to reflect the deletion
     setPrepBatchSops(prevSops => prevSops.filter(sop => sop.batchSopId !== record.batchSopId));
+    setFilteredSops(prevFiltered =>
+      prevFiltered.filter(sop => sop.batchSopId !== record.batchSopId)
+    );
+  };
+
+  // Handle adding a new SOP
+  const handleAddSop = () => {
+    // Create a new SOP with default values
+    const newSop: PrepBatchSopSelectionRs = {
+      batchSopId: -Date.now(), // Temporary negative ID
+      name: 'New Prep SOP',
+      sop: '',
+      version: '1.0',
+      sopGroup: 'Default',
+      labId: 1001, // Default lab ID
+      batchCount: 0,
+      $type: 'PrepBatchSopSelectionRs',
+      manifestSamplePrepBatchSopRss: [],
+    };
+
+    // Add to the array
+    setPrepBatchSops([newSop, ...prepBatchSops]);
+    setFilteredSops([newSop, ...filteredSops]);
   };
 
   // Handle navigation to the detail page
@@ -104,9 +153,8 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      editable: false,
+      editable: true,
       inputType: 'text',
-      editComponent: Input,
       render: (text: string) => <Text strong>{text}</Text>,
       sorter: (a: PrepBatchSopSelectionRs, b: PrepBatchSopSelectionRs) =>
         a.name.localeCompare(b.name),
@@ -119,9 +167,8 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'SOP',
       dataIndex: 'sop',
       key: 'sop',
-      editable: false,
+      editable: true,
       inputType: 'text',
-      editComponent: Input,
       render: (text: string) => (
         <Tag color="blue" icon={<ExperimentOutlined />}>
           {text}
@@ -136,9 +183,8 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'Version',
       dataIndex: 'version',
       key: 'version',
-      editable: false,
+      editable: true,
       inputType: 'text',
-      editComponent: Input,
       render: (text: string) => <Tag color="green">{text}</Tag>,
       rules: [
         { required: true, message: 'Please enter the version' },
@@ -149,9 +195,8 @@ const PrepBatchSopManagement: React.FC = () => {
       title: 'SOP Group',
       dataIndex: 'sopGroup',
       key: 'sopGroup',
-      editable: false,
+      editable: true,
       inputType: 'text',
-      editComponent: Input,
       rules: [
         { required: true, message: 'Please enter the SOP group' },
         { max: 50, message: 'SOP Group cannot exceed 50 characters' },
@@ -176,9 +221,6 @@ const PrepBatchSopManagement: React.FC = () => {
       dataIndex: 'actions',
       width: 120,
       render: (_: any, record: PrepBatchSopSelectionRs) => {
-        // Log for debugging
-        console.log(`Row for ${record.name}, batchCount=${record.batchCount}`);
-
         // Check if batchCount is exactly 0
         const hasZeroBatchCount = record.batchCount === 0;
 
@@ -241,15 +283,33 @@ const PrepBatchSopManagement: React.FC = () => {
         />
       )}
 
-      <CardSection icon={<UnorderedListOutlined />} title="Prep Batch SOPs">
+      <CardSection
+        icon={<UnorderedListOutlined />}
+        title="Prep Batch SOPs"
+        extra={
+          <Space>
+            <Input
+              placeholder="Search SOPs"
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              style={{ width: 250 }}
+              allowClear
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddSop}>
+              Add Prep Batch SOP
+            </Button>
+          </Space>
+        }
+      >
         <Spin spinning={loading}>
           <EditableTable
             columns={columns}
-            dataSource={prepBatchSops}
+            dataSource={filteredSops}
             rowKey="batchSopId"
             onSave={handleSaveSop}
             onDelete={handleDeleteSop}
-            editable={false}
+            editable={true}
             size="small"
             onRow={record => ({
               onClick: () => handleViewDetails(record),

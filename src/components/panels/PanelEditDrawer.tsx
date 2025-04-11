@@ -15,7 +15,7 @@ import {
   message,
 } from 'antd';
 import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
-import { PanelRs, SopMaintenanceSelectors } from '../../models/types';
+import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 import FormItem from '../common/FormItem';
 
 const { Option } = Select;
@@ -23,7 +23,7 @@ const { Option } = Select;
 interface PanelEditDrawerProps {
   visible: boolean;
   panel: PanelRs | null;
-  selectors: SopMaintenanceSelectors;
+  selectors: ConfigurationMaintenanceSelectors;
   onClose: () => void;
   onSave: (panel: PanelRs) => void;
 }
@@ -85,7 +85,7 @@ const PanelEditDrawer: React.FC<PanelEditDrawerProps> = ({
   return (
     <Drawer
       title={`Edit Panel: ${panel.name}`}
-      visible={visible}
+      open={visible}
       onClose={handleCancel}
       width={600}
       footer={

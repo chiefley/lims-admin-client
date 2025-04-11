@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import {
   InstrumentRs,
   InstrumentPeripheralRs,
-  SopMaintenanceSelectors,
+  ConfigurationMaintenanceSelectors,
 } from '../../../models/types';
 import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
@@ -17,7 +17,7 @@ const { TabPane } = Tabs;
 interface InstrumentsTabProps {
   instruments: InstrumentRs[];
   instrumentTypeId: number;
-  selectors: SopMaintenanceSelectors;
+  selectors: ConfigurationMaintenanceSelectors;
   onChange: (instruments: InstrumentRs[]) => void;
 }
 
@@ -173,9 +173,9 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
     },
     {
       title: 'Peripherals',
-      dataIndex: 'instrumentPeripherals', // Add the missing dataIndex property
+      dataIndex: 'instrumentPeripherals',
       key: 'peripheralsCount',
-      editable: false, // Make sure it's not editable
+      editable: false,
       render: (peripherals: InstrumentPeripheralRs[], record: InstrumentRs) => {
         const count = peripherals?.length || 0;
         return `${count} ${count === 1 ? 'peripheral' : 'peripherals'}`;

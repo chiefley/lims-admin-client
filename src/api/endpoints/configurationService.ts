@@ -1,20 +1,20 @@
-// src/api/endpoints/sopService.ts (to be renamed to configurationService.ts)
+// src/api/endpoints/configurationService.ts
 import { apiClient, DEFAULT_LAB_ID } from '../config';
 import appConfig from '../../config/appConfig';
 import {
   ServiceResponse,
-  ConfigurationMaintenanceSelectors, // Renamed from SopMaintenanceSelectors
+  ConfigurationMaintenanceSelectors,
   PrepBatchSopSelectionRs,
   AnalyticalBatchSopSelectionRs,
   PrepBatchSopRs,
   AnalyticalBatchSopRs,
   CompoundRs,
   PanelRs,
+  InstrumentTypeRs,
 } from '../../models/types';
 
-// Updated base URL for configuration maintenance endpoints
+// Base URL for configuration maintenance endpoints
 const baseUrl = `${appConfig.api.baseUrl}/configurationmaintenance`;
-const labId = DEFAULT_LAB_ID;
 
 /**
  * Fetches all selectors for dropdowns
@@ -22,25 +22,12 @@ const labId = DEFAULT_LAB_ID;
  */
 export const fetchSelectors = async (): Promise<ConfigurationMaintenanceSelectors> => {
   try {
-    console.log(`Fetching selectors from ${baseUrl}/FetchSelectors/${labId}`);
-
     const response = await apiClient.get<ServiceResponse<ConfigurationMaintenanceSelectors>>(
-      `/configurationmaintenance/FetchSelectors/${labId}`
+      `/configurationmaintenance/FetchSelectors/${DEFAULT_LAB_ID}`
     );
 
-    // Check if response has the expected structure
-    if (!response.data || typeof response.data !== 'object') {
-      throw new Error('Invalid response format from API');
-    }
-
-    // Check success flag
-    if (response.data.success === false) {
-      throw new Error(response.data.message || 'Failed to fetch selectors');
-    }
-
-    // Ensure we have data
-    if (!response.data.data) {
-      throw new Error('No data returned from API');
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch selectors');
     }
 
     return response.data.data;
@@ -56,13 +43,10 @@ export const fetchSelectors = async (): Promise<ConfigurationMaintenanceSelector
  */
 export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs[]> => {
   try {
-    console.log(`Fetching batch SOP selections from ${baseUrl}/FetchBatchSopSelections/${labId}`);
-
     const response = await apiClient.get<ServiceResponse<PrepBatchSopSelectionRs[]>>(
-      `/configurationmaintenance/FetchBatchSopSelections/${labId}`
+      `/configurationmaintenance/FetchBatchSopSelections/${DEFAULT_LAB_ID}`
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to fetch batch SOP selections');
     }
@@ -82,15 +66,10 @@ export const fetchAnalyticalBatchSopSelections = async (): Promise<
   AnalyticalBatchSopSelectionRs[]
 > => {
   try {
-    console.log(
-      `Fetching analytical batch SOP selections from ${baseUrl}/FetchAnalyticalBatchSopSelections/${labId}`
-    );
-
     const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopSelectionRs[]>>(
-      `/configurationmaintenance/FetchAnalyticalBatchSopSelections/${labId}`
+      `/configurationmaintenance/FetchAnalyticalBatchSopSelections/${DEFAULT_LAB_ID}`
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to fetch analytical batch SOP selections');
     }
@@ -109,15 +88,10 @@ export const fetchAnalyticalBatchSopSelections = async (): Promise<
  */
 export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<PrepBatchSopRs> => {
   try {
-    console.log(
-      `Fetching prep batch SOP detail from ${baseUrl}/FetchPrepBatchSopRs/${prepBatchSopId}`
-    );
-
     const response = await apiClient.get<ServiceResponse<PrepBatchSopRs>>(
       `/configurationmaintenance/FetchPrepBatchSopRs/${prepBatchSopId}`
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to fetch prep batch SOP detail');
     }
@@ -138,15 +112,10 @@ export const fetchAnalyticalBatchSopRs = async (
   analyticalBatchSopId: number
 ): Promise<AnalyticalBatchSopRs> => {
   try {
-    console.log(
-      `Fetching analytical batch SOP detail from ${baseUrl}/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
-    );
-
     const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopRs>>(
       `/configurationmaintenance/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to fetch analytical batch SOP detail');
     }
@@ -164,13 +133,10 @@ export const fetchAnalyticalBatchSopRs = async (
  */
 export const fetchCompounds = async (): Promise<CompoundRs[]> => {
   try {
-    console.log(`Fetching compounds from ${baseUrl}/FetchCompoundRss`);
-
     const response = await apiClient.get<ServiceResponse<CompoundRs[]>>(
       `/configurationmaintenance/FetchCompoundRss`
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to fetch compounds');
     }
@@ -188,13 +154,10 @@ export const fetchCompounds = async (): Promise<CompoundRs[]> => {
  */
 export const fetchPanels = async (): Promise<PanelRs[]> => {
   try {
-    console.log(`Fetching panels from ${baseUrl}/FetchPanelRss/${labId}`);
-
     const response = await apiClient.get<ServiceResponse<PanelRs[]>>(
-      `/configurationmaintenance/FetchPanelRss/${labId}`
+      `/configurationmaintenance/FetchPanelRss/${DEFAULT_LAB_ID}`
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to fetch panels');
     }
@@ -207,20 +170,38 @@ export const fetchPanels = async (): Promise<PanelRs[]> => {
 };
 
 /**
+ * Fetches all instrument types for the lab
+ * @returns Promise with array of InstrumentTypeRs data
+ */
+export const fetchInstrumentTypes = async (): Promise<InstrumentTypeRs[]> => {
+  try {
+    const response = await apiClient.get<ServiceResponse<InstrumentTypeRs[]>>(
+      `/configurationmaintenance/FetchInstrumentTypeRss/${DEFAULT_LAB_ID}`
+    );
+
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to fetch instrument types');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error fetching instrument types:', error);
+    throw error;
+  }
+};
+
+/**
  * Saves changes to a prep batch SOP
  * @param prepBatchSop The prep batch SOP data to save
  * @returns Promise with the saved PrepBatchSopRs
  */
 export const savePrepBatchSop = async (prepBatchSop: PrepBatchSopRs): Promise<PrepBatchSopRs> => {
   try {
-    console.log(`Saving prep batch SOP to ${baseUrl}/SavePrepBatchSop`);
-
     const response = await apiClient.put<ServiceResponse<PrepBatchSopRs>>(
       `/configurationmaintenance/SavePrepBatchSop`,
       prepBatchSop
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to save prep batch SOP');
     }
@@ -241,14 +222,11 @@ export const saveAnalyticalBatchSop = async (
   analyticalBatchSop: AnalyticalBatchSopRs
 ): Promise<AnalyticalBatchSopRs> => {
   try {
-    console.log(`Saving analytical batch SOP to ${baseUrl}/SaveAnalyticalBatchSop`);
-
     const response = await apiClient.put<ServiceResponse<AnalyticalBatchSopRs>>(
       `/configurationmaintenance/SaveAnalyticalBatchSop`,
       analyticalBatchSop
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to save analytical batch SOP');
     }
@@ -261,48 +239,17 @@ export const saveAnalyticalBatchSop = async (
 };
 
 /**
- * Saves changes to a prep batch SOP selection
- * @param prepBatchSopSelection The prep batch SOP selection data to save
- * @returns Promise with the saved PrepBatchSopSelectionRs
- */
-export const savePrepBatchSopSelection = async (
-  prepBatchSopSelection: PrepBatchSopSelectionRs
-): Promise<PrepBatchSopSelectionRs> => {
-  try {
-    console.log(`Saving prep batch SOP selection to ${baseUrl}/SavePrepBatchSopSelection`);
-
-    const response = await apiClient.put<ServiceResponse<PrepBatchSopSelectionRs>>(
-      `/configurationmaintenance/SavePrepBatchSopSelection`,
-      prepBatchSopSelection
-    );
-
-    // Check response structure and success
-    if (!response.data || response.data.success === false) {
-      throw new Error(response.data?.message || 'Failed to save prep batch SOP selection');
-    }
-
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error saving prep batch SOP selection:', error);
-    throw error;
-  }
-};
-
-/**
  * Saves changes to a panel
  * @param panel The panel data to save
  * @returns Promise with the saved PanelRs
  */
 export const savePanel = async (panel: PanelRs): Promise<PanelRs> => {
   try {
-    console.log(`Saving panel to ${baseUrl}/SavePanel`);
-
     const response = await apiClient.put<ServiceResponse<PanelRs>>(
       `/configurationmaintenance/SavePanel`,
       panel
     );
 
-    // Check response structure and success
     if (!response.data || response.data.success === false) {
       throw new Error(response.data?.message || 'Failed to save panel');
     }
@@ -314,8 +261,33 @@ export const savePanel = async (panel: PanelRs): Promise<PanelRs> => {
   }
 };
 
-// Export all functions individually and also as a default object
-export default {
+/**
+ * Saves changes to an instrument type
+ * @param instrumentType The instrument type data to save
+ * @returns Promise with the saved InstrumentTypeRs
+ */
+export const saveInstrumentType = async (
+  instrumentType: InstrumentTypeRs
+): Promise<InstrumentTypeRs> => {
+  try {
+    const response = await apiClient.put<ServiceResponse<InstrumentTypeRs>>(
+      `/configurationmaintenance/SaveInstrumentType`,
+      instrumentType
+    );
+
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to save instrument type');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error saving instrument type:', error);
+    throw error;
+  }
+};
+
+// Export all functions as a default object
+const configurationService = {
   fetchSelectors,
   fetchBatchSopSelections,
   fetchAnalyticalBatchSopSelections,
@@ -323,8 +295,11 @@ export default {
   fetchAnalyticalBatchSopRs,
   fetchCompounds,
   fetchPanels,
+  fetchInstrumentTypes,
   savePrepBatchSop,
   saveAnalyticalBatchSop,
-  savePrepBatchSopSelection,
   savePanel,
+  saveInstrumentType,
 };
+
+export default configurationService;

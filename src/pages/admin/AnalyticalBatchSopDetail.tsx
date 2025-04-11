@@ -33,10 +33,13 @@ import {
   PlusOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import { fetchAnalyticalBatchSopRs, fetchSelectors } from '../../api/endpoints/sopService';
+import {
+  fetchAnalyticalBatchSopRs,
+  fetchSelectors,
+} from '../../api/endpoints/configurationService';
 import {
   AnalyticalBatchSopRs,
-  SopMaintenanceSelectors,
+  ConfigurationMaintenanceSelectors,
   AnalyticalBatchSopAnalyteRs,
   AnalyticalBatchSopControlSampleRs,
   SopAnalysisReviewComponentRs,
@@ -66,7 +69,7 @@ const AnalyticalBatchSopDetail: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [sopData, setSopData] = useState<AnalyticalBatchSopRs | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectors, setSelectors] = useState<SopMaintenanceSelectors | null>(null);
+  const [selectors, setSelectors] = useState<ConfigurationMaintenanceSelectors | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
 
   // Fetch the SOP data

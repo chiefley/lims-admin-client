@@ -24,7 +24,7 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 // UPDATED: Import the service as a default import
-import sopService from '../../api/endpoints/sopService';
+import sopService from '../../api/endpoints/configurationService';
 import { SopFieldRs, ManifestSamplePrepBatchSopRs, SopProcedureRs } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 

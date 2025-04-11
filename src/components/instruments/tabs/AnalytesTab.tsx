@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Alert, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { InstrumentTypeAnalyteRs, SopMaintenanceSelectors } from '../../../models/types';
+import { InstrumentTypeAnalyteRs, ConfigurationMaintenanceSelectors } from '../../../models/types';
 import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
 import { stylePresets } from '../../../config/theme';
@@ -9,7 +9,7 @@ import { stylePresets } from '../../../config/theme';
 interface AnalytesTabProps {
   analytes: InstrumentTypeAnalyteRs[];
   instrumentTypeId: number;
-  selectors: SopMaintenanceSelectors;
+  selectors: ConfigurationMaintenanceSelectors;
   onChange: (analytes: InstrumentTypeAnalyteRs[]) => void;
 }
 

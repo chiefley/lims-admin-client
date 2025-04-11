@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Spin, Table, Tag, Button, Tooltip, message, Space, Input, Tabs } from 'antd';
-import { SearchOutlined, ExperimentOutlined, EditOutlined } from '@ant-design/icons';
+import { SearchOutlined, ExperimentOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
-// UPDATED: Import the service as a default import
-import sopService from '../../api/endpoints/sopService';
-import { PanelRs, SopMaintenanceSelectors } from '../../models/types';
+import configurationService from '../../api/endpoints/configurationService';
+import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 import PanelEditDrawer from '../../components/panels/PanelEditDrawer';
 
 const { Text } = Typography;
@@ -14,7 +13,7 @@ const { TabPane } = Tabs;
 
 const PanelManagement: React.FC = () => {
   const [panels, setPanels] = useState<PanelRs[]>([]);
-  const [selectors, setSelectors] = useState<SopMaintenanceSelectors | null>(null);
+  const [selectors, setSelectors] = useState<ConfigurationMaintenanceSelectors | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
@@ -28,11 +27,10 @@ const PanelManagement: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // UPDATED: Use the function from the service object
         // Fetch panels and selectors in parallel
         const [panelsData, selectorsData] = await Promise.all([
-          sopService.fetchPanels(),
-          sopService.fetchSelectors(),
+          configurationService.fetchPanels(),
+          configurationService.fetchSelectors(),
         ]);
 
         setPanels(panelsData);
@@ -88,6 +86,46 @@ const PanelManagement: React.FC = () => {
     setFilteredPanels(filtered);
   }, [searchText, panels, activeTabKey]);
 
+  // Handle adding a new panel
+  const handleAddPanel = () => {
+    // Create a new panel with default values
+    const newPanel: PanelRs = {
+      panelId: -Date.now(), // Temporary negative ID
+      name: 'New Panel',
+      slug: '',
+      subordinateToPanelGroup: false,
+      panelGroupId: null,
+      significantDigits: 2,
+      decimalFormatType: null,
+      panelType: 'Quantitative',
+      qualitativeFirst: false,
+      requiresMoistureContent: false,
+      allowPartialAnalytes: false,
+      plantSop: '',
+      nonPlantSop: '',
+      scaleFactor: 1.0,
+      units: '',
+      measuredUnits: '',
+      limitUnits: '',
+      defaultExtractionVolumeMl: null,
+      defaultDilution: null,
+      instrumentTypeId: null,
+      ccTestPackageId: null,
+      ccCategoryName: '',
+      testCategoryId: null,
+      sampleCount: 0,
+      childPanels: [],
+    };
+
+    // Add to the array
+    setPanels([newPanel, ...panels]);
+    setFilteredPanels([newPanel, ...filteredPanels]);
+
+    // Open the edit drawer for the new panel
+    setEditingPanel(newPanel);
+    setDrawerVisible(true);
+  };
+
   // Handle editing a panel
   const handleEditPanel = (panel: PanelRs) => {
     setEditingPanel(panel);
@@ -95,15 +133,27 @@ const PanelManagement: React.FC = () => {
   };
 
   // Handle saving a panel after editing
-  const handleSavePanel = (updatedPanel: PanelRs) => {
-    // UPDATED: Use the function from the service object if needed
-    // For now we'll just update the local state
-    setPanels(prevPanels =>
-      prevPanels.map(p => (p.panelId === updatedPanel.panelId ? updatedPanel : p))
-    );
-    setDrawerVisible(false);
-    setEditingPanel(null);
-    message.success(`Panel ${updatedPanel.name} updated successfully`);
+  const handleSavePanel = async (updatedPanel: PanelRs) => {
+    try {
+      // Calling the service function to save the panel
+      await configurationService.savePanel(updatedPanel);
+
+      setPanels(prevPanels =>
+        prevPanels.map(p => (p.panelId === updatedPanel.panelId ? updatedPanel : p))
+      );
+
+      // Update filtered panels too
+      setFilteredPanels(prevFiltered =>
+        prevFiltered.map(p => (p.panelId === updatedPanel.panelId ? updatedPanel : p))
+      );
+
+      setDrawerVisible(false);
+      setEditingPanel(null);
+      message.success(`Panel ${updatedPanel.name} updated successfully`);
+    } catch (error) {
+      message.error('Failed to save panel');
+      console.error('Error saving panel:', error);
+    }
   };
 
   // Table columns definition
@@ -132,7 +182,6 @@ const PanelManagement: React.FC = () => {
         { text: 'Quantitative', value: 'Quantitative' },
         { text: 'Qualitative', value: 'Qualitative' },
       ],
-      // Proper type for onFilter to fix TypeScript error
       onFilter: (value, record) => record.panelType === value,
     },
     {
@@ -282,6 +331,9 @@ const PanelManagement: React.FC = () => {
                 style={{ width: 250 }}
                 allowClear
               />
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddPanel}>
+                Add Panel
+              </Button>
             </Space>
           }
         >

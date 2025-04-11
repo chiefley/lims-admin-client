@@ -9,42 +9,6 @@ body {
   background-color: #f0f2f5;
 }
 
-/* Improved table readability with more compact rows */
-.ant-table-tbody > tr > td {
-  padding: 6px 16px; /* Reduced from 12px to 6px vertical padding */
-}
-
-.ant-table-thead > tr > th {
-  font-weight: 600;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #f0f0f0;
-  padding: 8px 16px; /* Reduced header padding as well */
-}
-
-.ant-table-row:hover {
-  background-color: #e6f7ff;
-}
-
-/* Striped tables for better readability */
-.ant-table-striped .ant-table-tbody > tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-/* Form labels */
-.ant-form-item-label > label {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.75);
-}
-
-/* Card styles */
-.ant-card-head {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.ant-card-head-title {
-  font-weight: 500;
-}
-
 /* Layout spacing */
 .content-section {
   margin-bottom: 24px;
@@ -58,6 +22,70 @@ body {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+/* Card styles */
+.ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-card-head-title {
+  font-weight: 500;
+}
+
+/* Table styling */
+.ant-table-tbody > tr > td {
+  padding: 6px 16px; /* Reduced from 12px to 6px vertical padding */
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 600;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 8px 16px;
+}
+
+.ant-table-row:hover {
+  background-color: #e6f7ff;
+}
+
+/* Striped tables for better readability */
+.ant-table-striped .ant-table-tbody > tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Form styles */
+.ant-form-item-label > label {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+/* Better input readability */
+.ant-input,
+.ant-select-selector {
+  border-color: #d9d9d9;
+}
+
+.ant-input:hover,
+.ant-select-selector:hover {
+  border-color: #40a9ff;
+}
+
+.ant-input:focus,
+.ant-select-selector:focus {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+}
+
+/* Panel details styling */
+.panel-details {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.panel-details .ant-typography-secondary {
+  margin-right: 4px;
 }
 
 /* Custom utility classes */
@@ -86,31 +114,10 @@ body {
   margin: 16px 0;
 }
 
-/* Better input readability */
-.ant-input,
-.ant-select-selector {
-  border-color: #d9d9d9;
-}
-
-.ant-input:hover,
-.ant-select-selector:hover {
-  border-color: #40a9ff;
-}
-
-.ant-input:focus,
-.ant-select-selector:focus {
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
-}
-
-/* Improve readability of dropdown items */
-.ant-select-item-option {
-  padding: 8px 12px;
-}
-
-/* Better spacing for form items */
-.form-row-tight .ant-form-item {
-  margin-bottom: 12px;
+/* Data placeholder styling */
+.data-placeholder {
+  color: #d9d9d9;
+  font-style: italic;
 }
 
 /* Responsive adjustments */
@@ -123,4 +130,32 @@ body {
   .ant-table-thead > tr > th {
     padding: 4px 8px; /* Further reduced padding on small screens */
   }
+}
+
+/* Switch component alignment */
+.ant-form-item .ant-switch {
+  margin: 4px 0;
+}
+
+/* Tag styling */
+.ant-tag {
+  margin-right: 4px;
+}
+
+/* Better tabs spacing */
+.ant-tabs-tab {
+  padding: 12px 16px;
+}
+
+/* Fix drawer footer padding */
+.ant-drawer-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  background-color: #fff;
+}
+
+/* Fix pagination alignment */
+.ant-pagination {
+  margin-top: 16px;
+  text-align: right;
 }

@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import {
   InstrumentRs,
   InstrumentPeripheralRs,
-  SopMaintenanceSelectors,
+  ConfigurationMaintenanceSelectors,
 } from '../../../models/types';
 import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
@@ -12,7 +12,7 @@ import { stylePresets } from '../../../config/theme';
 
 interface PeripheralsTabProps {
   instrument: InstrumentRs;
-  selectors: SopMaintenanceSelectors;
+  selectors: ConfigurationMaintenanceSelectors;
   onChange: (peripherals: InstrumentPeripheralRs[]) => void;
 }
 
@@ -129,7 +129,7 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
   ];
 
   return (
-    <CardSection title="Instrument Peripherals" style={stylePresets.contentCard}>
+    <div style={{ padding: '8px 0' }}>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddPeripheral}>
           Add Peripheral
@@ -155,7 +155,7 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
           editable={true}
         />
       )}
-    </CardSection>
+    </div>
   );
 };
 
