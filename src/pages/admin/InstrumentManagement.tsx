@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Spin, Alert, Tabs, Input, Button, Space, message } from 'antd';
+import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
 import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
@@ -25,6 +25,7 @@ const InstrumentManagement: React.FC = () => {
   const [selectedInstrumentTypeId, setSelectedInstrumentTypeId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>('list');
   const [filteredInstrumentTypes, setFilteredInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
+  const [showInactive, setShowInactive] = useState<boolean>(false);
 
   // Load instrument types
   useEffect(() => {
@@ -52,24 +53,29 @@ const InstrumentManagement: React.FC = () => {
     loadData();
   }, []);
 
-  // Filter instrument types based on search text
+  // Filter instrument types based on search text and active status
   useEffect(() => {
     if (!instrumentTypes.length) return;
 
-    if (!searchText) {
-      setFilteredInstrumentTypes(instrumentTypes);
-      return;
+    let filtered = [...instrumentTypes];
+
+    // First filter by active status if not showing inactive items
+    if (!showInactive) {
+      filtered = filtered.filter(type => type.active !== false); // Keep both true and undefined values
     }
 
-    const filtered = instrumentTypes.filter(
-      type =>
-        type.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-        type.measurementType?.toLowerCase().includes(searchText.toLowerCase()) ||
-        type.dataFolder?.toLowerCase().includes(searchText.toLowerCase())
-    );
+    // Then filter by search text if provided
+    if (searchText) {
+      filtered = filtered.filter(
+        type =>
+          type.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+          type.measurementType?.toLowerCase().includes(searchText.toLowerCase()) ||
+          type.dataFolder?.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
 
     setFilteredInstrumentTypes(filtered);
-  }, [searchText, instrumentTypes]);
+  }, [searchText, instrumentTypes, showInactive]);
 
   // Handle selecting an instrument type
   const handleSelectInstrumentType = (instrumentTypeId: number) => {
@@ -108,6 +114,7 @@ const InstrumentManagement: React.FC = () => {
       dataFolder: '',
       peakAreaSaturationThreshold: null,
       instrumentFileParser: null,
+      active: true, // New entries are active by default
       instrumentRss: [],
       instrumentTypeAnalyteRss: [],
     };
@@ -128,11 +135,21 @@ const InstrumentManagement: React.FC = () => {
       t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
     );
     setInstrumentTypes(updatedInstrumentTypes);
-    setFilteredInstrumentTypes(
-      filteredInstrumentTypes.map(t =>
-        t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
-      )
-    );
+
+    // Update the filtered list too
+    let newFilteredTypes = updatedInstrumentTypes;
+    if (!showInactive) {
+      newFilteredTypes = newFilteredTypes.filter(type => type.active !== false);
+    }
+    if (searchText) {
+      newFilteredTypes = newFilteredTypes.filter(
+        type =>
+          type.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+          type.measurementType?.toLowerCase().includes(searchText.toLowerCase()) ||
+          type.dataFolder?.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+    setFilteredInstrumentTypes(newFilteredTypes);
 
     message.success(`Instrument type "${instrumentType.name}" updated successfully`);
   };
@@ -148,6 +165,28 @@ const InstrumentManagement: React.FC = () => {
     setActiveTab('list');
   };
 
+  // Handle toggling inactive items
+  const handleShowInactiveChange = (checked: boolean) => {
+    setShowInactive(checked);
+  };
+
+  // Define the extra content for the card section - search and add button
+  const listActionsExtra = (
+    <Space>
+      <Input
+        placeholder="Search instruments"
+        prefix={<SearchOutlined />}
+        value={searchText}
+        onChange={e => setSearchText(e.target.value)}
+        style={{ width: 250 }}
+        allowClear
+      />
+      <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrumentType}>
+        Add Instrument Type
+      </Button>
+    </Space>
+  );
+
   return (
     <div className="page-container">
       <PageHeader
@@ -155,27 +194,7 @@ const InstrumentManagement: React.FC = () => {
         subtitle="Manage instrument types and instruments used in the laboratory"
       />
 
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        tabBarExtraContent={
-          activeTab === 'list' ? (
-            <Space>
-              <Input
-                placeholder="Search instruments"
-                prefix={<SearchOutlined />}
-                value={searchText}
-                onChange={e => setSearchText(e.target.value)}
-                style={{ width: 250 }}
-                allowClear
-              />
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrumentType}>
-                Add Instrument Type
-              </Button>
-            </Space>
-          ) : null
-        }
-      >
+      <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane
           tab={
             <span>
@@ -194,13 +213,29 @@ const InstrumentManagement: React.FC = () => {
             />
           )}
 
-          <Spin spinning={loading}>
-            <InstrumentTypesList
-              instrumentTypes={filteredInstrumentTypes}
-              onSelectInstrumentType={handleSelectInstrumentType}
-              onDeleteInstrumentType={handleDeleteInstrumentType}
-            />
-          </Spin>
+          <CardSection
+            title="Instrument Types"
+            extra={listActionsExtra}
+            style={{ marginBottom: 16 }}
+          >
+            <div style={{ marginBottom: 16, textAlign: 'right' }}>
+              <Checkbox
+                checked={showInactive}
+                onChange={e => handleShowInactiveChange(e.target.checked)}
+              >
+                Show Inactive
+              </Checkbox>
+            </div>
+
+            <Spin spinning={loading}>
+              <InstrumentTypesList
+                instrumentTypes={filteredInstrumentTypes}
+                onSelectInstrumentType={handleSelectInstrumentType}
+                onDeleteInstrumentType={handleDeleteInstrumentType}
+                showInactive={showInactive}
+              />
+            </Spin>
+          </CardSection>
         </TabPane>
 
         <TabPane
@@ -218,6 +253,8 @@ const InstrumentManagement: React.FC = () => {
               selectors={selectors}
               onUpdate={handleUpdateInstrumentType}
               onBack={handleBackToList}
+              showInactive={showInactive}
+              onShowInactiveChange={handleShowInactiveChange}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '24px' }}>

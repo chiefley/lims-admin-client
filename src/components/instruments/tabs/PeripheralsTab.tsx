@@ -1,12 +1,11 @@
-import React from 'react';
-import { Button, Alert, message } from 'antd';
+import React, { useMemo } from 'react';
+import { Button, Alert, message, Switch } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import {
   InstrumentRs,
   InstrumentPeripheralRs,
   ConfigurationMaintenanceSelectors,
 } from '../../../models/types';
-import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
 import { stylePresets } from '../../../config/theme';
 
@@ -14,11 +13,25 @@ interface PeripheralsTabProps {
   instrument: InstrumentRs;
   selectors: ConfigurationMaintenanceSelectors;
   onChange: (peripherals: InstrumentPeripheralRs[]) => void;
+  showInactive?: boolean;
 }
 
-const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, onChange }) => {
+const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
+  instrument,
+  selectors,
+  onChange,
+  showInactive = false,
+}) => {
   // Make sure instrumentPeripherals is always an array
   const peripherals = instrument.instrumentPeripherals || [];
+
+  // Filter peripherals based on showInactive prop
+  const filteredPeripherals = useMemo(() => {
+    if (showInactive) {
+      return peripherals;
+    }
+    return peripherals.filter(peripheral => peripheral.active !== false);
+  }, [peripherals, showInactive]);
 
   // Handle adding a new peripheral
   const handleAddPeripheral = () => {
@@ -28,6 +41,7 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
       instrumentId: instrument.instrumentId,
       durableLabAssetId: null,
       peripheralType: '',
+      active: true, // New peripherals are active by default
     };
 
     // Add to the peripherals array
@@ -37,8 +51,17 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
 
   // Handle saving a peripheral
   const handleSavePeripheral = (peripheral: InstrumentPeripheralRs) => {
+    // Ensure the active flag is properly set as a boolean
+    const updatedPeripheral = {
+      ...peripheral,
+      active:
+        typeof peripheral.active === 'string'
+          ? peripheral.active === 'true'
+          : peripheral.active !== false,
+    };
+
     // Validate required fields
-    if (!peripheral.durableLabAssetId) {
+    if (!updatedPeripheral.durableLabAssetId) {
       message.error('Please select a durable lab asset');
       return Promise.reject('Please select a durable lab asset');
     }
@@ -56,10 +79,10 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
         const isNew = peripheral.instrumentPeripheralId < 0;
         const finalPeripheral = isNew
           ? {
-              ...peripheral,
+              ...updatedPeripheral,
               instrumentPeripheralId: Math.floor(Math.random() * 1000) + 100,
             }
-          : peripheral;
+          : updatedPeripheral;
 
         // Update the peripherals array
         const updatedPeripherals = isNew
@@ -81,6 +104,12 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
 
   // Handle deleting a peripheral
   const handleDeletePeripheral = (peripheral: InstrumentPeripheralRs) => {
+    // Only allow deletion of temporary records (negative IDs)
+    if (peripheral.instrumentPeripheralId >= 0) {
+      message.error('Cannot delete existing peripheral. Set it to inactive instead.');
+      return;
+    }
+
     // Update by filtering out the deleted peripheral
     const updatedPeripherals = peripherals.filter(
       p => p.instrumentPeripheralId !== peripheral.instrumentPeripheralId
@@ -126,7 +155,34 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
       ],
       render: (text: string) => text || '-',
     },
+    {
+      title: 'Active',
+      dataIndex: 'active',
+      key: 'active',
+      editable: true,
+      inputType: 'select',
+      options: [
+        { value: 'true', label: 'Active' },
+        { value: 'false', label: 'Inactive' },
+      ],
+      render: (value: boolean) => (
+        <Switch
+          checked={value !== false}
+          checkedChildren="Active"
+          unCheckedChildren="Inactive"
+          disabled
+        />
+      ),
+    },
   ];
+
+  // Custom row class to visually indicate inactive peripherals
+  const getRowClassName = (record: InstrumentPeripheralRs) => {
+    return record.active === false ? 'inactive-row' : '';
+  };
+
+  // Only allow deletion of temporary (negative ID) peripherals
+  const canDelete = (record: InstrumentPeripheralRs) => record.instrumentPeripheralId < 0;
 
   return (
     <div style={{ padding: '8px 0' }}>
@@ -136,22 +192,27 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({ instrument, selectors, 
         </Button>
       </div>
 
-      {peripherals.length === 0 ? (
+      {filteredPeripherals.length === 0 ? (
         <Alert
           message="No Peripherals"
-          description="No peripherals have been configured for this instrument."
+          description={
+            showInactive
+              ? 'No peripherals have been configured for this instrument.'
+              : "No active peripherals found. Use 'Show Inactive' to view inactive peripherals."
+          }
           type="info"
           showIcon
         />
       ) : (
         <EditableTable
           columns={columns}
-          dataSource={peripherals}
+          dataSource={filteredPeripherals}
           rowKey="instrumentPeripheralId"
           pagination={false}
           size="small"
           onSave={handleSavePeripheral}
-          onDelete={handleDeletePeripheral}
+          onDelete={canDelete}
+          rowClassName={getRowClassName}
           editable={true}
         />
       )}

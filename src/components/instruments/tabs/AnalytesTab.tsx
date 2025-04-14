@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button, Alert, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { InstrumentTypeAnalyteRs, ConfigurationMaintenanceSelectors } from '../../../models/types';
@@ -11,6 +11,7 @@ interface AnalytesTabProps {
   instrumentTypeId: number;
   selectors: ConfigurationMaintenanceSelectors;
   onChange: (analytes: InstrumentTypeAnalyteRs[]) => void;
+  showInactive?: boolean;
 }
 
 const AnalytesTab: React.FC<AnalytesTabProps> = ({
@@ -18,7 +19,16 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
   instrumentTypeId,
   selectors,
   onChange,
+  showInactive = false,
 }) => {
+  // Filter analytes based on active status
+  const filteredAnalytes = useMemo(() => {
+    if (showInactive) {
+      return analytes;
+    }
+    return analytes.filter(analyte => analyte.active !== false);
+  }, [analytes, showInactive]);
+
   // Handle adding a new analyte
   const handleAddAnalyte = () => {
     // Create new analyte with default values
@@ -27,6 +37,7 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       instrumentTypeId: instrumentTypeId,
       analyteId: 0, // Initialize with 0 instead of null
       analyteAlias: '', // New field for AnalyteAlias
+      active: true, // New analytes are active by default
     };
 
     // Add to the analytes array
@@ -47,6 +58,13 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       return Promise.reject('Please enter an analyte alias');
     }
 
+    // Ensure active property is boolean
+    const updatedAnalyte = {
+      ...analyte,
+      active:
+        typeof analyte.active === 'string' ? analyte.active === 'true' : analyte.active !== false,
+    };
+
     // Simulate API call
     return new Promise<void>(resolve => {
       setTimeout(() => {
@@ -59,11 +77,11 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
         const isNew = (analyte.instrumentTypeAnalyteId || 0) < 0;
         const finalAnalyte = isNew
           ? {
-              ...analyte,
+              ...updatedAnalyte,
               instrumentTypeAnalyteId: Math.floor(Math.random() * 1000) + 100,
               analyteName,
             }
-          : { ...analyte, analyteName };
+          : { ...updatedAnalyte, analyteName };
 
         // Update the analytes array
         const updatedAnalytes = isNew
@@ -85,6 +103,12 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
 
   // Handle deleting an analyte
   const handleDeleteAnalyte = (analyte: InstrumentTypeAnalyteRs) => {
+    // Only allow deletion of temporary (negative ID) analytes
+    if ((analyte.instrumentTypeAnalyteId || 0) >= 0) {
+      message.error('Cannot delete existing analyte. Set it to inactive instead.');
+      return;
+    }
+
     // Update by filtering out the deleted analyte
     const updatedAnalytes = analytes.filter(
       a => a.instrumentTypeAnalyteId !== analyte.instrumentTypeAnalyteId
@@ -132,36 +156,64 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       ],
       render: (text: string) => text || '-',
     },
+    {
+      title: 'Active',
+      dataIndex: 'active',
+      key: 'active',
+      editable: true,
+      inputType: 'select',
+      inputProps: {
+        style: { width: '100%' },
+      },
+      options: [
+        { value: 'true', label: 'Active' },
+        { value: 'false', label: 'Inactive' },
+      ],
+      render: (value: boolean) => (value !== false ? 'Active' : 'Inactive'),
+    },
   ];
 
+  // Custom row class to visually indicate inactive analytes
+  const getRowClassName = (record: InstrumentTypeAnalyteRs) => {
+    return record.active === false ? 'inactive-row' : '';
+  };
+
+  // Only allow deletion of temporary (negative ID) analytes
+  const canDelete = (record: InstrumentTypeAnalyteRs) => (record.instrumentTypeAnalyteId || 0) < 0;
+
   return (
-    <CardSection title="Instrument Type Analytes" style={stylePresets.contentCard}>
+    <div>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAnalyte}>
           Add Analyte
         </Button>
       </div>
 
-      {analytes.length === 0 ? (
+      {filteredAnalytes.length === 0 ? (
         <Alert
           message="No Analytes"
-          description="No analytes have been configured for this instrument type."
+          description={
+            showInactive
+              ? 'No analytes have been configured for this instrument type.'
+              : "No active analytes found. Use 'Show Inactive' to view inactive analytes."
+          }
           type="info"
           showIcon
         />
       ) : (
         <EditableTable
           columns={columns}
-          dataSource={analytes}
+          dataSource={filteredAnalytes}
           rowKey="instrumentTypeAnalyteId"
           pagination={false}
           size="small"
           onSave={handleSaveAnalyte}
           onDelete={handleDeleteAnalyte}
           editable={true}
+          rowClassName={getRowClassName}
         />
       )}
-    </CardSection>
+    </div>
   );
 };
 

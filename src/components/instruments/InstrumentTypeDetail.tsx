@@ -11,6 +11,8 @@ import {
   Spin,
   Row,
   Col,
+  Switch,
+  Checkbox,
 } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import {
@@ -32,6 +34,8 @@ interface InstrumentTypeDetailProps {
   selectors: ConfigurationMaintenanceSelectors;
   onUpdate: (instrumentType: InstrumentTypeRs) => void;
   onBack: () => void;
+  showInactive?: boolean;
+  onShowInactiveChange?: (checked: boolean) => void;
 }
 
 const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
@@ -39,6 +43,8 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   selectors,
   onUpdate,
   onBack,
+  showInactive = false,
+  onShowInactiveChange,
 }) => {
   const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState('basic');
@@ -105,7 +111,14 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   return (
     <Spin spinning={loading}>
       <div className="instrument-type-detail">
-        <div style={{ marginBottom: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16,
+          }}
+        >
           <Space>
             <Button icon={<ArrowLeftOutlined />} onClick={onBack}>
               Back to Instrument Types
@@ -130,6 +143,11 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
               </Button>
             )}
           </Space>
+          {onShowInactiveChange && (
+            <Checkbox checked={showInactive} onChange={e => onShowInactiveChange(e.target.checked)}>
+              Show Inactive
+            </Checkbox>
+          )}
         </div>
 
         <Form
@@ -212,26 +230,66 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                       <InputNumber style={{ width: '100%' }} min={0} step={1} />
                     </FormItem>
                   </Col>
+                  <Col span={12}>
+                    <FormItem
+                      name="active"
+                      label="Active"
+                      tooltip="Whether this instrument type is active and should be displayed by default"
+                      valuePropName="checked"
+                    >
+                      <Switch
+                        checkedChildren="Active"
+                        unCheckedChildren="Inactive"
+                        defaultChecked={currentInstrumentType.active !== false}
+                      />
+                    </FormItem>
+                  </Col>
                 </Row>
               </CardSection>
             </TabPane>
 
             <TabPane tab="Instruments" key="instruments">
-              <InstrumentsTab
-                instruments={currentInstrumentType.instrumentRss}
-                instrumentTypeId={currentInstrumentType.instrumentTypeId}
-                selectors={selectors}
-                onChange={handleInstrumentsChange}
-              />
+              <CardSection title="Instruments">
+                <div style={{ marginBottom: 16, textAlign: 'right' }}>
+                  {onShowInactiveChange && (
+                    <Checkbox
+                      checked={showInactive}
+                      onChange={e => onShowInactiveChange(e.target.checked)}
+                    >
+                      Show Inactive
+                    </Checkbox>
+                  )}
+                </div>
+                <InstrumentsTab
+                  instruments={currentInstrumentType.instrumentRss}
+                  instrumentTypeId={currentInstrumentType.instrumentTypeId}
+                  selectors={selectors}
+                  onChange={handleInstrumentsChange}
+                  showInactive={showInactive}
+                />
+              </CardSection>
             </TabPane>
 
             <TabPane tab="Analytes" key="analytes">
-              <AnalytesTab
-                analytes={currentInstrumentType.instrumentTypeAnalyteRss}
-                instrumentTypeId={currentInstrumentType.instrumentTypeId}
-                selectors={selectors}
-                onChange={handleAnalytesChange}
-              />
+              <CardSection title="Analytes">
+                <div style={{ marginBottom: 16, textAlign: 'right' }}>
+                  {onShowInactiveChange && (
+                    <Checkbox
+                      checked={showInactive}
+                      onChange={e => onShowInactiveChange(e.target.checked)}
+                    >
+                      Show Inactive
+                    </Checkbox>
+                  )}
+                </div>
+                <AnalytesTab
+                  analytes={currentInstrumentType.instrumentTypeAnalyteRss}
+                  instrumentTypeId={currentInstrumentType.instrumentTypeId}
+                  selectors={selectors}
+                  onChange={handleAnalytesChange}
+                  showInactive={showInactive}
+                />
+              </CardSection>
             </TabPane>
           </Tabs>
         </Form>

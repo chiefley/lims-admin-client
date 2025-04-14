@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button, Alert, DatePicker, Switch, message, Tabs } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import {
@@ -19,6 +19,7 @@ interface InstrumentsTabProps {
   instrumentTypeId: number;
   selectors: ConfigurationMaintenanceSelectors;
   onChange: (instruments: InstrumentRs[]) => void;
+  showInactive?: boolean;
 }
 
 const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
@@ -26,7 +27,16 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
   instrumentTypeId,
   selectors,
   onChange,
+  showInactive = false,
 }) => {
+  // Filter instruments based on showInactive prop
+  const filteredInstruments = useMemo(() => {
+    if (showInactive) {
+      return instruments;
+    }
+    return instruments.filter(instrument => instrument.active !== false);
+  }, [instruments, showInactive]);
+
   // Handle adding a new instrument
   const handleAddInstrument = () => {
     // Create new instrument with default values
@@ -37,6 +47,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       lastPM: null,
       nextPm: null,
       outOfService: false,
+      active: true, // New instruments are active by default
       instrumentPeripherals: [],
     };
 
@@ -57,6 +68,11 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
         typeof instrument.outOfService === 'string'
           ? instrument.outOfService === 'true'
           : !!instrument.outOfService,
+      // Ensure active is a boolean
+      active:
+        typeof instrument.active === 'string'
+          ? instrument.active === 'true'
+          : instrument.active !== false,
     };
 
     // Simulate API call
@@ -88,6 +104,12 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
 
   // Handle deleting an instrument
   const handleDeleteInstrument = (instrument: InstrumentRs) => {
+    // Only allow deleting temporary records (negative IDs)
+    if (instrument.instrumentId >= 0) {
+      message.error('Cannot delete existing instrument. Set it to inactive instead.');
+      return;
+    }
+
     // Update by filtering out the deleted instrument
     const updatedInstruments = instruments.filter(i => i.instrumentId !== instrument.instrumentId);
 
@@ -172,6 +194,28 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       render: (value: boolean) => <Switch checked={value} disabled />,
     },
     {
+      title: 'Active',
+      dataIndex: 'active',
+      key: 'active',
+      editable: true,
+      inputType: 'select',
+      inputProps: {
+        style: { width: '100%' },
+      },
+      options: [
+        { value: 'true', label: 'Active' },
+        { value: 'false', label: 'Inactive' },
+      ],
+      render: (value: boolean) => (
+        <Switch
+          checked={value !== false}
+          checkedChildren="Active"
+          unCheckedChildren="Inactive"
+          disabled
+        />
+      ),
+    },
+    {
       title: 'Peripherals',
       dataIndex: 'instrumentPeripherals',
       key: 'peripheralsCount',
@@ -190,41 +234,55 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
         instrument={record}
         selectors={selectors}
         onChange={peripherals => handlePeripheralsChange(record.instrumentId, peripherals)}
+        showInactive={showInactive}
       />
     );
   };
 
+  // Custom row class to visually indicate inactive instruments
+  const getRowClassName = (record: InstrumentRs) => {
+    return record.active === false ? 'inactive-row' : '';
+  };
+
+  // Only allow deletion of temporary (negative ID) instruments
+  const canDelete = (record: InstrumentRs) => record.instrumentId < 0;
+
   return (
-    <CardSection title="Instruments" style={stylePresets.contentCard}>
+    <div>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrument}>
           Add Instrument
         </Button>
       </div>
 
-      {instruments.length === 0 ? (
+      {filteredInstruments.length === 0 ? (
         <Alert
           message="No Instruments"
-          description="No instruments have been added for this instrument type."
+          description={
+            showInactive
+              ? 'No instruments have been added for this instrument type.'
+              : "No active instruments found. Use 'Show Inactive' to view inactive instruments."
+          }
           type="info"
           showIcon
         />
       ) : (
         <EditableTable
           columns={columns}
-          dataSource={instruments}
+          dataSource={filteredInstruments}
           rowKey="instrumentId"
           pagination={false}
           size="small"
           onSave={handleSaveInstrument}
-          onDelete={handleDeleteInstrument}
+          onDelete={canDelete}
+          rowClassName={getRowClassName}
           editable={true}
           expandable={{
             expandedRowRender,
           }}
         />
       )}
-    </CardSection>
+    </div>
   );
 };
 

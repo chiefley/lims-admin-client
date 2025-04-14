@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Table, Button, Space, Tooltip, Popconfirm, Tag, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons';
 import { InstrumentTypeRs, InstrumentFileParserType } from '../../models/types';
@@ -10,12 +10,14 @@ interface InstrumentTypesListProps {
   instrumentTypes: InstrumentTypeRs[];
   onSelectInstrumentType: (instrumentTypeId: number) => void;
   onDeleteInstrumentType: (instrumentTypeId: number) => void;
+  showInactive?: boolean;
 }
 
 const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
   instrumentTypes,
   onSelectInstrumentType,
   onDeleteInstrumentType,
+  showInactive = false,
 }) => {
   // Define columns for the instrument types table
   const columns = [
@@ -24,7 +26,10 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: InstrumentTypeRs) => (
-        <Text strong>{text || 'New Instrument Type'}</Text>
+        <Space>
+          <Text strong>{text || 'New Instrument Type'}</Text>
+          {record.active === false && <Tag color="red">Inactive</Tag>}
+        </Space>
       ),
       sorter: (a: InstrumentTypeRs, b: InstrumentTypeRs) => {
         if (!a.name) return -1;
@@ -64,7 +69,9 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       title: 'Instruments',
       key: 'instruments',
       render: (text: string, record: InstrumentTypeRs) => {
-        const count = record.instrumentRss?.length || 0;
+        // Count instruments - filter by active status if not showing inactive
+        const count =
+          record.instrumentRss?.filter(i => showInactive || i.active !== false).length || 0;
         return (
           <Tag color={count > 0 ? 'green' : 'default'}>
             {count} {count === 1 ? 'Instrument' : 'Instruments'}
@@ -73,39 +80,60 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       },
     },
     {
+      title: 'Status',
+      key: 'status',
+      render: (text: string, record: InstrumentTypeRs) => {
+        return record.active === false ? (
+          <Tag color="red">Inactive</Tag>
+        ) : (
+          <Tag color="green">Active</Tag>
+        );
+      },
+    },
+    {
       title: 'Actions',
       key: 'actions',
-      render: (text: string, record: InstrumentTypeRs) => (
-        <Space>
-          <Tooltip title="Edit">
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => onSelectInstrumentType(record.instrumentTypeId)}
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete this instrument type?"
-              onConfirm={() => onDeleteInstrumentType(record.instrumentTypeId)}
-              okText="Yes"
-              cancelText="No"
-              disabled={record.instrumentRss && record.instrumentRss.length > 0}
-            >
+      render: (text: string, record: InstrumentTypeRs) => {
+        // Only show delete button for temporary records (negative ID)
+        const canDelete = record.instrumentTypeId < 0;
+        // Check if there are any active instruments
+        const hasActiveInstruments =
+          record.instrumentRss && record.instrumentRss.filter(i => i.active !== false).length > 0;
+
+        return (
+          <Space>
+            <Tooltip title="Edit">
               <Button
                 type="text"
-                danger
-                icon={<DeleteOutlined />}
-                disabled={record.instrumentRss && record.instrumentRss.length > 0}
+                icon={<EditOutlined />}
+                onClick={() => onSelectInstrumentType(record.instrumentTypeId)}
               />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
+            </Tooltip>
+            {canDelete && (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete this instrument type?"
+                  onConfirm={() => onDeleteInstrumentType(record.instrumentTypeId)}
+                  okText="Yes"
+                  cancelText="No"
+                  disabled={hasActiveInstruments}
+                >
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    disabled={hasActiveInstruments}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
-  // Expandable row render function
+  // Expandable row render function - filter instruments based on showInactive prop
   const expandedRowRender = (record: InstrumentTypeRs) => {
     // Instruments sub-table
     const instrumentColumns = [
@@ -113,7 +141,12 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
-        render: (text: string) => <Text strong>{text || '-'}</Text>,
+        render: (text: string, record: any) => (
+          <Space>
+            <Text strong>{text || '-'}</Text>
+            {record.active === false && <Tag color="red">Inactive</Tag>}
+          </Space>
+        ),
       },
       {
         title: 'Last PM',
@@ -129,31 +162,50 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       },
       {
         title: 'Status',
-        dataIndex: 'outOfService',
-        key: 'outOfService',
-        render: (outOfService: boolean) => (
-          <Tag color={outOfService ? 'red' : 'green'}>
-            {outOfService ? 'Out of Service' : 'In Service'}
-          </Tag>
+        key: 'status',
+        render: (text: string, record: any) => (
+          <>
+            {record.outOfService && <Tag color="red">Out of Service</Tag>}
+            {record.active === false ? (
+              <Tag color="red">Inactive</Tag>
+            ) : (
+              <Tag color="green">Active</Tag>
+            )}
+          </>
         ),
       },
     ];
 
+    // Filter instruments based on showInactive prop
+    const filteredInstruments = record.instrumentRss
+      ? showInactive
+        ? record.instrumentRss
+        : record.instrumentRss.filter(i => i.active !== false)
+      : [];
+
     return (
       <div style={{ margin: '0 16px' }}>
         <Text type="secondary" style={{ marginBottom: '8px', display: 'block' }}>
-          Instruments
+          Instruments{' '}
+          {!showInactive &&
+            filteredInstruments.length < (record.instrumentRss?.length || 0) &&
+            `(${filteredInstruments.length} of ${record.instrumentRss?.length} shown - some are inactive)`}
         </Text>
-        {record.instrumentRss && record.instrumentRss.length > 0 ? (
+        {filteredInstruments && filteredInstruments.length > 0 ? (
           <Table
             columns={instrumentColumns}
-            dataSource={record.instrumentRss}
+            dataSource={filteredInstruments}
             rowKey="instrumentId"
             pagination={false}
             size="small"
+            rowClassName={record => (record.active === false ? 'inactive-row' : '')}
           />
         ) : (
-          <Text type="secondary">No instruments configured for this type</Text>
+          <Text type="secondary">
+            {showInactive
+              ? 'No instruments configured for this type'
+              : "No active instruments found. Use 'Show Inactive' to view inactive instruments."}
+          </Text>
         )}
       </div>
     );
@@ -174,6 +226,7 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
         onClick: () => onSelectInstrumentType(record.instrumentTypeId),
         style: { cursor: 'pointer' },
       })}
+      rowClassName={record => (record.active === false ? 'inactive-row' : '')}
     />
   );
 };

@@ -363,6 +363,7 @@ export interface CompoundRs {
   cas: string;
   name: string;
   ccCompoundName: string | null;
+  active?: boolean;
 }
 
 // PanelRs interface based on the C# model
@@ -392,6 +393,7 @@ export interface PanelRs {
   testCategoryId: number | null;
   sampleCount: number;
   childPanels: string[];
+  active?: boolean;
 }
 
 // ============ Instrument Types ============
@@ -402,6 +404,7 @@ export interface InstrumentPeripheralRs {
   instrumentId: number;
   durableLabAssetId: number | null;
   peripheralType: string | null;
+  active?: boolean;
 }
 
 // Instrument Response
@@ -412,6 +415,7 @@ export interface InstrumentRs {
   lastPM?: Date | string | null;
   nextPm?: Date | string | null;
   outOfService: boolean;
+  active?: boolean;
   instrumentPeripherals: InstrumentPeripheralRs[];
 }
 
@@ -422,6 +426,7 @@ export interface InstrumentTypeAnalyteRs {
   analyteId: number;
   analyteAlias: string;
   analyteName?: string;
+  active?: boolean;
 }
 
 // Instrument Type Response
@@ -432,6 +437,7 @@ export interface InstrumentTypeRs {
   dataFolder: string;
   peakAreaSaturationThreshold: number | null;
   instrumentFileParser: InstrumentFileParserType | null;
+  active?: boolean;
   instrumentRss: InstrumentRs[];
   instrumentTypeAnalyteRss: InstrumentTypeAnalyteRs[];
 }
