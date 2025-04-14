@@ -7,6 +7,7 @@ import {
   UnorderedListOutlined,
   EyeOutlined,
   PlusOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import configurationService from '../../api/endpoints/configurationService';
 import { PrepBatchSopSelectionRs } from '../../models/types';

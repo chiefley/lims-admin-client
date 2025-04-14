@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NCLims.Models;
@@ -27,7 +29,12 @@ public class InstrumentTypeRs
     [Required]
     public InstrumentFileParserType? InstrumentFileParser { get; set; }
 
+    // Defaults to true on new.
+    public bool Active { get; set; } = true;
+
+    [JsonPropertyOrder(100)]
     public List<InstrumentRs> InstrumentRss { get; set; } = [];
+    [JsonPropertyOrder(100)]
     public List<InstrumentTypeAnalyteRs> InstrumentTypeAnalyteRss { get; set; } = [];
 
     public static async Task<List<InstrumentTypeRs>> FetchInstrumentTypes(IQueryable<InstrumentType> query)
@@ -40,6 +47,7 @@ public class InstrumentTypeRs
             InstrumentTypeId = it.Id,
             MeasurementType = it.MeasurementType,
             PeakAreaSaturationThreshold = it.PeakAreaSaturationThreshold,
+            Active = it.Active,
             InstrumentRss = it.Instruments.Select(ins => new InstrumentRs
             {
                 Name = ins.Name,
@@ -48,6 +56,7 @@ public class InstrumentTypeRs
                 LastPM = ins.LastPM,
                 NextPm = ins.NextPm,
                 OutOfService = ins.OutOfService,
+                Active = ins.Active,
                 InstrumentPeripheralRss = ins.InstrumentPeripherals.Select(ip => new Responses.Lab_Assets.InstrumentPeripheralRs
                 {
                     InstrumentId = ip.InstrumentId,
@@ -64,5 +73,16 @@ public class InstrumentTypeRs
 
         }).ToListAsync();
         return ret;
+    }
+
+    public InstrumentType Update(InstrumentType model)
+    {
+        if (InstrumentTypeId != model.Id) throw new InvalidOperationException("Wrong model to update");
+        model.Name = Name;
+        model.DataFolder = DataFolder;
+        model.MeasurementType = MeasurementType;
+        model.PeakAreaSaturationThreshold = PeakAreaSaturationThreshold;
+        model.InstrumentFileParser = InstrumentFileParser ?? throw new InvalidOperationException("Must have an Instrument Parser.");
+        return model;
     }
 }
