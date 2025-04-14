@@ -74,15 +74,4 @@ public class InstrumentTypeRs
         }).ToListAsync();
         return ret;
     }
-
-    public InstrumentType Update(InstrumentType model)
-    {
-        if (InstrumentTypeId != model.Id) throw new InvalidOperationException("Wrong model to update");
-        model.Name = Name;
-        model.DataFolder = DataFolder;
-        model.MeasurementType = MeasurementType;
-        model.PeakAreaSaturationThreshold = PeakAreaSaturationThreshold;
-        model.InstrumentFileParser = InstrumentFileParser ?? throw new InvalidOperationException("Must have an Instrument Parser.");
-        return model;
-    }
 }

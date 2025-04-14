@@ -1,0 +1,180 @@
+# LIMS Data Management Strategy
+
+## Overview
+
+This document outlines the data management strategy for the LIMS Admin Client, focusing on how data is fetched, edited, and saved between the client and server. The approach is designed for configuration data that consists of complex object graphs with parent-child relationships.
+
+## Core Principles
+
+1. **Aggregate Root Pattern**: Each major entity type has an aggregate root that encapsulates the behavior for fetching, validating, and upserting data.
+2. **Complete Object Graphs**: We work with entire object graphs rather than individual entities to maintain data consistency.
+3. **Active/Inactive Instead of Deletion**: Records are never physically deleted, only marked as inactive when they should no longer be used.
+4. **Client-Side Temporary IDs**: New records created on the client use negative IDs until saved to the server.
+
+## Data Flow
+
+### Fetching Data
+
+1. The client makes a GET request to the appropriate endpoint.
+2. The server-side controller calls the service method.
+3. The service calls a static method on the aggregate root response class to fetch and project the data:
+   ```csharp
+   var response = await InstrumentTypeRs.FetchInstrumentTypes(query);
+   ```
+4. This method handles the mapping from domain models to response objects, including all child collections.
+5. The complete object graph is returned to the client.
+
+### Editing Data
+
+1. The client displays the data to the user who makes modifications.
+2. New records are assigned temporary negative IDs on the client.
+3. Modifications are tracked in the client state.
+4. When the user saves, the entire object graph (with all modifications) is sent back to the server.
+
+### Saving Data
+
+1. The client sends a PUT/POST request with the entire modified object graph.
+2. The server-side controller calls the service method.
+3. The service loads the current model objects from the database.
+4. The service calls a static validation method on the aggregate root response:
+   ```csharp
+   var validationResult = InstrumentTypeRs.Validate(submittedResponse);
+   if (!validationResult.IsValid) return ValidationError(validationResult);
+   ```
+5. The service then calls a static upsert method that handles mapping changes from the response to the model:
+   ```csharp
+   InstrumentTypeRs.UpsertFromResponses(submittedResponse, existingModels);
+   ```
+6. This method cascades through the object graph, handling each level:
+   ```csharp
+   // Example pseudocode for the cascading approach
+   foreach (var instrumentTypeRs in responses)
+   {
+       var model = FindOrCreateModel(instrumentTypeRs, models);
+       UpdateModelProperties(instrumentTypeRs, model);
+
+       // Process children recursively
+       InstrumentRs.UpsertFromResponses(instrumentTypeRs.InstrumentRss, model.Instruments);
+       InstrumentTypeAnalyteRs.UpsertFromResponses(instrumentTypeRs.InstrumentTypeAnalyteRss, model.InstrumentTypeAnalytes);
+   }
+   ```
+7. Entity Framework tracks all changes across the object graph.
+8. Finally, the service calls `context.SaveChanges()` to persist all changes in a single transaction.
+
+## Handling Record States
+
+### New Records
+
+- Identified by negative IDs on the client side
+- Converted to proper domain models with appropriate default values
+- Added to the appropriate DbSet
+
+### Updated Records
+
+- Identified by matching positive IDs
+- Properties are updated from the response values
+- Child collections are processed recursively
+
+### "Deleted" Records
+
+- Records are never physically deleted
+- Instead, the `Active` property is set to `false`
+- Inactive records can be hidden in the UI with a "Show Inactive" toggle
+
+## Benefits
+
+1. **Data Consistency**: Working with complete object graphs ensures referential integrity.
+2. **Simplified API Surface**: Fewer endpoints are needed (typically one GET and one PUT per major entity type).
+3. **Atomic Updates**: All changes are saved in a single transaction.
+4. **Maintainable Code Structure**: Each response type knows how to update its corresponding model.
+5. **Auditability**: No data is ever physically deleted, providing a complete history.
+6. **Referential Integrity**: Inactive records can still be referenced by other entities.
+
+## Implementation Guidelines
+
+1. Response classes should closely mirror domain models but with appropriate data transfer optimizations.
+2. Use static methods on response classes to encapsulate fetch, validate, and upsert logic.
+3. Make validation rules consistent between client and server.
+4. Each collection in the object graph should have its own upsert method to promote maintainability.
+5. Keep response classes simple and focused on data transfer, not business logic.
+6. Use proper error handling and transaction management for robust operations.
+
+## Example Implementation
+
+### Response Class with Static Methods
+
+```csharp
+public class InstrumentTypeRs
+{
+    // Properties
+    public int InstrumentTypeId { get; set; }
+    public string Name { get; set; }
+    public bool Active { get; set; } = true;
+    public List<InstrumentRs> InstrumentRss { get; set; } = new();
+
+    // Fetch method
+    public static async Task<List<InstrumentTypeRs>> FetchInstrumentTypes(IQueryable<InstrumentType> query)
+    {
+        return await query.Select(it => new InstrumentTypeRs
+        {
+            InstrumentTypeId = it.Id,
+            Name = it.Name,
+            Active = it.Active,
+            InstrumentRss = it.Instruments.Select(i => new InstrumentRs
+            {
+                // Map instrument properties
+            }).ToList()
+        }).ToListAsync();
+    }
+
+    // Validation method
+    public static ValidationResult Validate(List<InstrumentTypeRs> responses)
+    {
+        var validator = new InstrumentTypeRsValidator();
+        var result = new ValidationResult();
+
+        foreach (var response in responses)
+        {
+            var validationResult = validator.Validate(response);
+            if (!validationResult.IsValid)
+            {
+                result.Errors.AddRange(validationResult.Errors);
+            }
+        }
+
+        return result;
+    }
+
+    // Upsert method
+    public static void UpsertFromResponses(List<InstrumentTypeRs> responses, List<InstrumentType> models)
+    {
+        foreach (var response in responses)
+        {
+            // Find existing or create new
+            var model = models.FirstOrDefault(m => m.Id == response.InstrumentTypeId);
+            if (model == null)
+            {
+                // Handle new record (negative ID)
+                if (response.InstrumentTypeId < 0)
+                {
+                    model = new InstrumentType();
+                    models.Add(model);
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"InstrumentType with ID {response.InstrumentTypeId} not found");
+                }
+            }
+
+            // Update properties
+            model.Name = response.Name;
+            model.Active = response.Active;
+
+            // Process child collections
+            InstrumentRs.UpsertFromResponses(response.InstrumentRss, model.Instruments);
+        }
+    }
+}
+```
+
+This strategy provides a clean, maintainable approach to handling complex data operations in the LIMS system, especially for configuration data that requires careful management of relationships and historical records.

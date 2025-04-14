@@ -26,13 +26,4 @@ public class InstrumentRs
 
     [JsonPropertyOrder(100)]
     public List<InstrumentPeripheralRs> InstrumentPeripheralRss { get; set; } = [];
-
-    public Instrument Update(Instrument model)
-    {
-        model.InstrumentTypeId = InstrumentTypeId;
-        model.LastPM = LastPM;
-        model.NextPm = NextPm;
-        model.OutOfService = OutOfService;
-        return model;
-    }
 }
