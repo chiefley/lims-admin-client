@@ -10,6 +10,7 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 2. **Complete Object Graphs**: We work with entire object graphs rather than individual entities to maintain data consistency.
 3. **Active/Inactive Instead of Deletion**: Records are never physically deleted, only marked as inactive when they should no longer be used.
 4. **Client-Side Temporary IDs**: New records created on the client use negative IDs until saved to the server.
+5. **Laboratory Context Security**: All configuration data is isolated by laboratory through the LabId field.
 
 ## Data Flow
 
@@ -38,25 +39,21 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 3. The service loads the current model objects from the database.
 4. The service calls a static validation method on the aggregate root response:
    ```csharp
-   var validationResult = InstrumentTypeRs.Validate(submittedResponse);
+   var validationResult = InstrumentTypeRs.Validate(submittedResponse, labId);
    if (!validationResult.IsValid) return ValidationError(validationResult);
    ```
 5. The service then calls a static upsert method that handles mapping changes from the response to the model:
    ```csharp
-   InstrumentTypeRs.UpsertFromResponses(submittedResponse, existingModels);
+   InstrumentTypeRs.UpsertFromResponse(submittedResponse, existingModels, context);
    ```
 6. This method cascades through the object graph, handling each level:
    ```csharp
-   // Example pseudocode for the cascading approach
-   foreach (var instrumentTypeRs in responses)
-   {
-       var model = FindOrCreateModel(instrumentTypeRs, models);
-       UpdateModelProperties(instrumentTypeRs, model);
-
-       // Process children recursively
-       InstrumentRs.UpsertFromResponses(instrumentTypeRs.InstrumentRss, model.Instruments);
-       InstrumentTypeAnalyteRs.UpsertFromResponses(instrumentTypeRs.InstrumentTypeAnalyteRss, model.InstrumentTypeAnalytes);
-   }
+   // Example pattern for the cascading approach
+   await InstrumentRs.UpsertFromResponses(
+       response.InstrumentRss,
+       instrumentType.Instruments.ToList(),
+       instrumentType,
+       context);
    ```
 7. Entity Framework tracks all changes across the object graph.
 8. Finally, the service calls `context.SaveChanges()` to persist all changes in a single transaction.
@@ -67,19 +64,57 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 
 - Identified by negative IDs on the client side
 - Converted to proper domain models with appropriate default values
-- Added to the appropriate DbSet
+- Added to the appropriate DbSet **and** to the parent's collection
+- Example:
+  ```csharp
+  // New instrument
+  instrument = new Instrument();
+  instrumentType.Instruments.Add(instrument);
+  context.Instruments.Add(instrument);
+  ```
 
 ### Updated Records
 
 - Identified by matching positive IDs
 - Properties are updated from the response values
 - Child collections are processed recursively
+- Example:
 
-### "Deleted" Records
+  ```csharp
+  instrument = existingInstruments.SingleOrDefault(i => i.Id == response.InstrumentId)
+      ?? throw new InvalidOperationException($"Unknown Instrument with Id: {response.InstrumentId}");
+
+  instrument.Name = response.Name;
+  instrument.Active = response.Active;
+  ```
+
+### Active/Inactive Management
 
 - Records are never physically deleted
-- Instead, the `Active` property is set to `false`
-- Inactive records can be hidden in the UI with a "Show Inactive" toggle
+- The `Active` property is treated like any other property, allowing the client to set it as needed
+- The client is responsible for setting `Active = false` when a record should be "soft deleted"
+- Client implementations should filter records based on the Active flag by default
+- A "Show Inactive" toggle in the UI allows users to see inactive records when needed
+- Example:
+  ```csharp
+  // Client-side filter
+  const filteredRecords = showInactive
+    ? records
+    : records.filter(record => record.active !== false);
+  ```
+
+## Laboratory Context Security
+
+- The LIMS system supports multiple laboratories
+- All configuration data is scoped to a specific laboratory through the `LabId` property
+- API endpoints include lab context in the URL or as a parameter
+- Response objects include the `LabId` property when they represent laboratory-specific data
+- Validation ensures that submitted data has the correct laboratory context:
+  ```csharp
+  RuleFor(x => x.LabId)
+      .Equal(labId).WithMessage($"Lab ID must equal {labId}");
+  ```
+- This prevents cross-laboratory data manipulation and ensures proper data isolation
 
 ## Benefits
 
@@ -89,6 +124,7 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 4. **Maintainable Code Structure**: Each response type knows how to update its corresponding model.
 5. **Auditability**: No data is ever physically deleted, providing a complete history.
 6. **Referential Integrity**: Inactive records can still be referenced by other entities.
+7. **Security Isolation**: Clear boundaries between laboratories are maintained.
 
 ## Implementation Guidelines
 
@@ -98,6 +134,9 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 4. Each collection in the object graph should have its own upsert method to promote maintainability.
 5. Keep response classes simple and focused on data transfer, not business logic.
 6. Use proper error handling and transaction management for robust operations.
+7. Pass parent objects to child upsert methods to maintain proper object graph relationships.
+8. Treat the Active flag just like any other property, with no special handling on the server.
+9. Always validate the laboratory context for security.
 
 ## Example Implementation
 
@@ -110,6 +149,7 @@ public class InstrumentTypeRs
     public int InstrumentTypeId { get; set; }
     public string Name { get; set; }
     public bool Active { get; set; } = true;
+    public int LabId { get; set; }
     public List<InstrumentRs> InstrumentRss { get; set; } = new();
 
     // Fetch method
@@ -120,6 +160,7 @@ public class InstrumentTypeRs
             InstrumentTypeId = it.Id,
             Name = it.Name,
             Active = it.Active,
+            LabId = it.LabId,
             InstrumentRss = it.Instruments.Select(i => new InstrumentRs
             {
                 // Map instrument properties
@@ -128,51 +169,54 @@ public class InstrumentTypeRs
     }
 
     // Validation method
-    public static ValidationResult Validate(List<InstrumentTypeRs> responses)
+    public static ValidationResult Validate(InstrumentTypeRs response, int labId)
     {
-        var validator = new InstrumentTypeRsValidator();
-        var result = new ValidationResult();
+        var validator = new InstrumentTypeRsValidator(labId);
+        var validationResult = validator.Validate(response);
 
-        foreach (var response in responses)
-        {
-            var validationResult = validator.Validate(response);
-            if (!validationResult.IsValid)
-            {
-                result.Errors.AddRange(validationResult.Errors);
-            }
-        }
-
-        return result;
+        return new ValidationResult {
+            IsValid = validationResult.IsValid,
+            Errors = validationResult.Errors.Select(e => new ValidationError {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            }).ToList()
+        };
     }
 
     // Upsert method
-    public static void UpsertFromResponses(List<InstrumentTypeRs> responses, List<InstrumentType> models)
+    public static async Task<InstrumentType> UpsertFromResponse(
+        InstrumentTypeRs response,
+        List<InstrumentType> existingTypes,
+        NCLimsContext context)
     {
-        foreach (var response in responses)
+        InstrumentType instrumentType;
+
+        if (response.InstrumentTypeId <= 0)
         {
-            // Find existing or create new
-            var model = models.FirstOrDefault(m => m.Id == response.InstrumentTypeId);
-            if (model == null)
-            {
-                // Handle new record (negative ID)
-                if (response.InstrumentTypeId < 0)
-                {
-                    model = new InstrumentType();
-                    models.Add(model);
-                }
-                else
-                {
-                    throw new KeyNotFoundException($"InstrumentType with ID {response.InstrumentTypeId} not found");
-                }
-            }
-
-            // Update properties
-            model.Name = response.Name;
-            model.Active = response.Active;
-
-            // Process child collections
-            InstrumentRs.UpsertFromResponses(response.InstrumentRss, model.Instruments);
+            // New instrument type
+            instrumentType = new InstrumentType();
+            context.InstrumentTypes.Add(instrumentType);
         }
+        else
+        {
+            // Find existing instrument type
+            instrumentType = existingTypes.SingleOrDefault(m => m.Id == response.InstrumentTypeId)
+                ?? throw new KeyNotFoundException($"InstrumentType with ID {response.InstrumentTypeId} not found");
+        }
+
+        // Update properties
+        instrumentType.Name = response.Name;
+        instrumentType.Active = response.Active;
+        instrumentType.LabId = response.LabId;
+
+        // Process child collections - pass the parent object
+        await InstrumentRs.UpsertFromResponses(
+            response.InstrumentRss,
+            instrumentType.Instruments.ToList(),
+            instrumentType,
+            context);
+
+        return instrumentType;
     }
 }
 ```
