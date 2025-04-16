@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NCLims.Data;
 using System.Threading.Tasks;
+using FluentValidation;
 using NCLims.Business.NewBatch.ConfigurationManagement;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
@@ -187,6 +189,35 @@ public class ConfigurationMaintenanceController : BaseController
         try
         {
             var payload = await _sopService.FetchInstrumentTypeRss(labId);
+            var sr = new ServiceResponse<List<InstrumentTypeRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<InstrumentTypeRs>>
+    [HttpPut("UpsertInstrumentTypeRss/{labId}")]
+    public async Task<IActionResult> UpsertInstrumentTypeRss([FromBody] List<InstrumentTypeRs> responses, int labId)
+    {
+        try
+        {
+            foreach (var response in responses)
+            {
+                var x= InstrumentTypeRs.Validate(response, labId);
+                if (!x.IsValid) throw new InvalidOperationException(x.Errors.First().ErrorMessage);
+            }
+
+            var payload = await _sopService.UpsertInstrumentTypeRss(responses, labId);
+
             var sr = new ServiceResponse<List<InstrumentTypeRs>>
             {
                 Data = payload,
