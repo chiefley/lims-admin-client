@@ -12,6 +12,7 @@ interface AnalytesTabProps {
   selectors: ConfigurationMaintenanceSelectors;
   onChange: (analytes: InstrumentTypeAnalyteRs[]) => void;
   showInactive?: boolean;
+  editing?: boolean;
 }
 
 const AnalytesTab: React.FC<AnalytesTabProps> = ({
@@ -20,6 +21,7 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
   selectors,
   onChange,
   showInactive = false,
+  editing = true,
 }) => {
   // Filter analytes based on active status
   const filteredAnalytes = useMemo(() => {
@@ -31,12 +33,14 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
 
   // Handle adding a new analyte
   const handleAddAnalyte = () => {
+    if (!editing) return;
+
     // Create new analyte with default values
     const newAnalyte: InstrumentTypeAnalyteRs = {
       instrumentTypeAnalyteId: -Date.now(), // Temporary negative ID
       instrumentTypeId: instrumentTypeId,
       analyteId: 0, // Initialize with 0 instead of null
-      analyteAlias: '', // New field for AnalyteAlias
+      analyteAlias: '', // Field for AnalyteAlias
       active: true, // New analytes are active by default
     };
 
@@ -73,29 +77,21 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
           selectors.compounds?.find(c => c.id === analyte.analyteId)?.label || 'Unknown';
         message.success(`Analyte "${analyteName}" saved`);
 
-        // If it's a new record (negative ID), assign a proper ID
-        const isNew = (analyte.instrumentTypeAnalyteId || 0) < 0;
-        const finalAnalyte = isNew
-          ? {
-              ...updatedAnalyte,
-              instrumentTypeAnalyteId: Math.floor(Math.random() * 1000) + 100,
-              analyteName,
-            }
-          : { ...updatedAnalyte, analyteName };
-
         // Update the analytes array
-        const updatedAnalytes = isNew
-          ? [
-              ...analytes.filter(
-                a => a.instrumentTypeAnalyteId !== analyte.instrumentTypeAnalyteId
-              ),
-              finalAnalyte,
-            ]
-          : analytes.map(a =>
-              a.instrumentTypeAnalyteId === analyte.instrumentTypeAnalyteId ? finalAnalyte : a
-            );
+        if ((analyte.instrumentTypeAnalyteId || 0) < 0) {
+          // For new analytes (negative ID)
+          const filteredAnalytes = analytes.filter(
+            a => a.instrumentTypeAnalyteId !== analyte.instrumentTypeAnalyteId
+          );
+          onChange([...filteredAnalytes, updatedAnalyte]);
+        } else {
+          // For existing analytes
+          const updatedAnalytes = analytes.map(a =>
+            a.instrumentTypeAnalyteId === analyte.instrumentTypeAnalyteId ? updatedAnalyte : a
+          );
+          onChange(updatedAnalytes);
+        }
 
-        onChange(updatedAnalytes);
         resolve();
       }, 500);
     });
@@ -183,11 +179,13 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAnalyte}>
-          Add Analyte
-        </Button>
-      </div>
+      {editing && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAnalyte}>
+            Add Analyte
+          </Button>
+        </div>
+      )}
 
       {filteredAnalytes.length === 0 ? (
         <Alert
@@ -209,7 +207,7 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
           size="small"
           onSave={handleSaveAnalyte}
           onDelete={handleDeleteAnalyte}
-          editable={true}
+          editable={editing}
           rowClassName={getRowClassName}
         />
       )}

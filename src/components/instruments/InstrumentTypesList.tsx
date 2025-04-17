@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Table, Button, Space, Tooltip, Popconfirm, Tag, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SettingOutlined, EyeOutlined } from '@ant-design/icons';
 import { InstrumentTypeRs, InstrumentFileParserType } from '../../models/types';
 import { stylePresets } from '../../config/theme';
 

@@ -14,6 +14,7 @@ interface PeripheralsTabProps {
   selectors: ConfigurationMaintenanceSelectors;
   onChange: (peripherals: InstrumentPeripheralRs[]) => void;
   showInactive?: boolean;
+  editing?: boolean;
 }
 
 const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
@@ -21,6 +22,7 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
   selectors,
   onChange,
   showInactive = false,
+  editing = true,
 }) => {
   // Make sure instrumentPeripherals is always an array
   const peripherals = instrument.instrumentPeripherals || [];
@@ -35,6 +37,8 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
 
   // Handle adding a new peripheral
   const handleAddPeripheral = () => {
+    if (!editing) return;
+
     // Create new peripheral with default values
     const newPeripheral: InstrumentPeripheralRs = {
       instrumentPeripheralId: -Date.now(), // Temporary negative ID
@@ -75,28 +79,21 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
           'Unknown';
         message.success(`Peripheral "${assetName}" saved`);
 
-        // If it's a new record (negative ID), assign a proper ID
-        const isNew = peripheral.instrumentPeripheralId < 0;
-        const finalPeripheral = isNew
-          ? {
-              ...updatedPeripheral,
-              instrumentPeripheralId: Math.floor(Math.random() * 1000) + 100,
-            }
-          : updatedPeripheral;
-
         // Update the peripherals array
-        const updatedPeripherals = isNew
-          ? [
-              ...peripherals.filter(
-                p => p.instrumentPeripheralId !== peripheral.instrumentPeripheralId
-              ),
-              finalPeripheral,
-            ]
-          : peripherals.map(p =>
-              p.instrumentPeripheralId === peripheral.instrumentPeripheralId ? finalPeripheral : p
-            );
+        if (peripheral.instrumentPeripheralId < 0) {
+          // For new peripherals (negative ID)
+          const filteredPeripherals = peripherals.filter(
+            p => p.instrumentPeripheralId !== peripheral.instrumentPeripheralId
+          );
+          onChange([...filteredPeripherals, updatedPeripheral]);
+        } else {
+          // For existing peripherals
+          const updatedPeripherals = peripherals.map(p =>
+            p.instrumentPeripheralId === peripheral.instrumentPeripheralId ? updatedPeripheral : p
+          );
+          onChange(updatedPeripherals);
+        }
 
-        onChange(updatedPeripherals);
         resolve();
       }, 500);
     });
@@ -186,11 +183,13 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
 
   return (
     <div style={{ padding: '8px 0' }}>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddPeripheral}>
-          Add Peripheral
-        </Button>
-      </div>
+      {editing && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddPeripheral}>
+            Add Peripheral
+          </Button>
+        </div>
+      )}
 
       {filteredPeripherals.length === 0 ? (
         <Alert
@@ -211,9 +210,9 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
           pagination={false}
           size="small"
           onSave={handleSavePeripheral}
-          onDelete={canDelete}
+          onDelete={handleDeletePeripheral}
           rowClassName={getRowClassName}
-          editable={true}
+          editable={editing}
         />
       )}
     </div>

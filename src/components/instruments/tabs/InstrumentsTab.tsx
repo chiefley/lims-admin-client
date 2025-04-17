@@ -20,6 +20,7 @@ interface InstrumentsTabProps {
   selectors: ConfigurationMaintenanceSelectors;
   onChange: (instruments: InstrumentRs[]) => void;
   showInactive?: boolean;
+  editing?: boolean;
 }
 
 const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
@@ -28,6 +29,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
   selectors,
   onChange,
   showInactive = false,
+  editing = true,
 }) => {
   // Filter instruments based on showInactive prop
   const filteredInstruments = useMemo(() => {
@@ -80,23 +82,21 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       setTimeout(() => {
         message.success(`Instrument ${instrument.name || 'New Instrument'} saved`);
 
-        // If it's a new record (negative ID), assign a proper ID
-        const isNew = instrument.instrumentId < 0;
-        const finalInstrument = isNew
-          ? { ...updatedInstrument, instrumentId: Math.floor(Math.random() * 1000) + 100 }
-          : updatedInstrument;
-
         // Update the instruments array
-        const updatedInstruments = isNew
-          ? [
-              ...instruments.filter(i => i.instrumentId !== instrument.instrumentId),
-              finalInstrument,
-            ]
-          : instruments.map(i =>
-              i.instrumentId === instrument.instrumentId ? finalInstrument : i
-            );
+        if (instrument.instrumentId < 0) {
+          // For new instruments (temporary negative ID)
+          const filteredInstruments = instruments.filter(
+            i => i.instrumentId !== instrument.instrumentId
+          );
+          onChange([...filteredInstruments, updatedInstrument]);
+        } else {
+          // For existing instruments
+          const updatedInstruments = instruments.map(i =>
+            i.instrumentId === instrument.instrumentId ? updatedInstrument : i
+          );
+          onChange(updatedInstruments);
+        }
 
-        onChange(updatedInstruments);
         resolve();
       }, 500);
     });
@@ -235,6 +235,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
         selectors={selectors}
         onChange={peripherals => handlePeripheralsChange(record.instrumentId, peripherals)}
         showInactive={showInactive}
+        editing={editing}
       />
     );
   };
@@ -249,11 +250,13 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrument}>
-          Add Instrument
-        </Button>
-      </div>
+      {editing && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrument}>
+            Add Instrument
+          </Button>
+        </div>
+      )}
 
       {filteredInstruments.length === 0 ? (
         <Alert
@@ -274,9 +277,9 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
           pagination={false}
           size="small"
           onSave={handleSaveInstrument}
-          onDelete={canDelete}
+          onDelete={handleDeleteInstrument}
           rowClassName={getRowClassName}
-          editable={true}
+          editable={editing}
           expandable={{
             expandedRowRender,
           }}

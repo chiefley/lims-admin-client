@@ -7,11 +7,7 @@ import { stylePresets } from '../../config/theme';
 import InstrumentTypesList from '../../components/instruments/InstrumentTypesList';
 import InstrumentTypeDetail from '../../components/instruments/InstrumentTypeDetail';
 import configurationService from '../../api/endpoints/configurationService';
-import {
-  InstrumentTypeRs,
-  ConfigurationMaintenanceSelectors,
-  InstrumentFileParserType,
-} from '../../models/types';
+import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -20,6 +16,7 @@ const InstrumentManagement: React.FC = () => {
   const [instrumentTypes, setInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [selectors, setSelectors] = useState<ConfigurationMaintenanceSelectors | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [selectedInstrumentTypeId, setSelectedInstrumentTypeId] = useState<number | null>(null);
@@ -85,8 +82,20 @@ const InstrumentManagement: React.FC = () => {
 
   // Handle deleting an instrument type
   const handleDeleteInstrumentType = (instrumentTypeId: number) => {
-    // Check if the instrument type has instruments
+    // Only allow deleting instrument types with negative IDs (unsaved)
     const instrumentType = instrumentTypes.find(t => t.instrumentTypeId === instrumentTypeId);
+
+    if (!instrumentType) {
+      message.error('Instrument type not found');
+      return;
+    }
+
+    if (instrumentTypeId >= 0) {
+      message.error('Cannot delete existing instrument type. Set it to inactive instead.');
+      return;
+    }
+
+    // Check if the instrument type has instruments
     if (instrumentType?.instrumentRss && instrumentType.instrumentRss.length > 0) {
       message.error('Cannot delete instrument type with associated instruments');
       return;
@@ -117,6 +126,7 @@ const InstrumentManagement: React.FC = () => {
       active: true, // New entries are active by default
       instrumentRss: [],
       instrumentTypeAnalyteRss: [],
+      // The LabId will be set by the server when saved
     };
 
     // Add to the array of instrument types
@@ -128,30 +138,78 @@ const InstrumentManagement: React.FC = () => {
     setActiveTab('detail');
   };
 
-  // Handle updating an instrument type
-  const handleUpdateInstrumentType = (instrumentType: InstrumentTypeRs) => {
-    // Update the instrument type in the state
-    const updatedInstrumentTypes = instrumentTypes.map(t =>
-      t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
-    );
-    setInstrumentTypes(updatedInstrumentTypes);
+  // Handle updating an instrument type - this now saves to the server
+  const handleUpdateInstrumentType = async (instrumentType: InstrumentTypeRs) => {
+    try {
+      setSaving(true);
 
-    // Update the filtered list too
-    let newFilteredTypes = updatedInstrumentTypes;
-    if (!showInactive) {
-      newFilteredTypes = newFilteredTypes.filter(type => type.active !== false);
-    }
-    if (searchText) {
-      newFilteredTypes = newFilteredTypes.filter(
-        type =>
-          type.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-          type.measurementType?.toLowerCase().includes(searchText.toLowerCase()) ||
-          type.dataFolder?.toLowerCase().includes(searchText.toLowerCase())
+      // Create a copy of our instrument types with the updated one
+      const updatedInstrumentTypes = instrumentTypes.map(t =>
+        t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
       );
-    }
-    setFilteredInstrumentTypes(newFilteredTypes);
 
-    message.success(`Instrument type "${instrumentType.name}" updated successfully`);
+      // If it's a new record (negative ID), save it separately
+      if (instrumentType.instrumentTypeId < 0) {
+        // For new records, we just update local state and will save later
+        setInstrumentTypes(updatedInstrumentTypes);
+
+        // Update the filtered list too
+        setFilteredInstrumentTypes(prev =>
+          prev.map(t =>
+            t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
+          )
+        );
+
+        message.success(`Instrument type "${instrumentType.name}" created successfully`);
+      } else {
+        // For existing records, send to the server
+        // Find the instrument type to update
+        const typeToUpdate = updatedInstrumentTypes.find(
+          t => t.instrumentTypeId === instrumentType.instrumentTypeId
+        );
+
+        if (!typeToUpdate) {
+          throw new Error(`Instrument type with ID ${instrumentType.instrumentTypeId} not found`);
+        }
+
+        // The server expects a 'labId' property that might not be in our TypeScript interface
+        // We'll use type assertion to add it to the object we send
+        const typeToSave = {
+          ...typeToUpdate,
+          // @ts-ignore - Add labId even though it's not in the interface
+          labId: 1001, // Default lab ID from your configuration
+        };
+
+        // Save to the server - wrapping in an array as the API expects an array
+        const savedTypes = await configurationService.upsertInstrumentTypes([typeToSave]);
+
+        if (savedTypes && savedTypes.length > 0) {
+          // Replace the updated item with the saved version from the server
+          const savedType = savedTypes[0];
+
+          // Update the main instrument types array
+          setInstrumentTypes(prev =>
+            prev.map(t => (t.instrumentTypeId === savedType.instrumentTypeId ? savedType : t))
+          );
+
+          // Update the filtered list too if it contains this item
+          if (
+            filteredInstrumentTypes.some(t => t.instrumentTypeId === savedType.instrumentTypeId)
+          ) {
+            setFilteredInstrumentTypes(prev =>
+              prev.map(t => (t.instrumentTypeId === savedType.instrumentTypeId ? savedType : t))
+            );
+          }
+
+          message.success(`Instrument type "${savedType.name}" updated successfully`);
+        }
+      }
+    } catch (err: any) {
+      message.error(`Failed to save instrument type: ${err.message}`);
+      console.error('Error saving instrument type:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Get the currently selected instrument type
@@ -255,6 +313,7 @@ const InstrumentManagement: React.FC = () => {
               onBack={handleBackToList}
               showInactive={showInactive}
               onShowInactiveChange={handleShowInactiveChange}
+              saving={saving}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '24px' }}>

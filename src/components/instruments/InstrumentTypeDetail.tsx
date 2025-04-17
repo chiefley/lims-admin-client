@@ -14,7 +14,7 @@ import {
   Switch,
   Checkbox,
 } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, SaveOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
 import {
   InstrumentTypeRs,
   ConfigurationMaintenanceSelectors,
@@ -36,6 +36,7 @@ interface InstrumentTypeDetailProps {
   onBack: () => void;
   showInactive?: boolean;
   onShowInactiveChange?: (checked: boolean) => void;
+  saving?: boolean;
 }
 
 const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
@@ -45,11 +46,11 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   onBack,
   showInactive = false,
   onShowInactiveChange,
+  saving = false,
 }) => {
   const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState('basic');
   const [editing, setEditing] = useState(instrumentType.instrumentTypeId < 0); // Auto-edit for new records
-  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentInstrumentType, setCurrentInstrumentType] =
     useState<InstrumentTypeRs>(instrumentType);
@@ -65,7 +66,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   // Handle form submission
   const handleSave = async () => {
     try {
-      setSaving(true);
+      // Validate form
       const values = await form.validateFields();
 
       // Create updated instrument type object
@@ -81,8 +82,6 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
     } catch (error) {
       console.error('Validation failed:', error);
       message.error('Please check the form for errors');
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -245,6 +244,11 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                     </FormItem>
                   </Col>
                 </Row>
+
+                {/* Hidden field for labId */}
+                <Form.Item name="labId" hidden>
+                  <InputNumber />
+                </Form.Item>
               </CardSection>
             </TabPane>
 
@@ -266,6 +270,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                   selectors={selectors}
                   onChange={handleInstrumentsChange}
                   showInactive={showInactive}
+                  editing={editing}
                 />
               </CardSection>
             </TabPane>
@@ -288,6 +293,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                   selectors={selectors}
                   onChange={handleAnalytesChange}
                   showInactive={showInactive}
+                  editing={editing}
                 />
               </CardSection>
             </TabPane>
