@@ -84,8 +84,14 @@ const EditableCell: React.FC<EditableCellProps> = props => {
 
   switch (inputType) {
     case 'select':
+      // Handle both standard select and combobox modes
+      const isCombobox = inputProps?.mode === 'combobox';
       inputNode = (
-        <Select {...inputProps} style={{ width: '100%' }}>
+        <Select
+          {...inputProps}
+          style={{ width: '100%' }}
+          showSearch={inputProps.showSearch !== false}
+        >
           {options?.map(option => (
             <Select.Option key={option.value} value={option.value}>
               {option.label}

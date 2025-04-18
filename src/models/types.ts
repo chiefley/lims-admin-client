@@ -59,8 +59,8 @@ export interface ConfigurationMaintenanceSelectors {
   aggregateRollupMethodTypes: DropDownItem[];
   prepBatchSops: DropDownItem[];
   analyticalBatchSops: DropDownItem[];
+  peripheralTypes: DropDownItem[];
 }
-
 // ============ Base Types ============
 
 // Batch SOP Selection Base Response
@@ -398,16 +398,26 @@ export interface PanelRs {
 
 // ============ Instrument Types ============
 
+// src/models/peripheralTypes.ts
+// This file contains type definitions related to peripheral types
+
 // Instrument Peripheral Response - EXCEPTION TO STANDARD PATTERN
 // Hard deletable, no Active flag
 export interface InstrumentPeripheralRs {
   instrumentPeripheralId: number;
   instrumentId: number;
   durableLabAssetId: number | null;
+
+  /**
+   * Peripheral Type is a string field that should be presented to the user as a combobox.
+   * The combobox should show predefined values from ConfigurationMaintenanceSelectors.peripheralTypes,
+   * but also allow the user to enter their own custom values.
+   */
   peripheralType: string | null;
   // No active flag per backend exception
 }
 
+export default InstrumentPeripheralRs;
 // Instrument Response
 export interface InstrumentRs {
   instrumentId: number;

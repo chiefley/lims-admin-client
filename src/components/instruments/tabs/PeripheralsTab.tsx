@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Button, Alert, message, Switch } from 'antd';
+import { Button, Alert, message, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import {
   InstrumentRs,
@@ -133,7 +133,20 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
       dataIndex: 'peripheralType',
       key: 'peripheralType',
       editable: true,
-      inputType: 'text',
+      inputType: 'select',
+      // Use a custom component that allows both selection from a list and custom input
+      // This is a combobox control as specified in the requirements
+      inputProps: {
+        mode: 'combobox', // This makes it a combobox (allows both selection and custom input)
+        allowClear: true,
+        showSearch: true,
+        placeholder: 'Select or enter a peripheral type',
+      },
+      options:
+        selectors.peripheralTypes?.map(type => ({
+          value: type.label, // Use the label as the value since peripheralType is a string
+          label: type.label,
+        })) || [],
       rules: [
         { required: true, message: 'Please enter a peripheral type' },
         { max: 250, message: 'Type cannot exceed 250 characters' },
