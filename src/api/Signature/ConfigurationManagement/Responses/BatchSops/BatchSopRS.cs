@@ -22,12 +22,12 @@ public class BatchSopRs
     [StringLength(150)]
     public string Name { get; set; }
 
-    // Not Editable
+    // @validation.  Unique constraint(Sop, Version, LabId)
     [Required]
     [StringLength(50)]
     public string Sop { get; set; }
 
-    // Not Editable
+    // @validation.  Unique constraint(Sop, Version, LabId)
     [Required]
     [StringLength(10)]
     public string Version { get; set; }
@@ -36,6 +36,7 @@ public class BatchSopRs
     [StringLength(50)]
     public string SopGroup { get; set; }
 
+    // @validation.  Unique constraint(Sop, Version, LabId)
     // No display, not editable.
     [Required]
     public int LabId { get; set; }

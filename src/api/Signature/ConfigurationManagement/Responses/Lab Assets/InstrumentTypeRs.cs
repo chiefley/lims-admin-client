@@ -81,9 +81,9 @@ public class InstrumentTypeRs
     }
 
     // Validation method
-    public static ValidationResult Validate(InstrumentTypeRs instrumentType, int labId)
+    public static ValidationResult Validate(InstrumentTypeRs instrumentType, List<InstrumentTypeRs> existingInstrumentTypeRss, int labId)
     {
-        var validator = new InstrumentTypeRsValidator(labId);
+        var validator = new InstrumentTypeRsValidator(existingInstrumentTypeRss, labId);
         var validationResult = validator.Validate(instrumentType);
 
         var result = new ValidationResult
@@ -96,6 +96,18 @@ public class InstrumentTypeRs
             }).ToList()
         };
 
+        foreach (var analyte in instrumentType.InstrumentTypeAnalyteRss)
+        {
+            var res = InstrumentTypeAnalyteRs.Validate(analyte, instrumentType.InstrumentTypeAnalyteRss);
+            if (res.IsValid) continue;
+            result.IsValid = false;
+            result.Errors.AddRange(res.Errors.Select(e => new ValidationError
+            {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            }).ToList());
+            break;
+        }
         return result;
     }
 
@@ -158,14 +170,16 @@ public class InstrumentTypeRs
 // Validator for InstrumentTypeRs
 public class InstrumentTypeRsValidator : AbstractValidator<InstrumentTypeRs>
 {
+    private readonly List<InstrumentTypeRs> _existingInstrumentTypeRss;
     private readonly int _labId;
 
     public InstrumentTypeRsValidator()
     {
     }
 
-    public InstrumentTypeRsValidator(int labId)
+    public InstrumentTypeRsValidator(List<InstrumentTypeRs> existingInstrumentTypeRss, int labId)
     {
+        _existingInstrumentTypeRss = existingInstrumentTypeRss;
         _labId = labId;
 
         RuleFor(x => x.Name)
@@ -186,26 +200,17 @@ public class InstrumentTypeRsValidator : AbstractValidator<InstrumentTypeRs>
         RuleFor(x => x.LabId)
             .Equal(_labId).WithMessage($"Lab ID must equal {_labId}");
 
-        // Validate child instruments
-        RuleForEach(x => x.InstrumentRss)
-            .SetValidator(new InstrumentRsValidator());
-
-        // Validate child analytes
-        RuleForEach(x => x.InstrumentTypeAnalyteRss)
-            .SetValidator(new InstrumentTypeAnalyteRsValidator());
-
-        //RuleFor(x => x)
-        //    .Must((analyte, _) => !HasDuplicateCompositeKey(analyte, existingAnalytes))
-        //    .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
+        RuleFor(x => x)
+            .Must((instrumentTypeRs, _) => !HasUniqueName(instrumentTypeRs, existingInstrumentTypeRss))
+            .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
     }
 
-    //private bool HasDuplicateCompositeKey(InstrumentTypeAnalyteRs analyte, IEnumerable<InstrumentTypeAnalyteRs> existingAnalytes)
-    //{
-    //    return existingAnalytes.Any(x =>
-    //        x.InstrumentTypeId == analyte.InstrumentTypeId &&
-    //        x.AnalyteId == analyte.AnalyteId &&
-    //        // Don't flag the item as a duplicate of itself when updating
-    //        // For new items without IDs this won't matter
-    //        !ReferenceEquals(x, analyte));
-    //}
+    private bool HasUniqueName(InstrumentTypeRs instrumentTypeRs, IEnumerable<InstrumentTypeRs> existingInstrumentTypeRss)
+    {
+        return existingInstrumentTypeRss.Any(x =>
+            x.Name == instrumentTypeRs.Name &&
+            // Don't flag the item as a duplicate of itself when updating
+            // For new items without IDs this won't matter
+            !ReferenceEquals(x, instrumentTypeRs));
+    }
 }

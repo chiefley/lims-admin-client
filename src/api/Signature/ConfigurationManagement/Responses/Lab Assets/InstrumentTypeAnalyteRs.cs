@@ -98,7 +98,28 @@ public class InstrumentTypeAnalyteRs
             analyte.AnalyteAlias = response.AnalyteAlias;
         }
     }
+
+    // Validation method
+    public static ValidationResult Validate(InstrumentTypeAnalyteRs instrumentTypeAnalyteRs, List<InstrumentTypeAnalyteRs> existingInstrumentTypeAnalyteRss)
+    {
+        var validator = new InstrumentTypeAnalyteRsValidator(existingInstrumentTypeAnalyteRss);
+        var validationResult = validator.Validate(instrumentTypeAnalyteRs);
+
+        var result = new ValidationResult
+        {
+            IsValid = validationResult.IsValid,
+            Errors = validationResult.Errors.Select(e => new ValidationError
+            {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            }).ToList()
+        };
+
+        return result;
+    }
 }
+
+
 
 /// Validator for InstrumentTypeAnalyteRs
 public class InstrumentTypeAnalyteRsValidator : AbstractValidator<InstrumentTypeAnalyteRs>

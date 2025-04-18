@@ -38,7 +38,6 @@ public class InstrumentPeripheralRs
     // @validation: unique constraint on InstrumentId and Peripheral Type.
     // Combobox control.  Choices come from ConfigurationMaintenanceSelectors.PeripheralTypes.  But
     // as a combobox, the user can enter something that is not one of the choices.
-    [Required]
     [StringLength(250)]
     public string? PeripheralType { get; set; }
 
@@ -82,12 +81,34 @@ public class InstrumentPeripheralRs
             peripheral.PeripheralType = response.PeripheralType;
         }
     }
+
+    public static ValidationResult Validate(InstrumentPeripheralRs peripheralRs, List<InstrumentPeripheralRs> InstrumentPeripheralRss)
+    {
+        var validator = new InstrumentPeripheralRsValidator(InstrumentPeripheralRss);
+        var validationResult = validator.Validate(peripheralRs);
+
+        var result = new ValidationResult
+        {
+            IsValid = validationResult.IsValid,
+            Errors = validationResult.Errors.Select(e => new ValidationError
+            {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            }).ToList()
+        };
+
+        return result;
+    }
 }
 
 // Validator for InstrumentPeripheralRs
 public class InstrumentPeripheralRsValidator : AbstractValidator<InstrumentPeripheralRs>
 {
     public InstrumentPeripheralRsValidator()
+    {
+    }
+
+    public InstrumentPeripheralRsValidator(List<InstrumentPeripheralRs> existingPeripheralRss)
     {
         RuleFor(x => x.DurableLabAssetId)
             .GreaterThan(0).WithMessage("Durable lab asset ID must be greater than 0")
@@ -96,6 +117,21 @@ public class InstrumentPeripheralRsValidator : AbstractValidator<InstrumentPerip
         RuleFor(x => x.PeripheralType)
             .NotEmpty().WithMessage("Peripheral type is required")
             .MaximumLength(250).WithMessage("Peripheral type cannot exceed 250 characters");
+
+        RuleFor(x => x)
+            .Must((peripheralRs, _) => !HasDuplicatePeripheralType(peripheralRs, existingPeripheralRss))
+            .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
+    }
+
+    private bool HasDuplicatePeripheralType(InstrumentPeripheralRs peripheralRs, IEnumerable<InstrumentPeripheralRs> existingPeripheralRss)
+    {
+        return existingPeripheralRss.Any(x =>
+            x.InstrumentId == peripheralRs.InstrumentId 
+            && x.PeripheralType == peripheralRs.PeripheralType
+            && x.PeripheralType != null
+            // Don't flag the item as a duplicate of itself when updating
+            // For new items without IDs this won't matter
+            && !ReferenceEquals(x, peripheralRs));
     }
 
 }

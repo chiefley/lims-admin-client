@@ -11,11 +11,10 @@ namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Table
 public class PanelRs
 {
     public int PanelId { get; set; }
-    // @validation: Must be unique in the list of PanelRss.
+    // @validation: Unique Constraint(Name, LabId)
     [Required]
     [StringLength(150)]
     public string Name { get; set; }
-    // @validation: Must be unique in the list of PanelRss.
     [Required]
     [StringLength(10)]
     public string? Slug { get; set; }
@@ -60,8 +59,15 @@ public class PanelRs
     public int? CcTestPackageId { get; set; }
     [StringLength(150)]
     public string CcCategoryName { get; set; }
+    // Dropdown control.   Choices come from ConfigurationManagement.TestCategoryTypes. Nullable. Not required.
     public int? TestCategoryId { get; set; }
     public int SampleCount { get; set; }
+
+    // Lab Context.  No display, no edit.
+    public int LabId { get; set; }
+
+    // Defaults to true on new().
+    public bool Active { get; set; } = true;
 
     // Dropdown control.  Choices come from the panel slugs in the list of panels.
     public List<string> ChildPanels { get; set; }
@@ -94,6 +100,8 @@ public class PanelRs
             SubordinateToPanelGroup = p.SubordinateToPanelGroup,
             TestCategoryId = p.TestCategoryId,
             Units = p.Units,
+            LabId = p.LabId,
+            Active = p.Active,
             ChildPanels = p.ChildPanelPanels.Select(cpp => cpp.ChildPanel.Name).ToList()
         }).ToListAsync();
         return ret;

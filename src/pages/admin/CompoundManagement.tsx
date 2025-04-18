@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Spin, Alert, Button, Input, Space, message } from 'antd';
-import { SearchOutlined, PlusOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { Typography, Spin, Alert, Button, Input, Space, message, Checkbox } from 'antd';
+import { SearchOutlined, PlusOutlined, ExperimentOutlined, SaveOutlined } from '@ant-design/icons';
 import PageHeader from '../../components/common/PageHeader';
 import CardSection from '../../components/common/CardSection';
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
@@ -13,113 +13,163 @@ const { Text } = Typography;
 const CompoundManagement: React.FC = () => {
   const [compounds, setCompounds] = useState<CompoundRs[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [filteredCompounds, setFilteredCompounds] = useState<CompoundRs[]>([]);
+  const [showInactive, setShowInactive] = useState<boolean>(false);
+  const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   // Load compounds
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const compoundsData = await configurationService.fetchCompounds();
-        setCompounds(compoundsData);
-        setFilteredCompounds(compoundsData);
-        setError(null);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load compounds');
-        message.error('Failed to load compounds');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
+    loadCompounds();
   }, []);
 
-  // Filter compounds based on search text
+  const loadCompounds = async () => {
+    try {
+      setLoading(true);
+      const compoundsData = await configurationService.fetchCompounds();
+      setCompounds(compoundsData);
+      setFilteredCompounds(compoundsData);
+      setError(null);
+      setHasChanges(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load compounds');
+      message.error('Failed to load compounds');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter compounds based on search text and active status
   useEffect(() => {
     if (!compounds.length) return;
 
-    if (!searchText) {
-      setFilteredCompounds(compounds);
-      return;
+    let filtered = [...compounds];
+
+    // Filter by active status if not showing inactive
+    if (!showInactive) {
+      filtered = filtered.filter(compound => compound.active !== false);
     }
 
-    const filtered = compounds.filter(
-      compound =>
-        compound.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        compound.cas.toLowerCase().includes(searchText.toLowerCase()) ||
-        (compound.ccCompoundName &&
-          compound.ccCompoundName.toLowerCase().includes(searchText.toLowerCase()))
-    );
+    // Filter by search text if provided
+    if (searchText) {
+      filtered = filtered.filter(
+        compound =>
+          compound.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          compound.cas.toLowerCase().includes(searchText.toLowerCase()) ||
+          (compound.ccCompoundName &&
+            compound.ccCompoundName.toLowerCase().includes(searchText.toLowerCase()))
+      );
+    }
 
     setFilteredCompounds(filtered);
-  }, [searchText, compounds]);
+  }, [searchText, compounds, showInactive]);
 
-  // Handle saving a compound
+  // Handle saving a compound (single row edit in the table)
   const handleSaveCompound = (record: CompoundRs) => {
-    // Simulate async operation
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        message.success(`Updated Compound: ${record.name}`);
+    // Use Promise to match the EditableTable's expected behavior
+    return new Promise<void>((resolve, reject) => {
+      // Validate CAS number format
+      const casRegex = /^[0-9]{1,7}-[0-9]{2}-[0-9]$/;
+      if (!casRegex.test(record.cas)) {
+        message.error('CAS number must be in the format XXXXXXX-XX-X');
+        reject('Invalid CAS number format');
+        return;
+      }
 
-        // If it's a new record (negative ID), assign a proper ID
-        const isNew = record.analyteId < 0;
-        const updatedRecord = isNew
-          ? { ...record, analyteId: Math.floor(Math.random() * 1000) + 100 }
-          : record;
+      // Validate the name is not empty
+      if (!record.name.trim()) {
+        message.error('Compound name cannot be empty');
+        reject('Name is required');
+        return;
+      }
 
-        // Update the local state
-        setCompounds(prevCompounds => {
-          if (isNew) {
-            // Replace the temp record with the "saved" one
-            return [...prevCompounds.filter(c => c.analyteId !== record.analyteId), updatedRecord];
-          } else {
-            // Update existing record
-            return prevCompounds.map(c => (c.analyteId === record.analyteId ? updatedRecord : c));
-          }
-        });
+      // Update the compounds array
+      setCompounds(prevCompounds => {
+        const updatedCompounds = prevCompounds.map(compound =>
+          compound.analyteId === record.analyteId ? record : compound
+        );
 
-        // Make sure the filtered list is updated too
-        setFilteredCompounds(prevFiltered => {
-          if (isNew) {
-            return [...prevFiltered.filter(c => c.analyteId !== record.analyteId), updatedRecord];
-          } else {
-            return prevFiltered.map(c => (c.analyteId === record.analyteId ? updatedRecord : c));
-          }
-        });
+        // If it's a new record (not found in the array), add it
+        if (!prevCompounds.some(compound => compound.analyteId === record.analyteId)) {
+          updatedCompounds.push(record);
+        }
 
-        resolve();
-      }, 500); // Simulate network delay
+        return updatedCompounds;
+      });
+
+      // Mark that we have unsaved changes
+      setHasChanges(true);
+
+      // Show success message and resolve the promise
+      message.success(`Updated compound: ${record.name}`);
+      resolve();
     });
   };
 
   // Handle deleting a compound
   const handleDeleteCompound = (record: CompoundRs) => {
-    // Here you would call the delete API
-    message.success(`Deleted Compound: ${record.name}`);
+    // Only allow deleting temporary records (negative IDs)
+    if (record.analyteId >= 0) {
+      message.info('Existing compounds cannot be deleted. You can mark them as inactive instead.');
+      return;
+    }
 
-    // Update local state to reflect the deletion
+    // Remove from compounds array
     setCompounds(prevCompounds => prevCompounds.filter(c => c.analyteId !== record.analyteId));
-    setFilteredCompounds(prevFiltered =>
-      prevFiltered.filter(c => c.analyteId !== record.analyteId)
-    );
+
+    // Mark that we have changes
+    setHasChanges(true);
+
+    message.success(`Deleted compound: ${record.name}`);
   };
 
   // Handle adding a new compound
   const handleAddCompound = () => {
-    // Create a new compound with default values
+    // Create a new compound with default values and temporary negative ID
     const newCompound: CompoundRs = {
       analyteId: -Date.now(), // Temporary negative ID
       cas: '',
       name: '',
       ccCompoundName: '',
+      active: true, // New compounds are active by default
     };
 
-    // Add to the beginning of the array
-    setCompounds([newCompound, ...compounds]);
-    setFilteredCompounds([newCompound, ...filteredCompounds]);
+    // Add to the compounds array
+    setCompounds(prevCompounds => [newCompound, ...prevCompounds]);
+
+    // Mark that we have changes
+    setHasChanges(true);
+  };
+
+  // Save all changes to the server
+  const handleSaveAllChanges = async () => {
+    try {
+      setSaving(true);
+
+      // Call the API to save all compounds
+      // This follows the pattern of sending the complete dataset back to the server
+      const savedCompounds = await configurationService.upsertCompoundRss(compounds);
+
+      // Update local state with saved data from server
+      setCompounds(savedCompounds);
+
+      // Reset changes flag
+      setHasChanges(false);
+
+      message.success('All compounds saved successfully');
+    } catch (err: any) {
+      console.error('Error saving compounds:', err);
+      message.error(`Failed to save compounds: ${err.message || 'Unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Toggle showing inactive compounds
+  const handleShowInactiveChange = (checked: boolean) => {
+    setShowInactive(checked);
   };
 
   // Table columns for the compounds list
@@ -130,7 +180,11 @@ const CompoundManagement: React.FC = () => {
       key: 'name',
       editable: true,
       inputType: 'text',
-      render: (text: string) => <Text strong>{text || 'New Compound'}</Text>,
+      render: (text: string, record: CompoundRs) => (
+        <Text strong style={{ opacity: record.active === false ? 0.5 : 1 }}>
+          {text || 'New Compound'}
+        </Text>
+      ),
       sorter: (a: CompoundRs, b: CompoundRs) => a.name.localeCompare(b.name),
       rules: [
         { required: true, message: 'Please enter the compound name' },
@@ -162,6 +216,23 @@ const CompoundManagement: React.FC = () => {
       render: (text: string) => text || '-',
       rules: [{ max: 150, message: 'CC compound name cannot exceed 150 characters' }],
     },
+    {
+      title: 'Active',
+      dataIndex: 'active',
+      key: 'active',
+      editable: true,
+      inputType: 'select',
+      options: [
+        { value: 'true', label: 'Active' },
+        { value: 'false', label: 'Inactive' },
+      ],
+      render: (active: boolean) =>
+        active !== false ? (
+          <Text type="success">Active</Text>
+        ) : (
+          <Text type="secondary">Inactive</Text>
+        ),
+    },
   ];
 
   return (
@@ -169,6 +240,19 @@ const CompoundManagement: React.FC = () => {
       <PageHeader
         title="Compound Management"
         subtitle="Manage compounds used in laboratory analysis"
+        extra={
+          hasChanges && (
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              onClick={handleSaveAllChanges}
+              loading={saving}
+              disabled={loading}
+            >
+              Save All Changes
+            </Button>
+          )
+        }
       />
 
       {error && (
@@ -178,6 +262,11 @@ const CompoundManagement: React.FC = () => {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
+          action={
+            <Button type="primary" onClick={loadCompounds}>
+              Retry
+            </Button>
+          }
         />
       )}
 
@@ -194,23 +283,51 @@ const CompoundManagement: React.FC = () => {
               style={{ width: 250 }}
               allowClear
             />
+            <Checkbox
+              checked={showInactive}
+              onChange={e => handleShowInactiveChange(e.target.checked)}
+            >
+              Show Inactive
+            </Checkbox>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddCompound}
+              disabled={loading || saving}
+            >
+              Add Compound
+            </Button>
           </Space>
         }
         style={stylePresets.contentCard}
       >
-        <Spin spinning={loading}>
+        <Spin spinning={loading || saving}>
           <EditableTable
             columns={columns}
             dataSource={filteredCompounds}
             rowKey="analyteId"
             onSave={handleSaveCompound}
             onDelete={handleDeleteCompound}
-            onAdd={handleAddCompound}
-            editable={true}
+            editable={!saving}
             size="small"
-            addButtonText="Add Compound"
+            pagination={{ pageSize: 10 }}
+            rowClassName={record => (record.active === false ? 'inactive-row' : '')}
           />
         </Spin>
+
+        {hasChanges && (
+          <div style={{ marginTop: 16, textAlign: 'right' }}>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              onClick={handleSaveAllChanges}
+              loading={saving}
+              disabled={loading}
+            >
+              Save All Changes
+            </Button>
+          </div>
+        )}
       </CardSection>
     </div>
   );

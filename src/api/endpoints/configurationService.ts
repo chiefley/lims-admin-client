@@ -149,6 +149,29 @@ export const fetchCompounds = async (): Promise<CompoundRs[]> => {
 };
 
 /**
+ * Saves changes to compounds
+ * @param compounds The array of compound data to save
+ * @returns Promise with the saved CompoundRs array
+ */
+export const upsertCompoundRss = async (compounds: CompoundRs[]): Promise<CompoundRs[]> => {
+  try {
+    const response = await apiClient.put<ServiceResponse<CompoundRs[]>>(
+      `/configurationmaintenance/UpsertCompoundRss/${DEFAULT_LAB_ID}`,
+      compounds
+    );
+
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.message || 'Failed to save compounds');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error saving compounds:', error);
+    throw error;
+  }
+};
+
+/**
  * Fetches all panels for the lab
  * @returns Promise with array of PanelRs data
  */
@@ -301,6 +324,7 @@ const configurationService = {
   fetchPrepBatchSopDetail,
   fetchAnalyticalBatchSopRs,
   fetchCompounds,
+  upsertCompoundRss,
   fetchPanels,
   fetchInstrumentTypes,
   upsertInstrumentTypes,

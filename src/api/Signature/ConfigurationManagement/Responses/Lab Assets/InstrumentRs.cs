@@ -75,13 +75,52 @@ public class InstrumentRs
                 context);
         }
     }
+
+    // Validation method
+    public static ValidationResult Validate(InstrumentRs instrumentRs, int labId)
+    {
+        var validator = new InstrumentRsValidator();
+        var validationResult = validator.Validate(instrumentRs);
+
+        var result = new ValidationResult
+        {
+            IsValid = validationResult.IsValid,
+            Errors = validationResult.Errors.Select(e => new ValidationError
+            {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            }).ToList()
+        };
+
+        foreach (var peripheral in instrumentRs.InstrumentPeripheralRss)
+        {
+            var res = InstrumentPeripheralRs.Validate(peripheral, instrumentRs.InstrumentPeripheralRss);
+            if (res.IsValid) continue;
+            result.IsValid = false;
+            result.Errors.AddRange(res.Errors.Select(e => new ValidationError
+            {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            }).ToList());
+            break;
+        }
+        return result;
+    }
 }
 
 // Validator for InstrumentRs
 public class InstrumentRsValidator : AbstractValidator<InstrumentRs>
 {
+    private readonly List<InstrumentRs> _existingInstrumentRss;
+
     public InstrumentRsValidator()
     {
+    }
+
+
+    public InstrumentRsValidator(List<InstrumentRs> existingInstrumentRss)
+    {
+        _existingInstrumentRss = existingInstrumentRss;
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required")
             .MaximumLength(150).WithMessage("Name cannot exceed 150 characters");
@@ -90,8 +129,17 @@ public class InstrumentRsValidator : AbstractValidator<InstrumentRs>
             .GreaterThan(0).When(x => x.InstrumentId > 0)
             .WithMessage("Instrument type ID must be greater than 0 for existing instruments");
 
-        // Validate each peripheral
-        RuleForEach(x => x.InstrumentPeripheralRss)
-            .SetValidator(new InstrumentPeripheralRsValidator());
+        RuleFor(x => x)
+            .Must((instrumentTypeRs, _) => !HasUniqueName(instrumentTypeRs, existingInstrumentRss))
+            .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
+    }
+
+    private bool HasUniqueName(InstrumentRs instrumentRs, IEnumerable<InstrumentRs> existingInstrumentRss)
+    {
+        return existingInstrumentRss.Any(x =>
+            x.Name == instrumentRs.Name &&
+            // Don't flag the item as a duplicate of itself when updating
+            // For new items without IDs this won't matter
+            !ReferenceEquals(x, instrumentRs));
     }
 }
