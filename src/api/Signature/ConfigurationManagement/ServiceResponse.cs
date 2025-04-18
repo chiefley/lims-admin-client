@@ -9,9 +9,3 @@ public class ServiceResponse<T>
     public T Data { get; set; }
     public List<ValidationError> ValidationErrors { get; set; } = [];
 }
-
-public class ValidationError
-{
-    public string PropertyName { get; set; }
-    public string ErrorMessage { get; set; }
-}

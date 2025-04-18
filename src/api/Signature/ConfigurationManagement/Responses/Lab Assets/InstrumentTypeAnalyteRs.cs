@@ -107,7 +107,11 @@ public class InstrumentTypeAnalyteRsValidator : AbstractValidator<InstrumentType
 
     public InstrumentTypeAnalyteRsValidator()
     {
-        if (ExistingAnalytes is null) throw new InvalidOperationException("Existing Analytes Property cannot be null");
+    }
+
+    public InstrumentTypeAnalyteRsValidator(IEnumerable<InstrumentTypeAnalyteRs>? existingAnalytes)
+    {
+        if (existingAnalytes is null) throw new InvalidOperationException("Existing Analytes Property cannot be null");
 
         RuleFor(x => x.AnalyteId)
             .GreaterThan(0).WithMessage("Analyte ID must be greater than 0");
@@ -121,7 +125,7 @@ public class InstrumentTypeAnalyteRsValidator : AbstractValidator<InstrumentType
 
         // Composite uniqueness validation for InstrumentTypeId and AnalyteId
         RuleFor(x => x)
-            .Must((analyte, _) => !HasDuplicateCompositeKey(analyte, ExistingAnalytes))
+            .Must((analyte, _) => !HasDuplicateCompositeKey(analyte, existingAnalytes))
             .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
     }
 

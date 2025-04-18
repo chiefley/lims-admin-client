@@ -36,6 +36,8 @@ public class InstrumentPeripheralRs
     public int? DurableLabAssetId { get; set; }
 
     // @validation: unique constraint on InstrumentId and Peripheral Type.
+    // Combobox control.  Choices come from ConfigurationMaintenanceSelectors.PeripheralTypes.  But
+    // as a combobox, the user can enter something that is not one of the choices.
     [Required]
     [StringLength(250)]
     public string? PeripheralType { get; set; }
@@ -85,10 +87,8 @@ public class InstrumentPeripheralRs
 // Validator for InstrumentPeripheralRs
 public class InstrumentPeripheralRsValidator : AbstractValidator<InstrumentPeripheralRs>
 {
-    public IEnumerable<InstrumentPeripheralRs>? ExistingInstrumentPeripherals { get; set; }
     public InstrumentPeripheralRsValidator()
     {
-        if (ExistingInstrumentPeripherals is null) throw new InvalidOperationException("ExistingPeripherals Property cannot be null");
         RuleFor(x => x.DurableLabAssetId)
             .GreaterThan(0).WithMessage("Durable lab asset ID must be greater than 0")
             .NotNull().WithMessage("DurableLabAsset canot be null.");
@@ -96,20 +96,6 @@ public class InstrumentPeripheralRsValidator : AbstractValidator<InstrumentPerip
         RuleFor(x => x.PeripheralType)
             .NotEmpty().WithMessage("Peripheral type is required")
             .MaximumLength(250).WithMessage("Peripheral type cannot exceed 250 characters");
-
-        // uniqueness validation for InstrumentId and PeripheralType
-        RuleFor(x => x)
-            .Must((analyte, _) => !HasUniquenessConstraint(analyte, ExistingInstrumentPeripherals))
-            .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
     }
 
-    private bool HasUniquenessConstraint(InstrumentPeripheralRs analyte, IEnumerable<InstrumentPeripheralRs> existingAnalytes)
-    {
-        return existingAnalytes.Any(x =>
-            x.InstrumentId == analyte.InstrumentId &&
-            x.PeripheralType == analyte.PeripheralType &&
-            // Don't flag the item as a duplicate of itself when updating
-            // For new items without IDs this won't matter
-            !ReferenceEquals(x, analyte));
-    }
 }

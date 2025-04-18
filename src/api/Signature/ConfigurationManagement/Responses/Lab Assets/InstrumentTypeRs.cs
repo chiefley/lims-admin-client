@@ -83,7 +83,7 @@ public class InstrumentTypeRs
     // Validation method
     public static ValidationResult Validate(InstrumentTypeRs instrumentType, int labId)
     {
-        var validator = new InstrumentTypeRsValidator { LabId = labId };
+        var validator = new InstrumentTypeRsValidator(labId);
         var validationResult = validator.Validate(instrumentType);
 
         var result = new ValidationResult
@@ -158,10 +158,16 @@ public class InstrumentTypeRs
 // Validator for InstrumentTypeRs
 public class InstrumentTypeRsValidator : AbstractValidator<InstrumentTypeRs>
 {
-    public int LabId { get; set; }
+    private readonly int _labId;
 
     public InstrumentTypeRsValidator()
     {
+    }
+
+    public InstrumentTypeRsValidator(int labId)
+    {
+        _labId = labId;
+
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required")
             .MaximumLength(150).WithMessage("Name cannot exceed 150 characters");
@@ -178,7 +184,7 @@ public class InstrumentTypeRsValidator : AbstractValidator<InstrumentTypeRs>
             .IsInEnum().WithMessage("Invalid instrument file parser type");
 
         RuleFor(x => x.LabId)
-            .Equal(LabId).WithMessage($"Lab ID must equal {LabId}");
+            .Equal(_labId).WithMessage($"Lab ID must equal {_labId}");
 
         // Validate child instruments
         RuleForEach(x => x.InstrumentRss)
@@ -187,5 +193,19 @@ public class InstrumentTypeRsValidator : AbstractValidator<InstrumentTypeRs>
         // Validate child analytes
         RuleForEach(x => x.InstrumentTypeAnalyteRss)
             .SetValidator(new InstrumentTypeAnalyteRsValidator());
+
+        //RuleFor(x => x)
+        //    .Must((analyte, _) => !HasDuplicateCompositeKey(analyte, existingAnalytes))
+        //    .WithMessage("The combination of Instrument Type and Analyte must be unique. This Analyte is already associated with this Instrument Type.");
     }
+
+    //private bool HasDuplicateCompositeKey(InstrumentTypeAnalyteRs analyte, IEnumerable<InstrumentTypeAnalyteRs> existingAnalytes)
+    //{
+    //    return existingAnalytes.Any(x =>
+    //        x.InstrumentTypeId == analyte.InstrumentTypeId &&
+    //        x.AnalyteId == analyte.AnalyteId &&
+    //        // Don't flag the item as a duplicate of itself when updating
+    //        // For new items without IDs this won't matter
+    //        !ReferenceEquals(x, analyte));
+    //}
 }

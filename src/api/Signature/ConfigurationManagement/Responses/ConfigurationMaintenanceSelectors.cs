@@ -31,4 +31,5 @@ public class ConfigurationMaintenanceSelectors
     public List<DropDownItem> AggregateRollupMethodTypes { get; set; }
     public List<DropDownItem> PrepBatchSops { get; set; }
     public List<DropDownItem> AnalyticalBatchSops { get; set; }
+    public List<DropDownItem> PeripheralTypes { get; set; }
 }

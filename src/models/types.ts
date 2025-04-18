@@ -398,13 +398,14 @@ export interface PanelRs {
 
 // ============ Instrument Types ============
 
-// Instrument Peripheral Response
+// Instrument Peripheral Response - EXCEPTION TO STANDARD PATTERN
+// Hard deletable, no Active flag
 export interface InstrumentPeripheralRs {
   instrumentPeripheralId: number;
   instrumentId: number;
   durableLabAssetId: number | null;
   peripheralType: string | null;
-  active?: boolean;
+  // No active flag per backend exception
 }
 
 // Instrument Response
@@ -419,14 +420,14 @@ export interface InstrumentRs {
   instrumentPeripherals: InstrumentPeripheralRs[];
 }
 
-// Instrument Type Analyte Response
+// Instrument Type Analyte Response - EXCEPTION TO STANDARD PATTERN
+// Hard deletable, no Active flag, uses composite key
 export interface InstrumentTypeAnalyteRs {
-  instrumentTypeAnalyteId?: number;
   instrumentTypeId: number;
   analyteId: number;
   analyteAlias: string;
-  analyteName?: string;
-  active?: boolean;
+  analyteName?: string; // For UI display only
+  // No active flag per backend exception
 }
 
 // Instrument Type Response
@@ -438,6 +439,7 @@ export interface InstrumentTypeRs {
   peakAreaSaturationThreshold: number | null;
   instrumentFileParser: InstrumentFileParserType | null;
   active?: boolean;
+  labId: number; // Added as required by the backend
   instrumentRss: InstrumentRs[];
   instrumentTypeAnalyteRss: InstrumentTypeAnalyteRs[];
 }

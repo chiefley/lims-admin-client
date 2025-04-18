@@ -55,6 +55,7 @@ public class InstrumentRs
                 // Existing instrument
                 instrument = existingInstruments.SingleOrDefault(i => i.Id == response.InstrumentId)
                     ?? throw new InvalidOperationException($"Unknown Instrument with Id: {response.InstrumentId}");
+              
             }
 
             // Update properties

@@ -23,25 +23,31 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
   showInactive = false,
   editing = true,
 }) => {
-  // Filter analytes based on active status
+  // Since instrumentTypeAnalytes don't have an Active flag, the showInactive prop isn't applicable
+  // But we keep it for API consistency with other tabs
   const filteredAnalytes = useMemo(() => {
-    if (showInactive) {
-      return analytes;
-    }
-    return analytes.filter(analyte => analyte.active !== false);
-  }, [analytes, showInactive]);
+    return analytes;
+  }, [analytes]);
+
+  // Preprocess analytes to add a unique key field since they don't have a single ID
+  const analytesWithKey = useMemo(() => {
+    return filteredAnalytes.map(analyte => ({
+      ...analyte,
+      // Add a composite key field that can be used as rowKey
+      key: `${analyte.instrumentTypeId}_${analyte.analyteId}`,
+    }));
+  }, [filteredAnalytes]);
 
   // Handle adding a new analyte
   const handleAddAnalyte = () => {
     if (!editing) return;
 
     // Create new analyte with default values
-    const newAnalyte: InstrumentTypeAnalyteRs = {
-      instrumentTypeAnalyteId: -Date.now(), // Temporary negative ID
+    const newAnalyte: InstrumentTypeAnalyteRs & { key: string } = {
       instrumentTypeId: instrumentTypeId,
       analyteId: 0, // Initialize with 0 instead of null
       analyteAlias: '', // Field for AnalyteAlias
-      active: true, // New analytes are active by default
+      key: `${instrumentTypeId}_new_${Date.now()}`, // Generate a temporary unique key
     };
 
     // Add to the analytes array
@@ -50,7 +56,7 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
   };
 
   // Handle saving an analyte
-  const handleSaveAnalyte = (analyte: InstrumentTypeAnalyteRs) => {
+  const handleSaveAnalyte = (analyte: InstrumentTypeAnalyteRs & { key: string }) => {
     // Validate required fields
     if (!analyte.analyteId) {
       message.error('Please select an analyte');
@@ -62,13 +68,6 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       return Promise.reject('Please enter an analyte alias');
     }
 
-    // Ensure active property is boolean
-    const updatedAnalyte = {
-      ...analyte,
-      active:
-        typeof analyte.active === 'string' ? analyte.active === 'true' : analyte.active !== false,
-    };
-
     // Simulate API call
     return new Promise<void>(resolve => {
       setTimeout(() => {
@@ -78,18 +77,20 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
         message.success(`Analyte "${analyteName}" saved`);
 
         // Update the analytes array
-        if ((analyte.instrumentTypeAnalyteId || 0) < 0) {
-          // For new analytes (negative ID)
-          const filteredAnalytes = analytes.filter(
-            a => a.instrumentTypeAnalyteId !== analyte.instrumentTypeAnalyteId
-          );
-          onChange([...filteredAnalytes, updatedAnalyte]);
-        } else {
-          // For existing analytes
-          const updatedAnalytes = analytes.map(a =>
-            a.instrumentTypeAnalyteId === analyte.instrumentTypeAnalyteId ? updatedAnalyte : a
-          );
+        // For instrument type analytes, we use the compound key (instrumentTypeId, analyteId, analyteAlias)
+        // to identify the record
+        const existingIndex = analytes.findIndex(
+          a => a.instrumentTypeId === analyte.instrumentTypeId && a.analyteId === analyte.analyteId
+        );
+
+        if (existingIndex >= 0) {
+          // Update existing record
+          const updatedAnalytes = [...analytes];
+          updatedAnalytes[existingIndex] = analyte;
           onChange(updatedAnalytes);
+        } else {
+          // Add new record
+          onChange([...analytes, analyte]);
         }
 
         resolve();
@@ -98,16 +99,11 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
   };
 
   // Handle deleting an analyte
-  const handleDeleteAnalyte = (analyte: InstrumentTypeAnalyteRs) => {
-    // Only allow deletion of temporary (negative ID) analytes
-    if ((analyte.instrumentTypeAnalyteId || 0) >= 0) {
-      message.error('Cannot delete existing analyte. Set it to inactive instead.');
-      return;
-    }
-
-    // Update by filtering out the deleted analyte
+  // For instrument type analytes, we implement hard deletion since there's no Active flag
+  const handleDeleteAnalyte = (analyte: InstrumentTypeAnalyteRs & { key: string }) => {
+    // Remove the analyte from the array
     const updatedAnalytes = analytes.filter(
-      a => a.instrumentTypeAnalyteId !== analyte.instrumentTypeAnalyteId
+      a => !(a.instrumentTypeId === analyte.instrumentTypeId && a.analyteId === analyte.analyteId)
     );
 
     onChange(updatedAnalytes);
@@ -152,30 +148,7 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       ],
       render: (text: string) => text || '-',
     },
-    {
-      title: 'Active',
-      dataIndex: 'active',
-      key: 'active',
-      editable: true,
-      inputType: 'select',
-      inputProps: {
-        style: { width: '100%' },
-      },
-      options: [
-        { value: 'true', label: 'Active' },
-        { value: 'false', label: 'Inactive' },
-      ],
-      render: (value: boolean) => (value !== false ? 'Active' : 'Inactive'),
-    },
   ];
-
-  // Custom row class to visually indicate inactive analytes
-  const getRowClassName = (record: InstrumentTypeAnalyteRs) => {
-    return record.active === false ? 'inactive-row' : '';
-  };
-
-  // Only allow deletion of temporary (negative ID) analytes
-  const canDelete = (record: InstrumentTypeAnalyteRs) => (record.instrumentTypeAnalyteId || 0) < 0;
 
   return (
     <div>
@@ -190,25 +163,20 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       {filteredAnalytes.length === 0 ? (
         <Alert
           message="No Analytes"
-          description={
-            showInactive
-              ? 'No analytes have been configured for this instrument type.'
-              : "No active analytes found. Use 'Show Inactive' to view inactive analytes."
-          }
+          description="No analytes have been configured for this instrument type."
           type="info"
           showIcon
         />
       ) : (
         <EditableTable
           columns={columns}
-          dataSource={filteredAnalytes}
-          rowKey="instrumentTypeAnalyteId"
+          dataSource={analytesWithKey}
+          rowKey="key"
           pagination={false}
           size="small"
           onSave={handleSaveAnalyte}
           onDelete={handleDeleteAnalyte}
           editable={editing}
-          rowClassName={getRowClassName}
         />
       )}
     </div>

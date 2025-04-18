@@ -159,8 +159,37 @@ public class ConfigurationMaintenanceController : BaseController
         }
     }
 
+    // Returns ServiceResponse<List<InstrumentTypeRs>>
+    [HttpPut("UpsertCompoundRss/{labId}")]
+    public async Task<IActionResult> UpsertCompoundRsRss([FromBody] List<CompoundRs> responses, int labId)
+    {
+        try
+        {
+            foreach (var response in responses)
+            {
+                var x = CompoundRs.Validate(response, responses);
+                if (!x.IsValid) throw new InvalidOperationException(x.Errors.First().ErrorMessage);
+            }
 
-// Returns ServiceResponse<List<PanelRs>>
+            var payload = await _sopService.UpsertCompoundRss(responses);
+
+            var sr = new ServiceResponse<List<CompoundRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+
+    // Returns ServiceResponse<List<PanelRs>>
     [HttpGet("FetchPanelRss/{labId}")]
     public async Task<IActionResult> FetchPanelRss(int labId)
     {

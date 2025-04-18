@@ -25,6 +25,7 @@ import FormItem from '../common/FormItem';
 import { stylePresets } from '../../config/theme';
 import InstrumentsTab from './tabs/InstrumentsTab';
 import AnalytesTab from './tabs/AnalytesTab';
+import appConfig from '../../config/appConfig';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -66,6 +67,9 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   // Handle form submission
   const handleSave = async () => {
     try {
+      // We don't set saving state here as it's controlled by the parent
+      // Remove the line: setSaving(true);
+
       // Validate form
       const values = await form.validateFields();
 
@@ -73,6 +77,8 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
       const updatedInstrumentType: InstrumentTypeRs = {
         ...currentInstrumentType,
         ...values,
+        // Always ensure labId is set correctly from config
+        labId: appConfig.api.defaultLabId,
       };
 
       // Call parent update handler
@@ -83,6 +89,8 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
       console.error('Validation failed:', error);
       message.error('Please check the form for errors');
     }
+    // We don't need to set saving back to false here
+    // Remove the line: setSaving(false);
   };
 
   // Handle cancel editing

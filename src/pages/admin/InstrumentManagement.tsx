@@ -8,6 +8,7 @@ import InstrumentTypesList from '../../components/instruments/InstrumentTypesLis
 import InstrumentTypeDetail from '../../components/instruments/InstrumentTypeDetail';
 import configurationService from '../../api/endpoints/configurationService';
 import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+import appConfig from '../../config/appConfig';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -124,9 +125,9 @@ const InstrumentManagement: React.FC = () => {
       peakAreaSaturationThreshold: null,
       instrumentFileParser: null,
       active: true, // New entries are active by default
+      labId: appConfig.api.defaultLabId, // Explicitly set the labId from config
       instrumentRss: [],
       instrumentTypeAnalyteRss: [],
-      // The LabId will be set by the server when saved
     };
 
     // Add to the array of instrument types
@@ -172,12 +173,10 @@ const InstrumentManagement: React.FC = () => {
           throw new Error(`Instrument type with ID ${instrumentType.instrumentTypeId} not found`);
         }
 
-        // The server expects a 'labId' property that might not be in our TypeScript interface
-        // We'll use type assertion to add it to the object we send
+        // Ensure the labId is set correctly
         const typeToSave = {
           ...typeToUpdate,
-          // @ts-ignore - Add labId even though it's not in the interface
-          labId: 1001, // Default lab ID from your configuration
+          labId: appConfig.api.defaultLabId, // Use the labId from config
         };
 
         // Save to the server - wrapping in an array as the API expects an array
