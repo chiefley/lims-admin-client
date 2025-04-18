@@ -70,11 +70,15 @@ const CompoundManagement: React.FC = () => {
   const handleSaveCompound = (record: CompoundRs) => {
     // Use Promise to match the EditableTable's expected behavior
     return new Promise<void>((resolve, reject) => {
-      // Validate CAS number format
-      const casRegex = /^[0-9]{1,7}-[0-9]{2}-[0-9]$/;
-      if (!casRegex.test(record.cas)) {
-        message.error('CAS number must be in the format XXXXXXX-XX-X');
-        reject('Invalid CAS number format');
+      // Relaxed CAS validation that allows:
+      // 1. Standard CAS numbers (XXXXXXX-XX-X)
+      // 2. Special identifiers like "TOTTHC"
+      // 3. Composite CAS numbers for co-eluting compounds (e.g., with + signs)
+
+      // We'll only do a basic validation to ensure the CAS field is not empty
+      if (!record.cas.trim()) {
+        message.error('CAS identifier cannot be empty');
+        reject('CAS identifier is required');
         return;
       }
 
@@ -82,6 +86,19 @@ const CompoundManagement: React.FC = () => {
       if (!record.name.trim()) {
         message.error('Compound name cannot be empty');
         reject('Name is required');
+        return;
+      }
+
+      // Validate uniqueness of CAS number
+      const hasDuplicateCas = compounds.some(
+        compound =>
+          compound.analyteId !== record.analyteId && // Skip the current record
+          compound.cas === record.cas // Check if CAS matches any other record
+      );
+
+      if (hasDuplicateCas) {
+        message.error('This CAS identifier is already in use by another compound');
+        reject('Duplicate CAS identifier');
         return;
       }
 
@@ -123,6 +140,12 @@ const CompoundManagement: React.FC = () => {
     setHasChanges(true);
 
     message.success(`Deleted compound: ${record.name}`);
+  };
+
+  // Determine if delete button should be shown for a record
+  const showDeleteButton = (record: CompoundRs) => {
+    // Only show delete button for temporary records (negative IDs)
+    return record.analyteId < 0;
   };
 
   // Handle adding a new compound
@@ -201,10 +224,8 @@ const CompoundManagement: React.FC = () => {
       rules: [
         { required: true, message: 'Please enter the CAS number' },
         { max: 50, message: 'CAS number cannot exceed 50 characters' },
-        {
-          pattern: /^[0-9]{1,7}-[0-9]{2}-[0-9]$/,
-          message: 'CAS number must be in the format XXXXXXX-XX-X',
-        },
+        // Allow non-standard CAS identifiers (like TOTTHC) to be entered
+        // The cell validation will still provide warning for potential standard CAS numbers
       ],
     },
     {
@@ -312,6 +333,7 @@ const CompoundManagement: React.FC = () => {
             size="small"
             pagination={{ pageSize: 10 }}
             rowClassName={record => (record.active === false ? 'inactive-row' : '')}
+            showDeleteButton={showDeleteButton}
           />
         </Spin>
 

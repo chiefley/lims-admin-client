@@ -36,6 +36,8 @@ interface EditableTableProps<RecordType extends Record<string, any>>
   editable?: boolean;
   addButtonText?: string;
   defaultValues?: any;
+  // New prop to conditionally show delete button
+  showDeleteButton?: (record: RecordType) => boolean;
 }
 
 function EditableTable<RecordType extends Record<string, any>>({
@@ -48,6 +50,7 @@ function EditableTable<RecordType extends Record<string, any>>({
   editable = true,
   addButtonText = 'Add New',
   defaultValues = {},
+  showDeleteButton,
   ...restProps
 }: EditableTableProps<RecordType>) {
   const [form] = Form.useForm();
@@ -170,6 +173,11 @@ function EditableTable<RecordType extends Record<string, any>>({
         width: '150px',
         render: (_: any, record: RecordType) => {
           const editable = isEditing(record);
+
+          // Determine if delete button should be shown
+          // Use the showDeleteButton prop callback if provided, otherwise show for all records
+          const shouldShowDelete = showDeleteButton ? showDeleteButton(record) : true;
+
           return editable ? (
             <Space>
               <Tooltip title="Save">
@@ -196,7 +204,7 @@ function EditableTable<RecordType extends Record<string, any>>({
                   onClick={() => edit(record)}
                 />
               </Tooltip>
-              {onDelete && (
+              {onDelete && shouldShowDelete && (
                 <Tooltip title="Delete">
                   <Popconfirm
                     title="Are you sure you want to delete this item?"
@@ -262,7 +270,6 @@ function EditableTable<RecordType extends Record<string, any>>({
           dataSource={data}
           columns={mergedColumns}
           rowKey={rowKey}
-          rowClassName="editable-row"
           pagination={{
             onChange: cancel,
             pageSize: 10,
