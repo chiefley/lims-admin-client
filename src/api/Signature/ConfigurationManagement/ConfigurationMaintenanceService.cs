@@ -74,6 +74,7 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         var prepBatchSops = await _selectorService.PrepBatchSops(labId, true, false);
         var analyticalBatchSops = await _selectorService.AnalyticalBatchSops(labId, true, false);
         var peripheralTypes = await _selectorService.DBEnums(labId, "NBInstrumentPeripheralTypeSlug", true, false);
+        var dbEnumTypes = await _selectorService.DBEnumTypes(labId, true, false);
 
         var ret = new ConfigurationMaintenanceSelectors
         {
@@ -103,7 +104,8 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
             ComparisonTypes = _selectorService.EnumTypes<NcComparisonType>(true).DropDownItems(),
             PrepBatchSops = prepBatchSops.DropDownItems(),
             AnalyticalBatchSops = analyticalBatchSops.DropDownItems(),
-            PeripheralTypes = peripheralTypes.DropDownItems()
+            PeripheralTypes = peripheralTypes.DropDownItems(),
+            DBEnumTypes = dbEnumTypes.DropDownItems()
         };
 
         return ret;
@@ -259,6 +261,38 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         var query = ctx.InstrumentTypes
             .Where(p => p.LabId == labId);
         var updatedResponses = await InstrumentTypeRs.FetchInstrumentTypes(query);
+        return updatedResponses;
+    }
+
+  
+
+    public async Task<List<DBEnumRs>> FetchDBEnumRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.DBEnums
+            .Where(p => p.LabId == labId);
+        var ret = await DBEnumRs.FetchDbEnumRss(query);
+        return ret;
+    }
+
+    public async Task<List<DBEnumRs>> UpsertDBEnumRss(List<DBEnumRs> responses, int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+
+        var models = await ctx.DBEnums
+            .Where(ins => ins.LabId == labId)
+            .ToListAsync();
+
+        DBEnumRs.Delete(responses, models, ctx);
+
+        foreach (var response in responses)
+            await DBEnumRs.UpsertFromResponse(response, models, ctx);
+
+        await ctx.SaveChangesAsync();
+
+        var query = ctx.DBEnums
+            .Where(p => p.LabId == labId);
+        var updatedResponses = await DBEnumRs.FetchDbEnumRss(query);
         return updatedResponses;
     }
 }

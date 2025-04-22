@@ -45,6 +45,8 @@ const PanelEditDrawer: React.FC<PanelEditDrawerProps> = ({
         ...panel,
         // Convert array to format suitable for Select component
         childPanels: panel.childPanels || [],
+        // Ensure active field is properly set
+        active: panel.active !== false, // Default to true if undefined
       });
     }
   }, [panel, form]);
@@ -57,10 +59,24 @@ const PanelEditDrawer: React.FC<PanelEditDrawerProps> = ({
       // Validate form
       const values = await form.validateFields();
 
+      // Convert values like scaleFactor and decimalFormatType to the correct type
+      const updatedValues = {
+        ...values,
+        scaleFactor:
+          values.scaleFactor === null || values.scaleFactor === undefined
+            ? 1.0
+            : Number(values.scaleFactor),
+        defaultExtractionVolumeMl: values.defaultExtractionVolumeMl
+          ? Number(values.defaultExtractionVolumeMl)
+          : null,
+        defaultDilution: values.defaultDilution ? Number(values.defaultDilution) : null,
+        significantDigits: values.significantDigits ? Number(values.significantDigits) : 2,
+      };
+
       // Create updated panel object
       const updatedPanel: PanelRs = {
         ...panel!,
-        ...values,
+        ...updatedValues,
       };
 
       // Call parent save handler
@@ -225,6 +241,19 @@ const PanelEditDrawer: React.FC<PanelEditDrawerProps> = ({
                 valuePropName="checked"
               >
                 <Switch />
+              </FormItem>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <FormItem
+                name="active"
+                label="Active"
+                tooltip="Panel is active and available for use"
+                valuePropName="checked"
+              >
+                <Switch defaultChecked />
               </FormItem>
             </Col>
           </Row>

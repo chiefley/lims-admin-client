@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Spin, Table, Tag, Button, Tooltip, message, Space, Input, Tabs } from 'antd';
+import {
+  Typography,
+  Spin,
+  Table,
+  Tag,
+  Button,
+  Tooltip,
+  message,
+  Space,
+  Input,
+  Tabs,
+  Checkbox,
+} from 'antd';
 import { SearchOutlined, ExperimentOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import PageHeader from '../../components/common/PageHeader';
@@ -21,6 +33,7 @@ const PanelManagement: React.FC = () => {
   const [editingPanel, setEditingPanel] = useState<PanelRs | null>(null);
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
   const [activeTabKey, setActiveTabKey] = useState<string>('all');
+  const [showInactive, setShowInactive] = useState<boolean>(false);
 
   // Load panels and selectors
   useEffect(() => {
@@ -35,7 +48,14 @@ const PanelManagement: React.FC = () => {
 
         setPanels(panelsData);
         setSelectors(selectorsData);
-        setFilteredPanels(panelsData);
+
+        // Apply initial filter if showInactive is false (which it is by default)
+        if (!showInactive) {
+          setFilteredPanels(panelsData.filter(panel => panel.active !== false));
+        } else {
+          setFilteredPanels(panelsData);
+        }
+
         setError(null);
       } catch (err: any) {
         setError(err.message || 'Failed to load data');
@@ -48,11 +68,16 @@ const PanelManagement: React.FC = () => {
     loadData();
   }, []);
 
-  // Filter panels based on search text and active tab
+  // Filter panels based on search text, active tab and active status
   useEffect(() => {
     if (!panels.length) return;
 
     let filtered = [...panels];
+
+    // First filter by active status if not showing inactive
+    if (!showInactive) {
+      filtered = filtered.filter(panel => panel.active !== false);
+    }
 
     // Apply search filter if search text exists
     if (searchText) {
@@ -84,7 +109,7 @@ const PanelManagement: React.FC = () => {
     }
 
     setFilteredPanels(filtered);
-  }, [searchText, panels, activeTabKey]);
+  }, [searchText, panels, activeTabKey, showInactive]);
 
   // Handle adding a new panel
   const handleAddPanel = () => {
@@ -115,6 +140,7 @@ const PanelManagement: React.FC = () => {
       testCategoryId: null,
       sampleCount: 0,
       childPanels: [],
+      active: true, // Set active by default for new panels
     };
 
     // Add to the array
@@ -135,24 +161,39 @@ const PanelManagement: React.FC = () => {
   // Handle saving a panel after editing
   const handleSavePanel = async (updatedPanel: PanelRs) => {
     try {
-      // Calling the service function to save the panel
-      await configurationService.savePanel(updatedPanel);
+      // Ensure the panel has the correct labId
+      const panelToSave = {
+        ...updatedPanel,
+        labId: 1001, // Use the lab ID from your API documentation
+      };
 
-      setPanels(prevPanels =>
-        prevPanels.map(p => (p.panelId === updatedPanel.panelId ? updatedPanel : p))
-      );
+      // Find the index of the panel being updated if it exists
+      const existingPanelIndex = panels.findIndex(p => p.panelId === updatedPanel.panelId);
 
-      // Update filtered panels too
-      setFilteredPanels(prevFiltered =>
-        prevFiltered.map(p => (p.panelId === updatedPanel.panelId ? updatedPanel : p))
-      );
+      // Create a copy of the panels array
+      let panelsToSave = [...panels];
+
+      if (existingPanelIndex >= 0) {
+        // Update existing panel
+        panelsToSave[existingPanelIndex] = panelToSave;
+      } else {
+        // Add new panel
+        panelsToSave = [panelToSave, ...panelsToSave];
+      }
+
+      // Call the upsert endpoint with the full array of panels
+      const savedPanels = await configurationService.savePanels(panelsToSave);
+
+      // Update state with the response from the server
+      setPanels(savedPanels);
+      setFilteredPanels(savedPanels); // Also update filtered panels
 
       setDrawerVisible(false);
       setEditingPanel(null);
-      message.success(`Panel ${updatedPanel.name} updated successfully`);
-    } catch (error) {
-      message.error('Failed to save panel');
+      message.success(`Panel ${updatedPanel.name} saved successfully`);
+    } catch (error: any) {
       console.error('Error saving panel:', error);
+      message.error(error.message || 'Failed to save panel');
     }
   };
 
@@ -163,7 +204,12 @@ const PanelManagement: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text, record) => <Text strong>{text}</Text>,
+      render: (text, record) => (
+        <Space>
+          <Text strong>{text}</Text>
+          {record.active === false && <Tag color="red">Inactive</Tag>}
+        </Space>
+      ),
     },
     {
       title: 'Slug',
@@ -331,6 +377,9 @@ const PanelManagement: React.FC = () => {
                 style={{ width: 250 }}
                 allowClear
               />
+              <Checkbox checked={showInactive} onChange={e => setShowInactive(e.target.checked)}>
+                Show Inactive
+              </Checkbox>
               <Button type="primary" icon={<PlusOutlined />} onClick={handleAddPanel}>
                 Add Panel
               </Button>
@@ -356,6 +405,7 @@ const PanelManagement: React.FC = () => {
               }}
               size="middle"
               pagination={{ pageSize: 10 }}
+              rowClassName={record => (record.active === false ? 'inactive-row' : '')}
             />
           </Spin>
         </CardSection>

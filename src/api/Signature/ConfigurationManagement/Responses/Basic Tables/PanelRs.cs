@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
 using NCLims.Data;
 using NCLims.Models;
 using NCLims.Models.Enums;
@@ -40,8 +39,7 @@ public class PanelRs
     // Dropdown control. Choices come from ConfigurationMaintenanceSelectors.PanelTypes
     // @validation: Must be unique in the list of PanelRss.
     [Required]
-    [StringLength(150)]
-    public Panel.PanelTypes PanelType { get; set; }
+    public string PanelType { get; set; }
 
     public bool QualitativeFirst { get; set; }
 
@@ -54,14 +52,12 @@ public class PanelRs
     [StringLength(150)]
     public string PlantSop { get; set; }
 
-    [Required]
     [StringLength(150)]
     public string NonPlantSop { get; set; }
 
     [Required]
     public double? ScaleFactor { get; set; }
 
-    [Required]
     [StringLength(150)]
     public string Units { get; set; }
 
@@ -116,7 +112,7 @@ public class PanelRs
             MeasuredUnits = p.MeasuredUnits,
             PanelId = p.Id,
             SignificantDigits = p.SignificantDigits,
-            PanelType = p.PanelType,
+            PanelType = p.PanelType.ToString(),
             NonPlantSop = p.NonPlantSop,
             PlantSop = p.PlantSop,
             QualitativeFirst = p.QualitativeFirst,
@@ -186,7 +182,7 @@ public class PanelRs
         panel.PanelGroupId = response.PanelGroupId;
         panel.SignificantDigits = response.SignificantDigits;
         panel.DecimalFormatType = response.DecimalFormatType;
-        panel.PanelType = response.PanelType;
+        panel.PanelType = Enum.Parse<Panel.PanelTypes>(response.PanelType);
         panel.QualitativeFirst = response.QualitativeFirst;
         panel.RequiresMoistureContent = response.RequiresMoistureContent;
         panel.AllowPartialAnalytes = response.AllowPartialAnalytes;
@@ -276,6 +272,10 @@ public class PanelRsValidator : AbstractValidator<PanelRs>
     private readonly List<PanelRs> _existingPanelRss;
     private readonly int _labId;
 
+    public PanelRsValidator()
+    {
+    }
+
     public PanelRsValidator(List<PanelRs>existingPanelRss, int labId)
     {
         _existingPanelRss = existingPanelRss;
@@ -293,19 +293,22 @@ public class PanelRsValidator : AbstractValidator<PanelRs>
             .GreaterThanOrEqualTo(0).WithMessage("Significant digits must be 0 or greater");
 
         RuleFor(x => x.PlantSop)
-            .NotEmpty().WithMessage("Plant SOP is required")
             .MaximumLength(150).WithMessage("Plant SOP cannot exceed 150 characters");
 
         RuleFor(x => x.NonPlantSop)
-            .NotEmpty().WithMessage("Non-Plant SOP is required")
             .MaximumLength(150).WithMessage("Non-Plant SOP cannot exceed 150 characters");
+
+        RuleFor(x => x.LimitUnits)
+            .MaximumLength(150).WithMessage("Limit Units cannot exceed 150 characters");
+
+        RuleFor(x => x.Units)
+            .MaximumLength(150).WithMessage("Units cannot exceed 150 characters");
+
+        RuleFor(x => x.MeasuredUnits)
+            .MaximumLength(150).WithMessage("Non-Plant cannot exceed 150 characters");
 
         RuleFor(x => x.ScaleFactor)
             .NotNull().WithMessage("Scale factor is required");
-
-        RuleFor(x => x.Units)
-            .NotEmpty().WithMessage("Units are required")
-            .MaximumLength(150).WithMessage("Units cannot exceed 150 characters");
 
         RuleFor(x => x.LabId)
             .Equal(_labId).WithMessage($"Lab ID must equal {_labId}");

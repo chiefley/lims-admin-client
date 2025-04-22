@@ -294,24 +294,24 @@ export const saveAnalyticalBatchSop = async (
 };
 
 /**
- * Saves changes to a panel
- * @param panel The panel data to save
- * @returns Promise with the saved PanelRs
+ * Saves changes to panels (actually uses upsert)
+ * @param panels The panels array to save
+ * @returns Promise with the updated PanelRs array
  */
-export const savePanel = async (panel: PanelRs): Promise<PanelRs> => {
+export const savePanels = async (panels: PanelRs[]): Promise<PanelRs[]> => {
   try {
-    const response = await apiClient.put<ServiceResponse<PanelRs>>(
-      `/configurationmaintenance/SavePanel`,
-      panel
+    const response = await apiClient.put<ServiceResponse<PanelRs[]>>(
+      `/configurationmaintenance/UpsertPanelRss/${DEFAULT_LAB_ID}`,
+      panels
     );
 
     if (!response.data || response.data.success === false) {
-      throw new Error(response.data?.message || 'Failed to save panel');
+      throw new Error(response.data?.message || 'Failed to save panels');
     }
 
     return response.data.data;
   } catch (error: any) {
-    console.error('Error saving panel:', error);
+    console.error('Error saving panels:', error);
     throw error;
   }
 };
@@ -330,7 +330,7 @@ const configurationService = {
   upsertInstrumentTypes,
   savePrepBatchSop,
   saveAnalyticalBatchSop,
-  savePanel,
+  savePanels,
 };
 
 export default configurationService;
