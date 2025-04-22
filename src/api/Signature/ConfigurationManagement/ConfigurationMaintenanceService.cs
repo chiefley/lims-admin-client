@@ -27,7 +27,8 @@ public interface IConfigurationMaintenanceService
     Task<AnalyticalBatchSopRs> FetchAnalyticalBatchSopRs(int anBatchSopId);
     Task<List<CompoundRs>> FetchCompoundRs();
     Task<List<CompoundRs>> UpsertCompoundRss(List<CompoundRs> responses);
-    Task<List<PanelRs>> FetchPanels(int labId);
+    Task<List<PanelRs>> FetchPanelRss(int labId);
+    Task<List<PanelRs>> UpsertPanelRss(List<PanelRs> responses, int labId);
     Task<List<InstrumentTypeRs>> FetchInstrumentTypeRss(int labId);
     Task<List<InstrumentTypeRs>> UpsertInstrumentTypeRss(List<InstrumentTypeRs> responses, int labId);
 }
@@ -200,13 +201,35 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         return updatedResponses;
     }
 
-    public async Task<List<PanelRs>> FetchPanels(int labId)
+    public async Task<List<PanelRs>> FetchPanelRss(int labId)
     {
         await using var ctx = _ctxFactory.Create;
         var query = ctx.Panels
             .Where(p => p.LabId == labId);
         var ret = await PanelRs.FetchPanelRss(query);
         return ret;
+    }
+
+    public async Task<List<PanelRs>> UpsertPanelRss(List<PanelRs> responses, int labId)
+    {
+        if (responses == null) throw new ArgumentNullException(nameof(responses));
+
+        await using var ctx = _ctxFactory.Create;
+        var models = await ctx.Panels
+            .Include(p => p.ChildPanelPanels)
+            .ThenInclude(cpp => cpp.ChildPanel)
+            .Where(p => p.LabId == labId)
+            .ToListAsync();
+
+        foreach (var panelRs in responses)
+            PanelRs.UpsertFromResponse(panelRs, models, ctx);
+
+        await ctx.SaveChangesAsync();
+
+        var query = ctx.Panels.Where(p => p.LabId == labId);
+        var returningResponses = await PanelRs.FetchPanelRss(query);
+
+        return returningResponses;
     }
 
     public async Task<List<InstrumentTypeRs>> FetchInstrumentTypeRss(int labId)

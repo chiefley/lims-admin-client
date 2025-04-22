@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NCLims.Data;
 using System.Threading.Tasks;
-using FluentValidation;
 using NCLims.Business.NewBatch.ConfigurationManagement;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
@@ -159,7 +158,7 @@ public class ConfigurationMaintenanceController : BaseController
         }
     }
 
-    // Returns ServiceResponse<List<InstrumentTypeRs>>
+    // Returns ServiceResponse<List<CompoundRs>>
     [HttpPut("UpsertCompoundRss/{labId}")]
     public async Task<IActionResult> UpsertCompoundRsRss([FromBody] List<CompoundRs> responses, int labId)
     {
@@ -195,7 +194,36 @@ public class ConfigurationMaintenanceController : BaseController
     {
         try
         {
-            var payload = await _sopService.FetchPanels(labId);
+            var payload = await _sopService.FetchPanelRss(labId);
+            var sr = new ServiceResponse<List<PanelRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<PanelRs>>
+    [HttpPut("UpsertPanelRss/{labId}")]
+    public async Task<IActionResult> UpsertPanelRss([FromBody] List<PanelRs> responses, int labId)
+    {
+        try
+        {
+            foreach (var response in responses)
+            {
+                var x = PanelRs.Validate(response, responses, labId);
+                if (!x.IsValid) throw new InvalidOperationException(x.Errors.First().ErrorMessage);
+            }
+
+            var payload = await _sopService.UpsertPanelRss(responses, labId);
+
             var sr = new ServiceResponse<List<PanelRs>>
             {
                 Data = payload,
@@ -241,7 +269,7 @@ public class ConfigurationMaintenanceController : BaseController
         {
             foreach (var response in responses)
             {
-                var x= InstrumentTypeRs.Validate(response, labId);
+                var x= InstrumentTypeRs.Validate(response, responses, labId);
                 if (!x.IsValid) throw new InvalidOperationException(x.Errors.First().ErrorMessage);
             }
 
