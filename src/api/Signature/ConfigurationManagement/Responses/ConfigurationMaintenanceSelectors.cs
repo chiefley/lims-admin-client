@@ -33,4 +33,14 @@ public class ConfigurationMaintenanceSelectors
     public List<DropDownItem> AnalyticalBatchSops { get; set; }
     public List<DropDownItem> PeripheralTypes { get; set; }
     public List<DropDownItem> DBEnumTypes { get; set; }
+    public List<DropDownItem> CCSampleTypes { get; set; }
+
+
+    public List<DropDownItem> DataFileLevels { get; set; }
+    public List<DropDownItem> DataFileTypes { get; set; }
+    public List<DropDownItem> FieldDelimeterTypes { get; set; }
+    public List<DropDownItem> DataFileSampleMultiplicities { get; set; }
+    public List<DropDownItem> NavMenuKeys { get; set; }
+    public List<DropDownItem> DayOfWeeks { get; set; }
+
 }

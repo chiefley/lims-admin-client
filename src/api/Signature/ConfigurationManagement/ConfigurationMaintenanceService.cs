@@ -11,7 +11,6 @@ using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 using NCLims.Data;
 using NCLims.Data.Utilities;
-using NCLims.Models;
 using NCLims.Models.NewBatch;
 using NCLims.Models.NewBatch.Analytical;
 
@@ -75,6 +74,14 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         var analyticalBatchSops = await _selectorService.AnalyticalBatchSops(labId, true, false);
         var peripheralTypes = await _selectorService.DBEnums(labId, "NBInstrumentPeripheralTypeSlug", true, false);
         var dbEnumTypes = await _selectorService.DBEnumTypes(labId, true, false);
+        var ccSampleTypes = await _selectorService.CCSampleTypes(true, false);
+
+        var dataFileLevels = _selectorService.EnumSelector<DataFileLevel>(true);
+        var dataFileTypes = _selectorService.EnumSelector<DataFileType>(true);
+        var fieldDelimeterTypes = _selectorService.EnumSelector<FieldDelimiterType>(true);
+        var navMenuKeys = _selectorService.EnumSelector<NavMenuKey>(true);
+        var dayOfWeeks = _selectorService.EnumSelector<DayOfWeek>(true);
+        var dataFileSampleMultiplicities = _selectorService.EnumSelector<DataFileSampleMultiplicity>(true);
 
         var ret = new ConfigurationMaintenanceSelectors
         {
@@ -105,7 +112,15 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
             PrepBatchSops = prepBatchSops.DropDownItems(),
             AnalyticalBatchSops = analyticalBatchSops.DropDownItems(),
             PeripheralTypes = peripheralTypes.DropDownItems(),
-            DBEnumTypes = dbEnumTypes.DropDownItems()
+            DBEnumTypes = dbEnumTypes.DropDownItems(),
+            CCSampleTypes = ccSampleTypes.DropDownItems(),
+
+            DataFileLevels = dataFileLevels.DropDownItems(),
+            DataFileSampleMultiplicities = dataFileSampleMultiplicities.DropDownItems(),
+            DataFileTypes = dataFileTypes.DropDownItems(),
+            FieldDelimeterTypes = fieldDelimeterTypes.DropDownItems(),
+            NavMenuKeys = navMenuKeys.DropDownItems(),
+            DayOfWeeks = dayOfWeeks.DropDownItems()
         };
 
         return ret;

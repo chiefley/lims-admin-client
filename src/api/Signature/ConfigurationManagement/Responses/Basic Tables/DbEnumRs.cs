@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using NCLims.Data;
-using NCLims.Models.NewBatch;
-using Telerik.SvgIcons;
 using DBEnum = NCLims.Models.NewBatch.DBEnum;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
