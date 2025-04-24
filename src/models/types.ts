@@ -32,6 +32,159 @@ export enum InstrumentFileParserType {
   Waters = 6,
 }
 
+export enum DecimalFormatType {
+  None = 0,
+  Standard = 1,
+  Scientific = 2,
+  ReportPrecision = 3,
+}
+
+export enum SopBatchPositionType {
+  Unknown = 0,
+  Start = 1,
+  EveryNSamples = 2,
+  End = 3,
+  First = 4,
+  Last = 5,
+}
+
+export enum ControlSampleType {
+  Unknown = 0,
+  Blank = 1,
+  QC = 2,
+  Duplicate = 3,
+  Spike = 4,
+  StandardAddition = 5,
+  Calibration = 6,
+  CalibrationVerification = 7,
+}
+
+export enum ControlSampleCategory {
+  Unknown = 0,
+  Matrix = 1,
+  Method = 2,
+  Standard = 3,
+}
+
+export enum ControlSampleAnalysis {
+  Unknown = 0,
+  Initial = 1,
+  Continuing = 2,
+}
+
+export enum ControlSampleQCSource {
+  Unknown = 0,
+  External = 1,
+  Internal = 2,
+}
+
+export enum ControlSamplePassCriteria {
+  Unknown = 0,
+  Recovery = 1,
+  AbsoluteDifference = 2,
+  RelativeDifference = 3,
+}
+
+export enum QCCondition {
+  Unknown = 0,
+  Pass = 1,
+  Fail = 2,
+}
+
+export enum ReportPercentType {
+  None = 0,
+  AsIs = 1,
+  WeightPercent = 2,
+  MassToMassWeightPercent = 3,
+  MilligramPerGram = 4,
+  PartPerMillion = 5,
+  PartPerBillion = 6,
+}
+
+export enum ManifestSampleAnalysisMethodType {
+  Unknown = 0,
+  GCMS = 1,
+  LCMS = 2,
+  ICPMS = 3,
+  FTIR = 4,
+  Conventional = 5,
+  GC = 6,
+  HPLC = 7,
+  UHPLC = 8,
+}
+
+export enum AggregateRollupMethodType {
+  Unknown = 0,
+  Average = 1,
+  First = 2,
+  Last = 3,
+  PassOnlyFirst = 4,
+  PassOnlyLast = 5,
+  KeepAll = 6,
+}
+
+export enum NcComparisonType {
+  Unknown = 0,
+  LessThan = 1,
+  LessThanOrEqual = 2,
+  Equal = 3,
+  NotEqual = 4,
+  GreaterThanOrEqual = 5,
+  GreaterThan = 6,
+}
+
+export enum DataFileLevel {
+  Unknown = 0,
+  File = 1,
+  Sample = 2,
+  Analyte = 3,
+}
+
+export enum DataFileType {
+  Unknown = 0,
+  CSV = 1,
+  TXT = 2,
+  XML = 3,
+  JSON = 4,
+  XLS = 5,
+  XLSX = 6,
+}
+
+export enum FieldDelimiterType {
+  Unknown = 0,
+  Comma = 1,
+  Tab = 2,
+  Semicolon = 3,
+  Pipe = 4,
+  Space = 5,
+}
+
+export enum DataFileSampleMultiplicity {
+  Unknown = 0,
+  Single = 1,
+  Multiple = 2,
+}
+
+export enum NavMenuKey {
+  Unknown = 0,
+  Main = 1,
+  Admin = 2,
+  Sample = 3,
+  Analysis = 4,
+  Report = 5,
+  Support = 6,
+}
+
+export enum DayOfWeek {
+  Sunday = 0,
+  Monday = 1,
+  Tuesday = 2,
+  Wednesday = 3,
+  Thursday = 4,
+  Friday = 5,
+  Saturday = 6,
+}
+
 export interface ConfigurationMaintenanceSelectors {
   manifestSampleTypeItems: DropDownItem[];
   panelGroupItems: DropDownItem[];
@@ -60,7 +213,16 @@ export interface ConfigurationMaintenanceSelectors {
   prepBatchSops: DropDownItem[];
   analyticalBatchSops: DropDownItem[];
   peripheralTypes: DropDownItem[];
+  dbEnumTypes: DropDownItem[];
+  ccSampleTypes: DropDownItem[];
+  dataFileLevels: DropDownItem[];
+  dataFileTypes: DropDownItem[];
+  fieldDelimeterTypes: DropDownItem[];
+  dataFileSampleMultiplicities: DropDownItem[];
+  navMenuKeys: DropDownItem[];
+  dayOfWeeks: DropDownItem[];
 }
+
 // ============ Base Types ============
 
 // Batch SOP Selection Base Response
@@ -355,6 +517,7 @@ export interface AnalyticalBatchSopRs {
   prepBatchSopAnalyticalBatchSopRss: PrepBatchSopAnalyticalBatchSopRs[];
   sopProcedures: SopProcedureRs[];
   sopFields: SopFieldRs[];
+  $type?: string;
 }
 
 // ============ CompoundRs interface based on the C# model ============
@@ -364,6 +527,151 @@ export interface CompoundRs {
   name: string;
   ccCompoundName: string | null;
   active?: boolean;
+}
+
+// ============ Prep Batch SOP Control Sample ============
+export interface PrepBatchSopControlSampleRs {
+  prepBatchSopControlSampleId: number;
+  prepBatchSopId: number;
+  sopBatchPositionType: SopBatchPositionType | null;
+  controlSampleOrder: number | null;
+  qCFactor1: number | null;
+  qCFactor2: number | null;
+  qCTargetRangeLow: number | null;
+  qCTargetRangeHigh: number | null;
+  historicalDays: number | null;
+  controlSampleType: ControlSampleType | null;
+  description: string;
+  category: ControlSampleCategory | null;
+  analysisType: ControlSampleAnalysis | null;
+  qCSource: ControlSampleQCSource | null;
+  passCriteria: ControlSamplePassCriteria | null;
+  qCCondition: QCCondition | null;
+}
+
+// ============ Basic Tables Types ============
+
+// CC Sample Category Response
+export interface CcSampleCategoryRs {
+  ccSampleCategoryId: number;
+  name: string;
+  defaultCcSampleProductionMethodId: number | null;
+  ccSampleTypeRss: CcSampleTypeRs[];
+}
+
+// CC Sample Type Response
+export interface CcSampleTypeRs {
+  ccSampleTypeId: number;
+  categoryId: number;
+  name: string;
+}
+
+// DB Enum Response
+export interface DBEnumRs {
+  dbEnumId: number;
+  name: string;
+  enum: string;
+  labId: number;
+}
+
+// File Parser Field Response
+export interface FileParserFieldRs {
+  fileParserFieldId: number;
+  fieldName: string | null;
+  required: boolean | null;
+  fileVersionSignal: boolean | null;
+  bindingProperty: string | null;
+  minimum: string | null;
+  maximum: string | null;
+  defaultValue: string | null;
+  notApplicableSignal: string | null;
+  useDefaultIfNoParse: boolean | null;
+  regexFormat: string | null;
+  dataFileLevel: string | null;
+  sectionOrTableName: string;
+  $type: string;
+}
+
+// Single Value Parser Field Response
+export interface SingleValueParserFieldRs extends FileParserFieldRs {
+  $type: 'SingleValueParserFieldRs';
+}
+
+// Table Value Parser Field Response
+export interface TableValueParserFieldRs extends SingleValueParserFieldRs {
+  columnIndex: number | null;
+  $type: 'TableValueParserFieldRs';
+}
+
+// File Parser Response
+export interface FileParserRs {
+  fileParserId: number;
+  version: string;
+  fileType: string | null;
+  fieldDelimiter: string | null;
+  sampleMultiplicity: string | null;
+  instrumentTypeId: number | null;
+  fileParserFieldRss: FileParserFieldRs[];
+}
+
+// Item Category Response
+export interface ItemCategoryRs {
+  itemCategoryId: number;
+  itemTypeId: number;
+  name: string | null;
+  description: string | null;
+  suppressQfQn: boolean;
+  stateId: number;
+  ccSampleTypeId: number | null;
+  suppressLimits: boolean;
+  active: boolean;
+}
+
+// Item Type Response
+export interface ItemTypeRs {
+  itemTypeId: number;
+  name: string;
+  stateId: number | null;
+  reportPercent: boolean | null;
+  active: boolean;
+  itemCategories: ItemCategoryRs[];
+}
+
+// Nav Menu Item Response
+export interface NavMenuItemRs {
+  navMenuItemId: number;
+  parentNavMenuItemId: number | null;
+  menuKey: string | null;
+  name: string | null;
+  slug: string | null;
+  url: string | null;
+  urlArgs: string | null;
+  icon: string | null;
+  order: number | null;
+  specialProcessingMethod: string | null;
+  specialProcessingArgs: string | null;
+  pageTitle: string | null;
+  labId: number;
+  childItems: NavMenuItemRs[];
+}
+
+// Needed By Response
+export interface NeededByRs {
+  neededById: number;
+  testCategoryId: number | null;
+  microSelected: boolean | null;
+  receivedDow: string | null;
+  neededByDow: string | null;
+  neededByTime: string | null;
+  labId: number;
+}
+
+// Panel Group Response
+export interface PanelGroupRs {
+  panelGroupId: number;
+  name: string | null;
+  labId: number;
+  active: boolean;
 }
 
 // PanelRs interface based on the C# model
@@ -394,12 +702,44 @@ export interface PanelRs {
   sampleCount: number;
   childPanels: string[];
   active?: boolean;
+  labId?: number;
+}
+
+// Potency Category Response
+export interface PotencyCategoryRs {
+  potencyCategoryId: number;
+  name: string | null;
+  description: string | null;
+  stateId: number | null;
+}
+
+// Test Category Response
+export interface TestCategoryRs {
+  testCategoryId: number;
+  name: string | null;
+  description: string | null;
+  stateId: number;
+  ccTestPackageId: number | null;
+  active: boolean;
+}
+
+// Control Sample Analyte SOP Specification Response
+export interface ControlSampleAnalyteSopSpecificationRs {
+  controlSampleAnalyteSopSpecificationId: number;
+  analyteId: number | null;
+  expectedRecovery: number | null;
+  qCType: number | null;
+  $type: string;
+}
+
+// Prep Batch Control Sample Analyte SOP Specification Response
+export interface PrepBatchControlSampleAnalyteSopSpecificationRs
+  extends ControlSampleAnalyteSopSpecificationRs {
+  prepBatchSopControlSampleId: number;
+  $type: 'PrepBatchControlSampleAnalyteSopSpecificationRs';
 }
 
 // ============ Instrument Types ============
-
-// src/models/peripheralTypes.ts
-// This file contains type definitions related to peripheral types
 
 // Instrument Peripheral Response - EXCEPTION TO STANDARD PATTERN
 // Hard deletable, no Active flag
@@ -417,7 +757,6 @@ export interface InstrumentPeripheralRs {
   // No active flag per backend exception
 }
 
-export default InstrumentPeripheralRs;
 // Instrument Response
 export interface InstrumentRs {
   instrumentId: number;
@@ -434,7 +773,7 @@ export interface InstrumentRs {
 // Hard deletable, no Active flag, uses composite key
 export interface InstrumentTypeAnalyteRs {
   instrumentTypeId: number;
-  analyteId: number;
+  analyteId: number | null;
   analyteAlias: string;
   analyteName?: string; // For UI display only
   // No active flag per backend exception
@@ -452,4 +791,15 @@ export interface InstrumentTypeRs {
   labId: number; // Added as required by the backend
   instrumentRss: InstrumentRs[];
   instrumentTypeAnalyteRss: InstrumentTypeAnalyteRs[];
+}
+
+// SOP Enum Type Response
+export interface SopEnumTypeRs {
+  sopEnumTypeId: number;
+}
+
+// Validation Result
+export interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
 }
