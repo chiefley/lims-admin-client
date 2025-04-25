@@ -10,6 +10,7 @@ using NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 using NCLims.Data;
+using NCLims.Data.Migrations;
 using NCLims.Data.Utilities;
 using NCLims.Models.NewBatch;
 using NCLims.Models.NewBatch.Analytical;
@@ -309,5 +310,69 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
             .Where(p => p.LabId == labId);
         var updatedResponses = await DBEnumRs.FetchDbEnumRss(query);
         return updatedResponses;
+    }
+
+    public async Task<List<CcSampleCategoryRs>> FetchCCSampleCategoryRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.CcSampleCategories;
+        var ret = await CcSampleCategoryRs.FetchCcSampleCategoryRss(query);
+        return ret;
+    }
+
+    public async Task<List<FileParserRs>> FetchFileParserRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.FileParsers;
+        var ret = await FileParserRs.FetchFileParserRss(query);
+        return ret;
+    }
+
+    public async Task<List<ItemTypeRs>> FetchItemTypeRss(int stateId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.ItemTypes.Where(it => it.StateId == stateId);
+        var ret = await ItemTypeRs.FetchItemTypeRss(query);
+        return ret;
+    }
+
+    public async Task<List<NavMenuItemRs>> FetchNavMenuItemRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.NavMenuItem.Where(it => it.LabId == labId);
+        var ret = await NavMenuItemRs.FetchNavItems(query);
+        return ret;
+    }
+
+    public async Task<List<NeededByRs>> FetchNeededByRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.NeededBy.Where(it => it.LabId == labId);
+        var ret = await NeededByRs.FetchNeededByRss(query);
+        return ret;
+    }
+
+    public async Task<List<PanelGroupRs>> FetchPanelGroupRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.PanelGroups.Where(it => it.LabId == labId);
+        var ret = await PanelGroupRs.FetchPanelGroupRss(query);
+        return ret;
+    }
+
+    public async Task<List<PotencyCategoryRs>> FetchPotencyCategoryRss(int stateId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.PotencyCategories.Where(it => it.StateId == stateId);
+        var ret = await PotencyCategoryRs.FetchPotencyCategoryRss(query);
+        return ret;
+    }
+
+    public async Task<List<TestCategoryRs>> FetchTestCategoryRss(int stateId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.TestCategory.Where(it => it.StateId == stateId);
+        var ret = await TestCategoryRs.FetchTestCategoryRss(query);
+        return ret;
     }
 }

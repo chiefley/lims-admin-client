@@ -36,7 +36,7 @@ public class NeededByRs
     // Lab Context. Set to Lab Context LabId on new()
     public int LabId { get; set; }
 
-    public async Task<List<NeededByRs>> FetchNeededByRss(IQueryable<NeededBy> query)
+    public static async Task<List<NeededByRs>> FetchNeededByRss(IQueryable<NeededBy> query)
     {
         var ret = await query.Select(q => new NeededByRs
         {

@@ -15,10 +15,12 @@ public class DBEnumRs
     // Primary key, no display, no edit
     public int DbEnumId { get; set; }
 
+    // @validation:  Unique constraint (Name, Enum, LabId)
     [Required]
     [StringLength(150)]
     public string Name { get; set; }
 
+    // @validation:  Unique constraint (Name, Enum, LabId)
     // Combobox control. Choices come from ConfigurationMaintenanceSelectors.DBEnumTypes.
     [Required] 
     [StringLength(150)]
@@ -110,6 +112,21 @@ public class DbEnumRsValidator : AbstractValidator<DBEnumRs>
 
         RuleFor(x => x.LabId)
             .Equal(_labId).WithMessage($"Lab ID must equal {_labId}");
+
+        RuleFor(x => x)
+            .Must((enumRs, _) => !HasDuplicateName(enumRs, existingDbEnumRss))
+            .WithMessage("The combination of Name and Enum must be unique for a given LabId.");
+    }
+
+    private bool HasDuplicateName(DBEnumRs enumRs, IEnumerable<DBEnumRs> existingEnums)
+    {
+        return existingEnums.Any(x =>
+            x.Name == enumRs.Name &&
+            x.Enum == enumRs.Enum &&
+            x.LabId == enumRs.LabId &&
+            // Don't flag the item as a duplicate of itself when updating
+            // For new items without IDs this won't matter
+            !ReferenceEquals(x, enumRs));
     }
 }
 

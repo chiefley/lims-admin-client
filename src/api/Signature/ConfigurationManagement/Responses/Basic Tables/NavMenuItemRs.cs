@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 
-// This is a deletable table.  Rows can be deleted in the UI.
+// This is a deletable table.  Rows can be hard-deleted in the UI.
 public class NavMenuItemRs
 {
     // Primary key.  No display, no edit.
@@ -20,9 +20,12 @@ public class NavMenuItemRs
     [Required]
     public string? MenuKey { get; set; }
 
+    // @validation:  Unique constraint(Name, LabId)
     [Required]
     [StringLength(50)]
     public string? Name { get; set; }
+
+    // @validation:  Unique constraint(Slug, LabId)
     [Required]
     [StringLength(50)]
     public string? Slug { get; set; }
@@ -46,8 +49,10 @@ public class NavMenuItemRs
     [StringLength(250)]
     public string? PageTitle { get; set; }
 
-    [Required]
+    // @validation:  Unique constraint(Slug, LabId)
+    // @validation:  Unique constraint(Name, LabId)
     // Set to lab contexts LabId on new()
+    [Required]
     public int LabId { get; set; }
 
     [JsonPropertyOrder(100)]

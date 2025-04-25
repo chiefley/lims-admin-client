@@ -29,7 +29,7 @@ public class InstrumentTypeRs
     public int? PeakAreaSaturationThreshold { get; set; }
     // Dropdown control.  Choices come from ConfigurationMaintenanceSelectors.InstrumentFileParserTypes.
     [Required]
-    public InstrumentFileParserType? InstrumentFileParser { get; set; }
+    public string? InstrumentFileParser { get; set; }
 
     // Defaults to true on new.
     public bool Active { get; set; } = true;
@@ -47,7 +47,7 @@ public class InstrumentTypeRs
         {
             Name = it.Name,
             DataFolder = it.DataFolder,
-            InstrumentFileParser = it.InstrumentFileParser,
+            InstrumentFileParser = it.InstrumentFileParser.ToString(),
             InstrumentTypeId = it.Id,
             MeasurementType = it.MeasurementType,
             PeakAreaSaturationThreshold = it.PeakAreaSaturationThreshold,
@@ -142,7 +142,7 @@ public class InstrumentTypeRs
         instrumentType.MeasurementType = response.MeasurementType;
         instrumentType.DataFolder = response.DataFolder;
         instrumentType.PeakAreaSaturationThreshold = response.PeakAreaSaturationThreshold;
-        instrumentType.InstrumentFileParser = response.InstrumentFileParser.Value;
+        instrumentType.InstrumentFileParser = Enum.Parse<InstrumentFileParserType>(response.InstrumentFileParser!);
         instrumentType.LabId = response.LabId;
         instrumentType.Active = response.Active;
 

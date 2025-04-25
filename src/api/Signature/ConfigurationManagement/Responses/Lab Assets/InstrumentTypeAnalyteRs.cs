@@ -39,7 +39,8 @@ public class InstrumentTypeAnalyteRs
     // The combination of InstrumentTypeId and AnalyteAlias must be unique.
     [Required] public int? AnalyteId { get; set; }
 
-    [Required] [StringLength(150)] public string AnalyteAlias { get; set; }
+    [Required] [StringLength(150)] 
+    public string AnalyteAlias { get; set; }
 
     // Upsert method for handling a collection of instrument type analytes
     public static async Task UpsertFromResponses(

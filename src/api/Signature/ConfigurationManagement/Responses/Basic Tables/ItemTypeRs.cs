@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using NCLims.Models;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
