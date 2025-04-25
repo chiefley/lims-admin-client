@@ -239,8 +239,8 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
             .Where(p => p.LabId == labId)
             .ToListAsync();
 
-        foreach (var panelRs in responses)
-            PanelRs.UpsertFromResponse(panelRs, models, ctx);
+   //     foreach (var panelRs in responses)
+//            PanelRs.UpsertFromResponse(panelRs, models, ctx);
 
         await ctx.SaveChangesAsync();
 
