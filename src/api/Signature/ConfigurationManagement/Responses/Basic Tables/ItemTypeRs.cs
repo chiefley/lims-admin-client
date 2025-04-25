@@ -38,7 +38,6 @@ public class ItemTypeRs
             ItemCategories = it.ItemCategories.Select(ic => new ItemCategoryRs
             {
                 ItemCategoryId = ic.Id,
-                ItemTypeId = ic.ItemTypeId,
                 Name = ic.Name,
                 CcSampleTypeId = ic.CcSampleTypeId,
                 Description = ic.Description,

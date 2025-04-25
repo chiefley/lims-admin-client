@@ -7,8 +7,6 @@ public class ItemCategoryRs
 {
     // Primary Key.  No display, no edit.
     public int ItemCategoryId { get; set; }
-    // Foreign key to parent.  No display, no edit.
-    public int ItemTypeId { get; set; }
     [Required]
     public string? Name { get; set; }
     [StringLength(250)]
