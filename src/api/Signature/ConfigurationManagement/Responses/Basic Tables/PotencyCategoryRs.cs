@@ -12,6 +12,7 @@ public class PotencyCategoryRs
     // Primary Key.  No display, no edit.
     public int PotencyCategoryId { get; set; }
 
+    // @validation unique constraint(Name, StateId)
     [Required]
     [StringLength(150)]
     public string? Name { get; set; }
@@ -19,6 +20,7 @@ public class PotencyCategoryRs
     [StringLength(250)]
     public string? Description { get; set; }
 
+    // @validation unique constraint(Name, StateId)
     // Part of Lab Context.  Set to 1001 on new()
     [Required]
     public int? StateId { get; set; }
