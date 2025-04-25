@@ -8,7 +8,7 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 
 1. **Aggregate Root Pattern**: Each major entity type has an aggregate root that encapsulates the behavior for fetching, validating, and upserting data.
 2. **Complete Object Graphs**: We work with entire object graphs rather than individual entities to maintain data consistency.
-3. **Active/Inactive Instead of Deletion**: Records are never physically deleted, only marked as inactive when they should no longer be used.
+3. **Active/Inactive Instead of Deletion**: Records are never physically deleted, only marked as inactive when they should no longer be used. However, if records have no Active flag, then they are deleteable. They will be exceptions to this rule.
 4. **Client-Side Temporary IDs**: New records created on the client use negative IDs until saved to the server.
 5. **Laboratory Context Security**: All configuration data is isolated by laboratory through the LabId field.
 
@@ -58,6 +58,13 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 7. Entity Framework tracks all changes across the object graph.
 8. Finally, the service calls `context.SaveChanges()` to persist all changes in a single transaction.
 
+## Enum Data Flow
+
+- Response objects will be sending Enums as their string values.
+- The UI will usually bind them to Dropdown controls whose choices come from the Selectors.
+- In the Upsert code on the server end they should be converted back by Enum.Parse<T>(response.property!).
+- Some of the earlier response signatures are sending the integer value instead of the string value. These will be updated soon.
+
 ## Handling Record States
 
 ### New Records
@@ -90,7 +97,7 @@ This document outlines the data management strategy for the LIMS Admin Client, f
 
 ### Active/Inactive Management
 
-- Records are never physically deleted
+- Most records are never physically deleted. They will be identified by the presence of an Active flag in their signature. However, if there is no Active flag, the record is hard-deleteable.
 - The `Active` property is treated like any other property, allowing the client to set it as needed
 - The client is responsible for setting `Active = false` when a record should be "soft deleted"
 - Client implementations should filter records based on the Active flag by default
@@ -115,6 +122,14 @@ This document outlines the data management strategy for the LIMS Admin Client, f
       .Equal(labId).WithMessage($"Lab ID must equal {labId}");
   ```
 - This prevents cross-laboratory data manipulation and ensures proper data isolation
+
+## State Context Security.
+
+- The various laboratories supported by the LIMS are located in various states in the USA.
+- The states have state-wide regulations that are modeled in many of the LIMS tables.
+- The State context is as important as the Lab context.
+- A given user of this application will be acting within the context of a particular Lab in a particular State.
+- When we add user authentication, the Lab and State context will be available from the API. In the meantime, assume a LabId of 1001 and a State Id of 2.
 
 ## Benefits
 
