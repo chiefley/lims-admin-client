@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using NCLims.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 
-public class PanelGroupRs
+public partial class PanelGroupRs
 {
     // Primary key.  No display, no edit.
     public int PanelGroupId { get; set; }
@@ -24,17 +19,4 @@ public class PanelGroupRs
 
     [Required]
     public bool Active { get; set; }
-
-    public static async Task<List<PanelGroupRs>> FetchPanelGroupRss(IQueryable<PanelGroup> query)
-    {
-        var ret = await query.Select(q => new PanelGroupRs
-        {
-            Name = q.Name,
-            LabId = q.LabId,
-            Active = q.Active,
-            PanelGroupId = q.Id
-        }).ToListAsync();
-
-        return ret;
-    }
 }

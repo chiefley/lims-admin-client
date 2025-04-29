@@ -6,7 +6,7 @@ namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Table
 [JsonPolymorphic]
 [JsonDerivedType(typeof(SingleValueParserFieldRs), nameof(SingleValueParserFieldRs))]
 [JsonDerivedType(typeof(TableValueParserFieldRs), nameof(TableValueParserFieldRs))]
-public abstract class FileParserFieldRs
+public  abstract partial class FileParserFieldRs
 {
     // Primary key.  No display, no edit.
     public int FileParserFieldId { get; set; }
@@ -42,13 +42,13 @@ public abstract class FileParserFieldRs
     public virtual string Type => GetType().Name;
 }
 
-public class SingleValueParserFieldRs : FileParserFieldRs
+public partial class SingleValueParserFieldRs : FileParserFieldRs
 {
     [JsonPropertyName("$type")]
     public override string Type => GetType().Name;
 }
 
-public class TableValueParserFieldRs : SingleValueParserFieldRs
+public partial class TableValueParserFieldRs : SingleValueParserFieldRs
 {
     [Required]
     public int? ColumnIndex { get; set; }

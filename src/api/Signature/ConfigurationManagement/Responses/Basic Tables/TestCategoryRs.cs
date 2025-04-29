@@ -1,13 +1,8 @@
-﻿using NCLims.Models;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 
-public class TestCategoryRs
+public partial class TestCategoryRs
 {
     // Primary Key.  No display, no edit.
     public int TestCategoryId { get; set; }
@@ -24,18 +19,4 @@ public class TestCategoryRs
 
     // Default to true on new()
     public bool Active { get; set; } = true;
-
-    public static async Task<List<TestCategoryRs>> FetchTestCategoryRss(IQueryable<TestCategory> query)
-    {
-        var ret = await query.Select(q => new TestCategoryRs
-        {
-            Name = q.Name,
-            Description = q.Description,
-            StateId = q.StateId,
-            CcTestPackageId = q.CcTestPackageId,
-            TestCategoryId =   q.Id,
-            Active = q.Active
-        }).ToListAsync();
-        return ret;
-    }
 }
