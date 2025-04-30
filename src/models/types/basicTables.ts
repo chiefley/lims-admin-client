@@ -204,7 +204,7 @@ export interface FileParserFieldRs {
 /**
  * Single Value Parser Field
  */
-export interface SingleValueParserFieldRs extends Omit<FileParserFieldRs, '$type'> {
+export interface SingleValueParserFieldRs extends FileParserFieldRs {
   /**
    * Type discriminator
    * @internal Used by API for polymorphic deserialization
@@ -215,7 +215,7 @@ export interface SingleValueParserFieldRs extends Omit<FileParserFieldRs, '$type
 /**
  * Table Value Parser Field
  */
-export interface TableValueParserFieldRs extends Omit<SingleValueParserFieldRs, '$type'> {
+export interface TableValueParserFieldRs extends SingleValueParserFieldRs {
   /**
    * Index of the column in the table
    * @validation Required
