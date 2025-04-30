@@ -39,20 +39,14 @@ public  abstract partial class FileParserFieldRs
     [StringLength(50)]
     public string? SectionOrTableName { get; set; }
 
-    [JsonPropertyName("$type")]
-    public virtual string Type => GetType().Name;
 }
 
 public partial class SingleValueParserFieldRs : FileParserFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => GetType().Name;
 }
 
 public partial class TableValueParserFieldRs : SingleValueParserFieldRs
 {
     [Required]
     public int? ColumnIndex { get; set; }
-    [JsonPropertyName("$type")]
-    public override string Type => GetType().Name;
 }

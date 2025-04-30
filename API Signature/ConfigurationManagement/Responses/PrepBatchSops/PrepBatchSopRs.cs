@@ -25,6 +25,4 @@ public partial class PrepBatchSopRs : BatchSopRs
 
     [JsonPropertyOrder(120)]
     public List<PrepBatchSopControlSampleRs> PrepBatchSopControlSamples { get; set; } = [];
-
-    public override string Type => nameof(PrepBatchSopSelectionRs);
 }

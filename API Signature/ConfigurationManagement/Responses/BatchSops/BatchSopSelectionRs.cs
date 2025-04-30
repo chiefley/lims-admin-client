@@ -40,7 +40,5 @@ public abstract partial class BatchSopSelectionRs
     [Required]
     public int LabId { get; set; }
 
-    [JsonPropertyName("$type")]
-    public virtual string Type => GetType().Name;
 }
 

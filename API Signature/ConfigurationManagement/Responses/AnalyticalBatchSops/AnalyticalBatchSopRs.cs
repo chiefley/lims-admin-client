@@ -71,6 +71,4 @@ public partial class AnalyticalBatchSopRs : BatchSopRs
     [JsonPropertyOrder(140)] // Ensure this appears after primitive properties
     public List<PrepBatchSopAnalyticalBatchSopRs> PrepBatchSopAnalyticalBatchSopRss { get; set; } = [];
 
-    public override string Type => nameof(AnalyticalBatchSopRs);
-
 }

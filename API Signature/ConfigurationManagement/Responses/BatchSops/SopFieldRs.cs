@@ -1,13 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Microsoft.IdentityModel.Tokens;
-using NCLims.Models.NewBatch;
-using NCLims.Utilities;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(DateTimeSopFieldRs), typeDiscriminator: nameof(DateTimeSopFieldRs))]
 [JsonDerivedType(typeof(DoubleSopFieldRs), typeDiscriminator: nameof(DoubleSopFieldRs))]
 [JsonDerivedType(typeof(LabAssetSopFieldRs), typeDiscriminator: nameof(LabAssetSopFieldRs))]
@@ -22,10 +17,6 @@ namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 [JsonDerivedType(typeof(TableColumnSopEnumFieldRs), typeDiscriminator: nameof(TableColumnSopEnumFieldRs))]
 public abstract partial class SopFieldRs
 {
-    // Type discriminator property
-    [JsonPropertyName("$type")]
-    public virtual string Type { get; }
-
     // Primary key.  No display, no edit.
     public int SopFieldId { get; set; }
     // Foreign key to parent.  No display, no edit.
@@ -62,24 +53,15 @@ public abstract partial class SopFieldRs
 
 public abstract partial class SingleValueSopFieldRs : SopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(SingleValueSopFieldRs);
 }
 
 public partial class DateTimeSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(DateTimeSopFieldRs);
-
     public bool DatePartOnly { get; set; }
-
 }
 
 public partial class DoubleSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(DoubleSopFieldRs);
-
     [Required]
     public double? MinDoubleValue { get; set; }
     [Required]
@@ -89,9 +71,6 @@ public partial class DoubleSopFieldRs : SingleValueSopFieldRs
 
 public partial class LabAssetSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(LabAssetSopFieldRs);
-
     // Dropdown control.  Use ConfigurationMaintenanceSelectors.LatAssetTypes.
     [Required]
     public int? LabAssetTypeId { get; set; }
@@ -99,9 +78,6 @@ public partial class LabAssetSopFieldRs : SingleValueSopFieldRs
 
 public partial class InstrumentTypeSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(InstrumentTypeSopFieldRs);
-
     // Dropdown control.  Use ConfigurationMaintenanceSelectors.InstrumentTypes.
     [Required]
     public int? InstrumentTypeId { get; set; }
@@ -109,9 +85,6 @@ public partial class InstrumentTypeSopFieldRs : SingleValueSopFieldRs
 
 public partial class SopEnumSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(SopEnumSopFieldRs);
-
     // Dropdown control.  Use ConfigurationMaintenanceSelectors.SopEnumTypes.
     [Required]
     public int? SopEnumTypeId { get; set; }
@@ -120,9 +93,6 @@ public partial class SopEnumSopFieldRs : SingleValueSopFieldRs
 
 public partial class UserSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(UserSopFieldRs);
-
     // Dropdown control.  Use ConfigurationMaintenanceSelectors.UserRoles
     [Required]
     public int? ApplicationRoleId { get; set; }
@@ -130,16 +100,10 @@ public partial class UserSopFieldRs : SingleValueSopFieldRs
 
 public partial class TextSopFieldRs : SingleValueSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TextSopFieldRs);
-
 }
 
 public abstract partial class TableColumnSopFieldRs : SopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TableColumnSopFieldRs);
-
     [Required]
     [StringLength(50)]
     public string TableName { get; set; }
@@ -153,9 +117,6 @@ public abstract partial class TableColumnSopFieldRs : SopFieldRs
 
 public partial class TableColumnTextSopFieldRs : TableColumnSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TableColumnTextSopFieldRs);
-
     [StringLength(250)]
     public string ValidationRegex { get; set; }
     public int? MinLength { get; set; }
@@ -164,18 +125,12 @@ public partial class TableColumnTextSopFieldRs : TableColumnSopFieldRs
 
 public partial class TableColumnIntSopFieldRs : TableColumnSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TableColumnIntSopFieldRs);
-
     public int? MinIntValue { get; set; }
     public int? MaxIntValue { get; set; }
 }
 
 public partial class TableColumnDoubleSopFieldRs : TableColumnSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TableColumnDoubleSopFieldRs);
-
     public double? MinDoubleValue { get; set; }
     public double? MaxDoubleValue { get; set; }
     public int Precision { get; set; }
@@ -183,14 +138,9 @@ public partial class TableColumnDoubleSopFieldRs : TableColumnSopFieldRs
 
 public partial class TableColumnDateTimeFieldRs : TableColumnSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TableColumnDateTimeFieldRs);
-
     public bool DatePartOnly { get; set; }
 }
 
 public partial class TableColumnSopEnumFieldRs : TableColumnSopFieldRs
 {
-    [JsonPropertyName("$type")]
-    public override string Type => nameof(TableColumnSopEnumFieldRs);
 }

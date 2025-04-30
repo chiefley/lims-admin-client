@@ -41,9 +41,6 @@ public partial class BatchSopRs
     [Required]
     public int LabId { get; set; }
 
-    [JsonPropertyName("$type")]
-    public virtual string Type => GetType().Name;
-
     // Editable
     [Required]
     public int? SignificantDigits { get; set; }

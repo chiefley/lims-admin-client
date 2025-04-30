@@ -3,10 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(PrepBatchControlSampleAnalyteSopSpecificationRs), typeDiscriminator: nameof(PrepBatchControlSampleAnalyteSopSpecificationRs))]
 [JsonDerivedType(typeof(AnalyticalBatchControlAnalyteSopSpecificationRs), typeDiscriminator: nameof(AnalyticalBatchControlAnalyteSopSpecificationRs))]
-
 public abstract partial class ControlSampleAnalyteSopSpecificationRs
 {
     // Primary Key.  No display, no edit.
