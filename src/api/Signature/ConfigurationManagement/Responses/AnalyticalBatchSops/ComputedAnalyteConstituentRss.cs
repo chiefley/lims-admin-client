@@ -2,7 +2,7 @@
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
 
-public class ComputedAnalyteConstituentRs
+public partial class ComputedAnalyteConstituentRs
 {
     // Primary Key.  No display, no edit.
     public int ComputedAnalyteConstituentId { get; set; }

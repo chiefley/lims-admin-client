@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 
-public class SopProcedureRs
+public partial class SopProcedureRs
 {
     // Primary Key.  No display, no edit.
     public int SopProcedureId { get; set; }

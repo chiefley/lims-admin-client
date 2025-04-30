@@ -7,7 +7,7 @@ namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 [JsonDerivedType(typeof(PrepBatchControlSampleAnalyteSopSpecificationRs), typeDiscriminator: nameof(PrepBatchControlSampleAnalyteSopSpecificationRs))]
 [JsonDerivedType(typeof(AnalyticalBatchControlAnalyteSopSpecificationRs), typeDiscriminator: nameof(AnalyticalBatchControlAnalyteSopSpecificationRs))]
 
-public abstract class ControlSampleAnalyteSopSpecificationRs
+public abstract partial class ControlSampleAnalyteSopSpecificationRs
 {
     // Primary Key.  No display, no edit.
     public int ControlSampleAnalyteSopSpecificationId { get; set; }
@@ -18,13 +18,13 @@ public abstract class ControlSampleAnalyteSopSpecificationRs
     public int? QCType { get; set; }
 }
 
-public class PrepBatchControlSampleAnalyteSopSpecificationRs : ControlSampleAnalyteSopSpecificationRs
+public partial class PrepBatchControlSampleAnalyteSopSpecificationRs : ControlSampleAnalyteSopSpecificationRs
 {
     // Foreign Key.  No display, no edit
     public int PrepBatchSopControlSampleId { get; set; }
 }
 
-public class AnalyticalBatchControlAnalyteSopSpecificationRs : ControlSampleAnalyteSopSpecificationRs
+public partial class AnalyticalBatchControlAnalyteSopSpecificationRs : ControlSampleAnalyteSopSpecificationRs
 {
     // Foreign Key.  No display, no edit
     public int AnalyticalBatchSopControlSampleId { get; set; }

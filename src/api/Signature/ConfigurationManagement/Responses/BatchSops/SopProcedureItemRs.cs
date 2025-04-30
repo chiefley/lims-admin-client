@@ -2,7 +2,7 @@
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 
-public class SopProcedureItemRs
+public partial class SopProcedureItemRs
 {
     // Primary Key.  No display, no edit.
     public int SopProcedurItemId { get; set; }

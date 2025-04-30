@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
 
-public class AnalyticalBatchSopAnalyteRs
+public partial class AnalyticalBatchSopAnalyteRs
 {
     // Primary key, no display, no edit
     public int AnalyticalBatchSopAnalyteId { get; set; }

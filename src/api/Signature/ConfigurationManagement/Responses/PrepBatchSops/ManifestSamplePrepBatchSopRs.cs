@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using NCLims.Models.NewBatch;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 
-public class ManifestSamplePrepBatchSopRs
+public partial class ManifestSamplePrepBatchSopRs
 {
     // Primary Key, no display, not editable.
     [Required]
@@ -27,31 +24,4 @@ public class ManifestSamplePrepBatchSopRs
     [Required]
     public DateTime? EffectiveDate { get; set; } = DateTime.MaxValue;
 
-
-    public ManifestSampleTypePrepBatchSop Update(ManifestSampleTypePrepBatchSop mstb)
-    {
-        mstb.PanelGroupId = PanelGroupId.Value;
-        mstb.PrepBatchSopId = BatchSopId;
-        mstb.ManifestSampleTypeId = ManifestSampleTypeId.Value;
-        mstb.EffectiveOn = EffectiveDate.Value;
-        return mstb;
-    }
-
-    private ManifestSampleTypePrepBatchSop Create()
-    {
-        return new ManifestSampleTypePrepBatchSop();
-    }
-
-    public static void UpsertAll(List<ManifestSamplePrepBatchSopRs> responses,
-        List<ManifestSampleTypePrepBatchSop> models)
-    {
-        foreach (var response in responses)
-        {
-            ManifestSampleTypePrepBatchSop? model = null;
-            model = response.ManifestSamplePrepBatchSopId == 0
-                ? response.Create()
-                : models.Single(m => m.Id == response.ManifestSamplePrepBatchSopId);
-            response.Update(model);
-        }
-    }
 }

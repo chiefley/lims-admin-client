@@ -10,7 +10,7 @@ namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 [JsonPolymorphic]
 [JsonDerivedType(typeof(PrepBatchSopRs), nameof(PrepBatchSopRs))]
 [JsonDerivedType(typeof(AnalyticalBatchSopRs), nameof(AnalyticalBatchSopRs))]
-public class BatchSopRs
+public partial class BatchSopRs
 {
     // Primary Key, no display, not editable.
     [Required]

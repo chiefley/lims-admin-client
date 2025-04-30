@@ -6,7 +6,7 @@ using NCLims.Models.NewBatch;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
 
-public class AnalyticalBatchSopControlSampleRs
+public partial class AnalyticalBatchSopControlSampleRs
 {
     // Primary Key.  No display, no edit.
     public int AnalyticalBatchSopControlSampleId { get; set; }

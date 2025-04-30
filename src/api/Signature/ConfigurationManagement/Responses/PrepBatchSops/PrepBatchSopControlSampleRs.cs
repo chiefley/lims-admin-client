@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
 using NCLims.Models.NewBatch;
 using NCLims.Models.NewBatch.Analytical;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 
-public class PrepBatchSopControlSampleRs
+public partial class PrepBatchSopControlSampleRs
 {
     // Primary Key.   No display.
     public int PrepBatchSopControlSampleId { get; set; }
@@ -41,29 +37,4 @@ public class PrepBatchSopControlSampleRs
     [Required] public ControlSamplePassCriteria? PassCriteria { get; set; }
     // Dropdown control.  Use ConfigurationMaintenanceSelectors.ControlSampleConditions
     [Required] public QCCondition? QCCondition { get; set; }
-
-    public static async Task<List<PrepBatchSopControlSampleRs>> FetchPrepBatchSopControlSampleRss(
-        IQueryable<PrepBatchSopControlSample> query)
-    {
-        var ret = await query.Select(pbsop => new PrepBatchSopControlSampleRs
-        {
-            PrepBatchSopControlSampleId = pbsop.Id,
-            PrepBatchSopId = pbsop.PrepBatchSopId,
-            AnalysisType = pbsop.ControlSampleSpecification.AnalysisType,
-            Category = pbsop.ControlSampleSpecification.Category,
-            ControlSampleOrder = pbsop.ControlSampleOrder,
-            ControlSampleType = pbsop.ControlSampleSpecification.ControlSampleType,
-            Description = pbsop.ControlSampleSpecification.Description,
-            HistoricalDays = pbsop.HistoricalDays,
-            PassCriteria = pbsop.ControlSampleSpecification.PassCriteria,
-            QCCondition = pbsop.ControlSampleSpecification.QCCondition,
-            QCFactor1 = pbsop.QCFactor1,
-            QCFactor2 = pbsop.QCFactor2,
-            QCSource = pbsop.ControlSampleSpecification.QCSource,
-            QCTargetRangeHigh = pbsop.QCTargetRangeHigh,
-            QCTargetRangeLow = pbsop.QCTargetRangeLow
-        }).ToListAsync();
-
-        return ret;
-    }
 }

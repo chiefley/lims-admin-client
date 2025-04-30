@@ -2,7 +2,7 @@
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
 
-public class SopAnalysisReviewComponentRs
+public partial class SopAnalysisReviewComponentRs
 {
     // Primary Key.  No display, no edit.
     public int SopAnalysisReviewComponentId { get; set; }

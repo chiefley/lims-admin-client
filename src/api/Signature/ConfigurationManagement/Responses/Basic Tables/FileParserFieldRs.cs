@@ -10,6 +10,7 @@ public  abstract partial class FileParserFieldRs
 {
     // Primary key.  No display, no edit.
     public int FileParserFieldId { get; set; }
+    // @validation.  Uniqueness constraint(FieldName).
     [Required]
     [StringLength(50)]
     public string? FieldName { get; set; }
@@ -36,7 +37,7 @@ public  abstract partial class FileParserFieldRs
     public string? DataFileLevel { get; set; }
     [Required]
     [StringLength(50)]
-    public string SectionOrTableName { get; set; }
+    public string? SectionOrTableName { get; set; }
 
     [JsonPropertyName("$type")]
     public virtual string Type => GetType().Name;

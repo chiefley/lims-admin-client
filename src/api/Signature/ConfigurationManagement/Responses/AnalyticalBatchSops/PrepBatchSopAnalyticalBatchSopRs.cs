@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
 
-public class PrepBatchSopAnalyticalBatchSopRs
+public partial class PrepBatchSopAnalyticalBatchSopRs
 {
     // Primary key.  No display, no edit.
     public int PrepBatchSopAnalyticalBatchSopId { get; set; }

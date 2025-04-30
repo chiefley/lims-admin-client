@@ -10,7 +10,7 @@ public partial class FileParserRs
     public int FileParserId { get; set; }
     [Required]
     [StringLength(50)] 
-    public string Version { get; set; }
+    public string? Version { get; set; }
 
     // ComboBox component. Choices come from ConfigurationMaintenanceSelectors.DataFileTypes
     [Required]
