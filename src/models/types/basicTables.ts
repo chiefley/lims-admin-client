@@ -115,34 +115,6 @@ export interface DBEnumRs {
 }
 
 /**
- * Table Value Parser Field
- */
-export interface TableValueParserFieldRs extends SingleValueParserFieldRs {
-  /**
-   * Index of the column in the table
-   * @validation Required
-   */
-  columnIndex: number | null;
-
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableValueParserFieldRs';
-}
-
-/**
- * Single Value Parser Field
- */
-export interface SingleValueParserFieldRs extends FileParserFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'SingleValueParserFieldRs';
-}
-
-/**
  * File Parser Field base class
  */
 export interface FileParserFieldRs {
@@ -227,6 +199,34 @@ export interface FileParserFieldRs {
    * @internal Used by API for polymorphic deserialization
    */
   $type: string;
+}
+
+/**
+ * Single Value Parser Field
+ */
+export interface SingleValueParserFieldRs extends Omit<FileParserFieldRs, '$type'> {
+  /**
+   * Type discriminator
+   * @internal Used by API for polymorphic deserialization
+   */
+  $type: 'SingleValueParserFieldRs';
+}
+
+/**
+ * Table Value Parser Field
+ */
+export interface TableValueParserFieldRs extends Omit<SingleValueParserFieldRs, '$type'> {
+  /**
+   * Index of the column in the table
+   * @validation Required
+   */
+  columnIndex: number | null;
+
+  /**
+   * Type discriminator
+   * @internal Used by API for polymorphic deserialization
+   */
+  $type: 'TableValueParserFieldRs';
 }
 
 /**
