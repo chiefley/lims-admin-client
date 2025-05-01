@@ -205,11 +205,7 @@ export interface FileParserFieldRs {
  * Single Value Parser Field
  */
 export interface SingleValueParserFieldRs extends FileParserFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'SingleValueParserFieldRs';
+  // No additional properties for the base single value field
 }
 
 /**
@@ -221,12 +217,6 @@ export interface TableValueParserFieldRs extends SingleValueParserFieldRs {
    * @validation Required
    */
   columnIndex: number | null;
-
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableValueParserFieldRs';
 }
 
 /**

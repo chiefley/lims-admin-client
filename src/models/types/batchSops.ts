@@ -230,23 +230,13 @@ export interface SopFieldRs {
  * Base Single Value SOP Field
  */
 export interface SingleValueSopFieldRs extends SopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: string;
+  // No additional properties for base SingleValueSopFieldRs
 }
 
 /**
  * DateTime SOP Field
  */
 export interface DateTimeSopFieldRs extends SingleValueSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'DateTimeSopFieldRs';
-
   /** Whether to display only the date part (no time) */
   datePartOnly: boolean;
 }
@@ -255,12 +245,6 @@ export interface DateTimeSopFieldRs extends SingleValueSopFieldRs {
  * Double SOP Field
  */
 export interface DoubleSopFieldRs extends SingleValueSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'DoubleSopFieldRs';
-
   /**
    * Minimum value
    * @validation Required
@@ -282,12 +266,6 @@ export interface DoubleSopFieldRs extends SingleValueSopFieldRs {
  */
 export interface LabAssetSopFieldRs extends SingleValueSopFieldRs {
   /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'LabAssetSopFieldRs';
-
-  /**
    * Lab asset type
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.LatAssetTypes
@@ -299,12 +277,6 @@ export interface LabAssetSopFieldRs extends SingleValueSopFieldRs {
  * Instrument Type SOP Field
  */
 export interface InstrumentTypeSopFieldRs extends SingleValueSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'InstrumentTypeSopFieldRs';
-
   /**
    * Instrument type
    * @validation Required
@@ -318,12 +290,6 @@ export interface InstrumentTypeSopFieldRs extends SingleValueSopFieldRs {
  */
 export interface SopEnumSopFieldRs extends SingleValueSopFieldRs {
   /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'SopEnumSopFieldRs';
-
-  /**
    * SOP enum type
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.SopEnumTypes
@@ -336,12 +302,6 @@ export interface SopEnumSopFieldRs extends SingleValueSopFieldRs {
  */
 export interface UserSopFieldRs extends SingleValueSopFieldRs {
   /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'UserSopFieldRs';
-
-  /**
    * Application role
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.UserRoles
@@ -353,23 +313,13 @@ export interface UserSopFieldRs extends SingleValueSopFieldRs {
  * Text SOP Field
  */
 export interface TextSopFieldRs extends SingleValueSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TextSopFieldRs';
+  // No additional properties for TextSopFieldRs
 }
 
 /**
  * Base Table Column SOP Field
  */
 export interface TableColumnSopFieldRs extends SopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableColumnSopFieldRs';
-
   /**
    * Name of the table
    * @validation Required
@@ -396,12 +346,6 @@ export interface TableColumnSopFieldRs extends SopFieldRs {
  */
 export interface TableColumnTextSopFieldRs extends TableColumnSopFieldRs {
   /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableColumnTextSopFieldRs';
-
-  /**
    * Regular expression for validation
    * @maxLength 250
    */
@@ -418,12 +362,6 @@ export interface TableColumnTextSopFieldRs extends TableColumnSopFieldRs {
  * Table Column Int SOP Field
  */
 export interface TableColumnIntSopFieldRs extends TableColumnSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableColumnIntSopFieldRs';
-
   /** Minimum value for validation */
   minIntValue: number | null;
 
@@ -435,12 +373,6 @@ export interface TableColumnIntSopFieldRs extends TableColumnSopFieldRs {
  * Table Column Double SOP Field
  */
 export interface TableColumnDoubleSopFieldRs extends TableColumnSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableColumnDoubleSopFieldRs';
-
   /** Minimum value for validation */
   minDoubleValue: number | null;
 
@@ -455,12 +387,6 @@ export interface TableColumnDoubleSopFieldRs extends TableColumnSopFieldRs {
  * Table Column DateTime SOP Field
  */
 export interface TableColumnDateTimeFieldRs extends TableColumnSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableColumnDateTimeFieldRs';
-
   /** Whether to display only the date part (no time) */
   datePartOnly: boolean;
 }
@@ -469,11 +395,7 @@ export interface TableColumnDateTimeFieldRs extends TableColumnSopFieldRs {
  * Table Column SOP Enum SOP Field
  */
 export interface TableColumnSopEnumFieldRs extends TableColumnSopFieldRs {
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'TableColumnSopEnumFieldRs';
+  // No additional properties for TableColumnSopEnumFieldRs
 }
 
 /**
@@ -510,12 +432,6 @@ export interface PrepBatchControlSampleAnalyteSopSpecificationRs
   extends ControlSampleAnalyteSopSpecificationRs {
   /** Foreign Key. No display, no edit */
   prepBatchSopControlSampleId: number;
-
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'PrepBatchControlSampleAnalyteSopSpecificationRs';
 }
 
 /**
@@ -525,12 +441,6 @@ export interface AnalyticalBatchControlAnalyteSopSpecificationRs
   extends ControlSampleAnalyteSopSpecificationRs {
   /** Foreign Key. No display, no edit */
   analyticalBatchSopControlSampleId: number;
-
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: 'AnalyticalBatchControlAnalyteSopSpecificationRs';
 }
 
 /**
