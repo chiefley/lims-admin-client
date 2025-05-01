@@ -6,12 +6,15 @@ public partial class TestCategoryRs
 {
     // Primary Key.  No display, no edit.
     public int TestCategoryId { get; set; }
+
+    // @validation unique constraint(Name, StateId)
     [Required]
     [StringLength(50)]
     public string? Name { get; set; }
     [StringLength(250)]
     public string? Description { get; set; }
 
+    // @validation unique constraint(Name, StateId)
     // Lab context.  Set to 1001 on new()
     // No display, no edit.
     public int StateId { get; set; }
