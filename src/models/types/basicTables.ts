@@ -519,7 +519,7 @@ export interface PanelRs {
    * Format for decimal values
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.DecimalFormatTypes
    */
-  decimalFormatType: string;
+  decimalFormatType: string | null;
 
   /**
    * Type of panel (Quantitative/Qualitative)

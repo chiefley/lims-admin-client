@@ -34,12 +34,12 @@ public partial class PanelRs
     public int SignificantDigits { get; set; }
 
     // Dropdown control. Choices come from ConfigurationMaintenanceSelectors.DecimalFormatTypes.
-    public DecimalFormatType DecimalFormatType { get; set; }
+    public string? DecimalFormatType { get; set; }
 
     // Dropdown control. Choices come from ConfigurationMaintenanceSelectors.PanelTypes
     // @validation: Must be unique in the list of PanelRss.
     [Required]
-    public string PanelType { get; set; }
+    public string? PanelType { get; set; }
 
     public bool QualitativeFirst { get; set; }
 

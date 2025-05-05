@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Table, Button, Space, Tooltip, Popconfirm, Tag, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined, SettingOutlined, EyeOutlined } from '@ant-design/icons';
-import { InstrumentTypeRs, InstrumentFileParserType } from '../../models/types';
+import { InstrumentTypeRs, InstrumentRs } from '../../models/types';
 import { stylePresets } from '../../config/theme';
 
 const { Text } = Typography;
@@ -58,17 +58,16 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       title: 'Parser Type',
       dataIndex: 'instrumentFileParser',
       key: 'instrumentFileParser',
-      render: (value: InstrumentFileParserType | null) => {
+      render: (value: string | null) => {
         if (value === null) return '-';
-        // Get the enum name as a string
-        const parserName = InstrumentFileParserType[value];
-        return <Tag color="blue">{parserName}</Tag>;
+        // Get the string value directly
+        return <Tag color="blue">{value}</Tag>;
       },
     },
     {
       title: 'Instruments',
       key: 'instruments',
-      render: (text: string, record: InstrumentTypeRs) => {
+      render: (_: any, record: InstrumentTypeRs) => {
         // Count instruments - filter by active status if not showing inactive
         const count =
           record.instrumentRss?.filter(i => showInactive || i.active !== false).length || 0;
@@ -82,7 +81,7 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
     {
       title: 'Status',
       key: 'status',
-      render: (text: string, record: InstrumentTypeRs) => {
+      render: (_: any, record: InstrumentTypeRs) => {
         return record.active === false ? (
           <Tag color="red">Inactive</Tag>
         ) : (
@@ -93,7 +92,7 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
     {
       title: 'Actions',
       key: 'actions',
-      render: (text: string, record: InstrumentTypeRs) => {
+      render: (_: any, record: InstrumentTypeRs) => {
         // Only show delete button for temporary records (negative ID)
         const canDelete = record.instrumentTypeId < 0;
         // Check if there are any active instruments
@@ -141,7 +140,7 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
-        render: (text: string, record: any) => (
+        render: (text: string, record: InstrumentRs) => (
           <Space>
             <Text strong>{text || '-'}</Text>
             {record.active === false && <Tag color="red">Inactive</Tag>}
@@ -163,7 +162,7 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       {
         title: 'Status',
         key: 'status',
-        render: (text: string, record: any) => (
+        render: (_: any, record: InstrumentRs) => (
           <>
             {record.outOfService && <Tag color="red">Out of Service</Tag>}
             {record.active === false ? (
@@ -198,7 +197,7 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
             rowKey="instrumentId"
             pagination={false}
             size="small"
-            rowClassName={record => (record.active === false ? 'inactive-row' : '')}
+            rowClassName={(record: InstrumentRs) => (record.active === false ? 'inactive-row' : '')}
           />
         ) : (
           <Text type="secondary">
@@ -222,11 +221,11 @@ const InstrumentTypesList: React.FC<InstrumentTypesListProps> = ({
       }}
       pagination={{ pageSize: 10 }}
       {...stylePresets.tableStyles}
-      onRow={record => ({
+      onRow={(record: InstrumentTypeRs) => ({
         onClick: () => onSelectInstrumentType(record.instrumentTypeId),
         style: { cursor: 'pointer' },
       })}
-      rowClassName={record => (record.active === false ? 'inactive-row' : '')}
+      rowClassName={(record: InstrumentTypeRs) => (record.active === false ? 'inactive-row' : '')}
     />
   );
 };

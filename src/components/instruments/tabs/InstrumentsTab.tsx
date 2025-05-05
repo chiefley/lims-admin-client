@@ -50,7 +50,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       nextPm: null,
       outOfService: false,
       active: true, // New instruments are active by default
-      instrumentPeripherals: [],
+      instrumentPeripheralRss: [], // Fixed property name to match interface
     };
 
     // Add to the instruments array
@@ -122,7 +122,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
     // Update the specific instrument's peripherals
     const updatedInstruments = instruments.map(instrument =>
       instrument.instrumentId === instrumentId
-        ? { ...instrument, instrumentPeripherals: peripherals }
+        ? { ...instrument, instrumentPeripheralRss: peripherals } // Fixed property name to match interface
         : instrument
     );
 
@@ -217,7 +217,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
     },
     {
       title: 'Peripherals',
-      dataIndex: 'instrumentPeripherals',
+      dataIndex: 'instrumentPeripheralRss', // Fixed property name to match interface
       key: 'peripheralsCount',
       editable: false,
       render: (peripherals: InstrumentPeripheralRs[], record: InstrumentRs) => {

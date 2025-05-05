@@ -15,11 +15,7 @@ import {
   Checkbox,
 } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
-import {
-  InstrumentTypeRs,
-  ConfigurationMaintenanceSelectors,
-  InstrumentFileParserType,
-} from '../../models/types';
+import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 import CardSection from '../common/CardSection';
 import FormItem from '../common/FormItem';
 import { stylePresets } from '../../config/theme';
@@ -218,7 +214,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                     >
                       <Select placeholder="Select file parser type">
                         {selectors.instrumentFileParserTypes.map(type => (
-                          <Option key={type.id} value={type.id}>
+                          <Option key={type.id} value={type.label}>
                             {type.label}
                           </Option>
                         ))}

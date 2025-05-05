@@ -24,8 +24,8 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
   showInactive = false,
   editing = true,
 }) => {
-  // Make sure instrumentPeripherals is always an array
-  const peripherals = instrument.instrumentPeripherals || [];
+  // Make sure instrumentPeripheralRss is always an array
+  const peripherals = instrument.instrumentPeripheralRss || []; // Fixed property name to match interface
 
   // Since peripherals don't have an Active flag, the showInactive prop isn't applicable
   // But we keep it for API consistency with other tabs

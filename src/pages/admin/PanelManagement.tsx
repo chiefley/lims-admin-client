@@ -121,7 +121,7 @@ const PanelManagement: React.FC = () => {
       subordinateToPanelGroup: false,
       panelGroupId: null,
       significantDigits: 2,
-      decimalFormatType: null,
+      decimalFormatType: null, // This is now allowed with updated interface
       panelType: 'Quantitative',
       qualitativeFirst: false,
       requiresMoistureContent: false,
@@ -203,8 +203,8 @@ const PanelManagement: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text, record) => (
+      sorter: (a: PanelRs, b: PanelRs) => a.name.localeCompare(b.name),
+      render: (text: string, record: PanelRs) => (
         <Space>
           <Text strong>{text}</Text>
           {record.active === false && <Tag color="red">Inactive</Tag>}
@@ -216,14 +216,16 @@ const PanelManagement: React.FC = () => {
       dataIndex: 'slug',
       key: 'slug',
       width: 100,
-      render: text => <Tag color="blue">{text}</Tag>,
+      render: (text: string) => <Tag color="blue">{text}</Tag>,
     },
     {
       title: 'Type',
       dataIndex: 'panelType',
       key: 'panelType',
       width: 120,
-      render: text => <Tag color={text === 'Quantitative' ? 'green' : 'orange'}>{text}</Tag>,
+      render: (text: string) => (
+        <Tag color={text === 'Quantitative' ? 'green' : 'orange'}>{text}</Tag>
+      ),
       filters: [
         { text: 'Quantitative', value: 'Quantitative' },
         { text: 'Qualitative', value: 'Qualitative' },
@@ -234,7 +236,7 @@ const PanelManagement: React.FC = () => {
       title: 'Panel Group',
       dataIndex: 'panelGroupId',
       key: 'panelGroupId',
-      render: (id, record) => {
+      render: (id: number | null, record: PanelRs) => {
         if (!id || !selectors) return 'Not Assigned';
         const groupItem = selectors.panelGroupItems.find(item => item.id === id);
         return groupItem ? groupItem.label : `ID: ${id}`;
@@ -251,14 +253,14 @@ const PanelManagement: React.FC = () => {
       dataIndex: 'sampleCount',
       key: 'sampleCount',
       width: 120,
-      sorter: (a, b) => a.sampleCount - b.sampleCount,
-      render: count => <Tag color={count > 0 ? 'volcano' : 'default'}>{count}</Tag>,
+      sorter: (a: PanelRs, b: PanelRs) => a.sampleCount - b.sampleCount,
+      render: (count: number) => <Tag color={count > 0 ? 'volcano' : 'default'}>{count}</Tag>,
     },
     {
       title: 'Actions',
       key: 'actions',
       width: 100,
-      render: (_, record) => (
+      render: (_: any, record: PanelRs) => (
         <Space>
           <Tooltip title="Edit Panel">
             <Button type="text" icon={<EditOutlined />} onClick={() => handleEditPanel(record)} />
@@ -281,7 +283,7 @@ const PanelManagement: React.FC = () => {
                 </div>
                 <div>
                   <Text type="secondary">Format Type:</Text>{' '}
-                  {selectors?.decimalFormatTypes.find(t => t.id === record.decimalFormatType)
+                  {selectors?.decimalFormatTypes.find(t => t.label === record.decimalFormatType)
                     ?.label || record.decimalFormatType}
                 </div>
                 <div>
