@@ -107,11 +107,10 @@ public abstract partial class TableColumnSopFieldRs : SopFieldRs
     [Required]
     [StringLength(50)]
     public string TableName { get; set; }
-    [Required]
-    public int? ColumnWidth { get; set; }
-    [Required]
+    [StringLength(50)]
+    public string? ColumnWidth { get; set; }
     [StringLength(250)]
-    public string VmPropertyName { get; set; }
+    public string? VmPropertyName { get; set; }
 
 }
 

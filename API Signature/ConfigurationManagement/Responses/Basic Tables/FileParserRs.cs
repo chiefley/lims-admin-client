@@ -8,6 +8,7 @@ public partial class FileParserRs
 {
     // Primary key.  No display, no edit.
     public int FileParserId { get; set; }
+
     [Required]
     [StringLength(50)] 
     public string? Version { get; set; }

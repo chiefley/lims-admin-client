@@ -47,7 +47,7 @@ public partial class BatchSopRs
 
     // DropDown control.  Use ConfigurationMaintenanceSelectors.DecimalFormatType for the choices.
     [Required]
-    public DecimalFormatType? DecimalFormatType { get; set; }
+    public string? DecimalFormatType { get; set; }
 
     [JsonPropertyOrder(100)]  // Ensure this appears after primitive properties
 

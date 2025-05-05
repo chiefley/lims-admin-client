@@ -40,19 +40,19 @@ public partial class AnalyticalBatchSopRs : BatchSopRs
     public double? RsaNominalExtractionVolumeL { get; set; }
 
     // Dropdown control.   Choices come from ConfigurationMaintenanceSelectors.AnalysisMethodTypes
-    [Required] public ManifestSampleAnalysisMethodType AnalysisMethodType { get; set; }
+    [Required] public string? AnalysisMethodType { get; set; }
 
     // Dropdown control.   Choices come from ConfigurationMaintenanceSelectors.AggregateRollupMethodTypes
-    [Required] public AggregateRollupMethodType AggregateRollupMethodType { get; set; }
+    [Required] public string? AggregateRollupMethodType { get; set; }
 
     // Dropdown control.   Choices come from ConfigurationMaintenanceSelectors.ComparisonTypes
-    [Required] public NcComparisonType LLoqComparisonType { get; set; }
+    [Required] public string? LLoqComparisonType { get; set; }
 
     // Dropdown control.   Choices come from ConfigurationMaintenanceSelectors.ComparisonTypes
-    [Required] public NcComparisonType ULoqComparisonType { get; set; }
+    [Required] public string? ULoqComparisonType { get; set; }
 
     // Dropdown control.   Choices come from ConfigurationMaintenanceSelectors.ComparisonTypes
-    [Required] public NcComparisonType ActionLimitComparisonType { get; set; }
+    [Required] public string? ActionLimitComparisonType { get; set; }
     public bool RollupRsd { get; set; }
     public bool AllowPartialAnalyteResults { get; set; }
 

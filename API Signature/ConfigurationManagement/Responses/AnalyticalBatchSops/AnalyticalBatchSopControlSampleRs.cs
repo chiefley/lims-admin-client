@@ -14,7 +14,7 @@ public partial class AnalyticalBatchSopControlSampleRs
     public int AnalyticalBatchSopId { get; set; }
     // Dropdown control. Use ConfigurationMaintenanceSelectors.SopBatchPositionTypes
     [Required]
-    public SopBatchPositionType? SopBatchPositionType { get; set; }
+    public string? SopBatchPositionType { get; set; }
     [Required]
     public int? EveryNSamples { get; set; }
     [Required]
