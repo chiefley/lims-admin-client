@@ -4,17 +4,8 @@
 import {
   BatchSopRs,
   BatchSopSelectionRs,
-  ControlSampleAnalyteSopSpecificationRs,
+  PrepBatchControlSampleAnalyteSopSpecificationRs,
 } from './batchSops';
-import {
-  ControlSampleType,
-  ControlSampleCategory,
-  ControlSampleAnalysis,
-  ControlSampleQCSource,
-  ControlSamplePassCriteria,
-  QCCondition,
-  SopBatchPositionType,
-} from './common';
 
 /**
  * Manifest Sample Prep Batch SOP Response
@@ -69,14 +60,14 @@ export interface PrepBatchSopControlSampleRs {
   prepBatchSopControlSampleId: number;
 
   /** Foreign Key to parent. No display */
-  prepBatchSopId: number;
+  prepBatchSopId?: number;
 
   /**
    * Position in the batch
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.SopBatchPositionTypes
    */
-  sopBatchPositionType: SopBatchPositionType | null;
+  sopBatchPositionType: string | null;
 
   /**
    * Order for control samples
@@ -104,7 +95,7 @@ export interface PrepBatchSopControlSampleRs {
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.ControlSampleTypes
    */
-  controlSampleType: ControlSampleType | null;
+  controlSampleType: string | null;
 
   /**
    * Description of the control sample
@@ -117,35 +108,43 @@ export interface PrepBatchSopControlSampleRs {
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.ControlSampleCategories
    */
-  category: ControlSampleCategory | null;
+  category: string | null;
 
   /**
    * Type of analysis
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.ControlSampleAnalyses
    */
-  analysisType: ControlSampleAnalysis | null;
+  analysisType: string | null;
 
   /**
    * Source of QC sample
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.ControlSampleQCSources
    */
-  qCSource: ControlSampleQCSource | null;
+  qCSource: string | null;
 
   /**
    * Pass criteria for control sample
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.ControlSamplePassCriteria
    */
-  passCriteria: ControlSamplePassCriteria | null;
+  passCriteria: string | null;
 
   /**
    * QC condition
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.ControlSampleConditions
    */
-  qCCondition: QCCondition | null;
+  qCCondition: string | null;
+}
+
+/**
+ * Prep Batch SOP Duplicate Control Sample Response
+ */
+export interface PrepBatchSopDupControlSampleRs extends PrepBatchSopControlSampleRs {
+  /** Partner control sample ID */
+  partnerSopControlSampleId: number | null;
 }
 
 /**
@@ -153,13 +152,13 @@ export interface PrepBatchSopControlSampleRs {
  */
 export interface PrepBatchSopSelectionRs extends BatchSopSelectionRs {
   /** Collection of sample configurations */
-  manifestSamplePrepBatchSopRss: ManifestSamplePrepBatchSopRs[];
+  manifestSamplePrepBatchSopRss?: ManifestSamplePrepBatchSopRs[];
 
   /**
    * Type discriminator
    * @internal Used by API for polymorphic deserialization
    */
-  $type: 'PrepBatchSopSelectionRs';
+  $type: string;
 }
 
 /**
@@ -207,10 +206,4 @@ export interface PrepBatchSopRs extends BatchSopRs {
 
   /** Collection of control samples for this SOP */
   prepBatchSopControlSamples: PrepBatchSopControlSampleRs[];
-
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: string;
 }

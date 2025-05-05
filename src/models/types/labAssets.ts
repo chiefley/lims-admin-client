@@ -1,8 +1,6 @@
 // src/models/types/labAssets.ts
 // Type definitions for laboratory assets and instruments
 
-import { InstrumentFileParserType } from './common';
-
 /**
  * Instrument Peripheral
  *
@@ -84,7 +82,7 @@ export interface InstrumentRs {
   active?: boolean;
 
   /** Collection of peripherals associated with this instrument */
-  instrumentPeripherals: InstrumentPeripheralRs[];
+  instrumentPeripheralRss: InstrumentPeripheralRs[];
 }
 
 /**
@@ -164,7 +162,7 @@ export interface InstrumentTypeRs {
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.InstrumentFileParserTypes
    */
-  instrumentFileParser: InstrumentFileParserType | null;
+  instrumentFileParser: string | null;
 
   /**
    * Whether the instrument type is active

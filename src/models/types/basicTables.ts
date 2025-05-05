@@ -1,14 +1,6 @@
 // src/models/types/basicTables.ts
 // Type definitions for basic configuration tables
 
-import {
-  DataFileLevel,
-  FieldDelimiterType,
-  DataFileSampleMultiplicity,
-  DayOfWeek,
-  NavMenuKey,
-} from './common';
-
 /**
  * Compound/Analyte definition
  */
@@ -527,7 +519,7 @@ export interface PanelRs {
    * Format for decimal values
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.DecimalFormatTypes
    */
-  decimalFormatType: number | null;
+  decimalFormatType: string;
 
   /**
    * Type of panel (Quantitative/Qualitative)
@@ -556,7 +548,7 @@ export interface PanelRs {
    * SOP for non-plant samples
    * @maxLength 150
    */
-  nonPlantSop: string;
+  nonPlantSop: string | null;
 
   /**
    * Factor to scale results by

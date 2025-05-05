@@ -1,8 +1,6 @@
 // src/models/types/batchSops.ts
 // Type definitions for common batch SOP related entities
 
-import { DecimalFormatType } from './common';
-
 /**
  * Base Batch SOP Selection Response
  */
@@ -331,14 +329,14 @@ export interface TableColumnSopFieldRs extends SopFieldRs {
    * Width of the column
    * @validation Required
    */
-  columnWidth: number | null;
+  columnWidth: string | null;
 
   /**
    * Property name in the view model
    * @validation Required
    * @maxLength 250
    */
-  vmPropertyName: string;
+  vmPropertyName: string | null;
 }
 
 /**
@@ -349,7 +347,7 @@ export interface TableColumnTextSopFieldRs extends TableColumnSopFieldRs {
    * Regular expression for validation
    * @maxLength 250
    */
-  validationRegex: string | null;
+  validationRegex: string;
 
   /** Minimum length for validation */
   minLength: number | null;
@@ -506,7 +504,7 @@ export interface BatchSopRs {
    * @validation Required
    * @ui DropDown control. Use ConfigurationMaintenanceSelectors.DecimalFormatType for the choices
    */
-  decimalFormatType: DecimalFormatType | null;
+  decimalFormatType: string | null;
 
   /** SOP fields */
   sopFields: SopFieldRs[];

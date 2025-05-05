@@ -4,16 +4,8 @@
 import {
   BatchSopRs,
   BatchSopSelectionRs,
-  ControlSampleAnalyteSopSpecificationRs,
   AnalyticalBatchControlAnalyteSopSpecificationRs,
 } from './batchSops';
-import {
-  SopBatchPositionType,
-  AggregateRollupMethodType,
-  ManifestSampleAnalysisMethodType,
-  NcComparisonType,
-  ReportPercentType,
-} from './common';
 
 /**
  * Computed Analyte Constituent Response
@@ -99,7 +91,7 @@ export interface AnalyticalBatchSopControlSampleRs {
    * @validation Required
    * @ui Dropdown control. Use ConfigurationMaintenanceSelectors.SopBatchPositionTypes
    */
-  sopBatchPositionType: SopBatchPositionType | null;
+  sopBatchPositionType: string | null;
 
   /**
    * Frequency of control samples
@@ -207,14 +199,14 @@ export interface AnalyticalBatchSopSelectionRs extends BatchSopSelectionRs {
    * Type discriminator
    * @internal Used by API for polymorphic deserialization
    */
-  $type: 'AnalyticalBatchSopSelectionRs';
+  $type: string;
 }
 
 /**
  * Full Analytical Batch SOP Response
  */
 export interface AnalyticalBatchSopRs extends BatchSopRs {
-  /** Primary Key. No display, no edit */
+  /** Duplicate of primary key from base class */
   batchSopId: number;
 
   /**
@@ -237,7 +229,7 @@ export interface AnalyticalBatchSopRs extends BatchSopRs {
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.ReportPercentTypes
    */
-  reportPercentType: ReportPercentType | null;
+  reportPercentType: string | null;
 
   /**
    * Factor to scale concentration results
@@ -285,35 +277,35 @@ export interface AnalyticalBatchSopRs extends BatchSopRs {
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.AnalysisMethodTypes
    */
-  analysisMethodType: ManifestSampleAnalysisMethodType;
+  analysisMethodType: string | null;
 
   /**
    * Method for aggregating rollup results
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.AggregateRollupMethodTypes
    */
-  aggregateRollupMethodType: AggregateRollupMethodType;
+  aggregateRollupMethodType: string | null;
 
   /**
    * Comparison type for Lower Limit of Quantification
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.ComparisonTypes
    */
-  lLoqComparisonType: NcComparisonType;
+  lLoqComparisonType: string | null;
 
   /**
    * Comparison type for Upper Limit of Quantification
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.ComparisonTypes
    */
-  uLoqComparisonType: NcComparisonType;
+  uLoqComparisonType: string | null;
 
   /**
    * Comparison type for action limits
    * @validation Required
    * @ui Dropdown control. Choices come from ConfigurationMaintenanceSelectors.ComparisonTypes
    */
-  actionLimitComparisonType: NcComparisonType;
+  actionLimitComparisonType: string | null;
 
   /** Whether to roll up Relative Standard Deviation */
   rollupRsd: boolean;
@@ -335,10 +327,4 @@ export interface AnalyticalBatchSopRs extends BatchSopRs {
 
   /** Links to prep batch SOPs */
   prepBatchSopAnalyticalBatchSopRss: PrepBatchSopAnalyticalBatchSopRs[];
-
-  /**
-   * Type discriminator
-   * @internal Used by API for polymorphic deserialization
-   */
-  $type: string;
 }
