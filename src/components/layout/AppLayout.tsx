@@ -9,6 +9,7 @@ import {
   TeamOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
@@ -85,10 +86,16 @@ const AppLayout: React.FC = () => {
                 },
                 {
                   key: '2-6',
-                  label: 'User Management',
+                  label: (
+                    <Link to="/admin/cc-sample-category-management">CC Sample Categories</Link>
+                  ),
                 },
                 {
                   key: '2-7',
+                  label: 'User Management',
+                },
+                {
+                  key: '2-8',
                   label: 'Lab Settings',
                 },
               ],
