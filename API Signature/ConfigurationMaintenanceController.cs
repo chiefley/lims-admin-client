@@ -135,8 +135,8 @@ public class ConfigurationMaintenanceController : BaseController
         }
     }
 
-
     // Returns ServiceResponse<List<CompoundRs>>
+
     [HttpGet("FetchCompoundRss")]
     public async Task<IActionResult> FetchCompoundRss()
     {
@@ -144,6 +144,28 @@ public class ConfigurationMaintenanceController : BaseController
         {
             var payload = await _sopService.FetchCompoundRs();
             var sr = new ServiceResponse<List<CompoundRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<ItemTypeRs>>
+    [HttpGet("FetchItemTypeRss/{stateId}")]
+    public async Task<IActionResult> FetchItemTypeRss(int stateId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchItemTypeRss(stateId);
+            var sr = new ServiceResponse<List<ItemTypeRs>>
             {
                 Data = payload,
                 Message = "Success",
@@ -219,7 +241,8 @@ public class ConfigurationMaintenanceController : BaseController
             foreach (var response in responses)
             {
                 var x = PanelRs.Validate(response, responses, labId);
-                if (!x.IsValid) throw new InvalidOperationException(x.Errors.First().ErrorMessage);
+                if (!x.IsValid)
+                    throw new InvalidOperationException(x.Errors.First().ErrorMessage);
             }
 
             var payload = await _sopService.UpsertPanelRss(responses, labId);
@@ -238,6 +261,59 @@ public class ConfigurationMaintenanceController : BaseController
             throw;
         }
     }
+
+    // Returns ServiceResponse<List<PanelGroupRs>>
+    [HttpGet("FetchPanelGroupRss/{labId}")]
+    public async Task<IActionResult> FetchPanelGroupRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchPanelGroupRss(labId);
+            var sr = new ServiceResponse<List<PanelGroupRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<PanelGroupRs>>
+    [HttpPut("UpsertPanelGroupRss/{labId}")]
+    public async Task<IActionResult> UpsertPanelGroupRss([FromBody] List<PanelGroupRs> responses, int labId)
+    {
+        try
+        {
+            foreach (var response in responses)
+            {
+                var x = PanelGroupRs.Validate(response, responses, labId);
+                if (!x.IsValid)
+                    throw new InvalidOperationException(x.Errors.First().ErrorMessage);
+            }
+
+            var payload = await _sopService.UpsertPanelGroupRss(responses, labId);
+
+            var sr = new ServiceResponse<List<PanelGroupRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
 
     // Returns ServiceResponse<List<InstrumentTypeRs>>
     [HttpGet("FetchInstrumentTypeRss/{labId}")]
@@ -276,6 +352,337 @@ public class ConfigurationMaintenanceController : BaseController
             var payload = await _sopService.UpsertInstrumentTypeRss(responses, labId);
 
             var sr = new ServiceResponse<List<InstrumentTypeRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<FileParserRs>>
+    [HttpGet("FetchFileParserRss")]
+    public async Task<IActionResult> FetchFileParserRss()
+    {
+        try
+        {
+            var payload = await _sopService.FetchFileParserRss();
+            var sr = new ServiceResponse<List<FileParserRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<FileParserRs>>
+    [HttpPut("UpsertFileParserRss")]
+    public async Task<IActionResult> UpsertFileParserRss([FromBody] List<FileParserRs> responses)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertFileParserRss(responses);
+            var sr = new ServiceResponse<List<FileParserRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<DBEnumRs>>
+    [HttpGet("FetchDBEnumRss/{labId}")]
+    public async Task<IActionResult> FetchDBEnumRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchDBEnumRss(labId);
+            var sr = new ServiceResponse<List<DBEnumRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<NeededByRs>>
+    [HttpGet("FetchNeededByRss/{labId}")]
+    public async Task<IActionResult> FetchNeededByRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchNeededByRss(labId);
+            var sr = new ServiceResponse<List<NeededByRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<NeededByRs>>
+    [HttpPut("UpsertNeededByRss/{labId}")]
+    public async Task<IActionResult> UpsertNeededByRs([FromBody] List<NeededByRs> responses, int labId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertNeededByRss(responses, labId);
+            var sr = new ServiceResponse<List<NeededByRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<NavMenuItemRs>>
+    [HttpGet("FetchNavMenuItemRss/{labId}")]
+    public async Task<IActionResult> FetchNavMenuItemRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchNavMenuItemRss(labId);
+            var sr = new ServiceResponse<List<NavMenuItemRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<ItemTypeRs>>
+    [HttpPut("UpsertItemTypeRss/{labId}")]
+    public async Task<IActionResult> UpsertItemTypeRs([FromBody] List<ItemTypeRs> responses, int labId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertItemTypeRss(responses, labId);
+            var sr = new ServiceResponse<List<ItemTypeRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    [HttpPut("UpsertNavMenuItemRss/{labId}")]
+    public async Task<IActionResult> UpsertNavMenuItemRs([FromBody] List<NavMenuItemRs> responses, int labId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertNavMenuItemRss(responses, labId);
+            var sr = new ServiceResponse<List<NavMenuItemRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<PanelGroupRs>>
+    [HttpPut("UpsertPanelGroupRss/{labId}")]
+    public async Task<IActionResult> UpsertPanelGroupRs([FromBody] List<PanelGroupRs> responses, int labId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertPanelGroupRss(responses, labId);
+            var sr = new ServiceResponse<List<PanelGroupRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<TestCategoryRs>>
+    [HttpGet("FetchTestCategoryRss/{stateId}")]
+    public async Task<IActionResult> FetchTestCategoryRss(int stateId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchTestCategoryRss(stateId);
+            var sr = new ServiceResponse<List<TestCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<TestCategoryRs>>
+    [HttpPut("UpsertTestCategoryRss/{labId}")]
+    public async Task<IActionResult> UpsertTestCategoryRs([FromBody] List<TestCategoryRs> responses, int labId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertTestCategoryRss(responses, labId);
+            var sr = new ServiceResponse<List<TestCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<PotencyCategoryRs>>
+    [HttpGet("FetchPotencyCategoryRss/{stateId}")]
+    public async Task<IActionResult> FetchPotencyCategoryRss(int stateId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchPotencyCategoryRss(stateId);
+            var sr = new ServiceResponse<List<PotencyCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<PotencyCategoryRs>>
+    [HttpPut("UpsertPotencyCategoryRss/{labId}")]
+    public async Task<IActionResult> UpsertPotencyCategoryRs([FromBody] List<PotencyCategoryRs> responses)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertPotencyCategoryRss(responses);
+            var sr = new ServiceResponse<List<PotencyCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+
+    // Returns ServiceResponse<List<CcSampleCategoryRs>>
+    [HttpGet("FetchCcSampleCategoryRss/{labId}")]
+    public async Task<IActionResult> FetchCCSampleCategoryRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchCCSampleCategoryRss(labId);
+            var sr = new ServiceResponse<List<CcSampleCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+
+    // Returns ServiceResponse<List<CcSampleCategoryRs>>
+    [HttpPut("UpsertCcSampleCategoryRss/{labId}")]
+    public async Task<IActionResult> UpsertCcSampleCategoryRss([FromBody] List<CcSampleCategoryRs> responses)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertCcSampleCategoryRss(responses);
+            var sr = new ServiceResponse<List<CcSampleCategoryRs>>
             {
                 Data = payload,
                 Message = "Success",
