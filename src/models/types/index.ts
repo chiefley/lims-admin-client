@@ -1,10 +1,17 @@
 // src/models/types/index.ts
-// This file re-exports all types from the new location for backward compatibility
+// Main barrel file that re-exports all type definitions
 
-// Re-export all types from their new locations
-export * from '../../features/common/types/common';
-export * from '../../features/common/types/batchSops';
-export * from '../../features/prepBatchSop/types/prepBatchSops';
-export * from '../../features/analyticalBatchSop/types/analyticalBatchSops';
-export * from '../../features/labAssets/types/labAssets';
-export * from '../../features/basicTables/types/basicTables';
+// Common types
+export * from './common';
+
+// Domain-specific types
+export * from './basicTables';
+export * from './labAssets';
+export * from './batchSops';
+export * from './prepBatchSops';
+export * from './analyticalBatchSops';
+
+// This file replaces the original types.ts
+// Now consumers can continue using:
+// import { SomeType } from '../models/types';
+// Without changing their import statements

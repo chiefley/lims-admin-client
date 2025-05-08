@@ -12,12 +12,11 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import Dashboard from './pages/dashboard/Dashboard';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
-import AnalyticalBatchSopManagement from './features/analyticalBatchSop/pages/AnalyticalBatchSopManagement';
+import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
 import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
 import CompoundManagement from './pages/admin/CompoundManagement';
 import PanelManagement from './pages/admin/PanelManagement';
 import InstrumentManagement from './pages/admin/InstrumentManagement';
-import CcSampleCategoryManagement from './pages/admin/CcSampleCategoryManagement';
 import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
@@ -43,10 +42,6 @@ const App: React.FC = () => {
                 <Route path="admin/compound-management" element={<CompoundManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />
-                <Route
-                  path="admin/cc-sample-category-management"
-                  element={<CcSampleCategoryManagement />}
-                />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
