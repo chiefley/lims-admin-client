@@ -1,5 +1,4 @@
 // src/api/endpoints/configurationService.ts
-import { apiClient, DEFAULT_LAB_ID } from '../config';
 import appConfig from '../../config/appConfig';
 import {
   ServiceResponse,
@@ -21,6 +20,7 @@ import {
   PotencyCategoryRs,
   TestCategoryRs,
 } from '../../models/types';
+import { apiClient, DEFAULT_LAB_ID } from '../config';
 
 // Base URL for configuration maintenance endpoints
 const baseUrl = `${appConfig.api.baseUrl}/configurationmaintenance`;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Spin, Tag, Tooltip, Alert, Button, Input, Popconfirm, Space } from 'antd';
-import { useNavigate } from 'react-router-dom';
+
 import {
   ExperimentOutlined,
   DeleteOutlined,
@@ -9,12 +8,16 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import configurationService from '../../api/endpoints/configurationService';
-import { AnalyticalBatchSopSelectionRs } from '../../models/types';
-import PageHeader from '../../components/common/PageHeader';
-import CardSection from '../../components/common/CardSection';
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
+import { Typography, Spin, Tag, Tooltip, Alert, Button, Input, Popconfirm, Space } from 'antd';
 import { message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
+import configurationService from '../../api/endpoints/configurationService';
+import CardSection from '../../components/common/CardSection';
+import PageHeader from '../../components/common/PageHeader';
+import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
+import { AnalyticalBatchSopSelectionRs } from '../../models/types';
+
 
 const { Text } = Typography;
 

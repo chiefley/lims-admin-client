@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Card, Typography, Statistic } from 'antd';
+
 import {
   ExperimentOutlined,
   FileSearchOutlined,
@@ -8,9 +8,11 @@ import {
   DashboardOutlined,
   BellOutlined,
 } from '@ant-design/icons';
-import { stylePresets } from '../../config/theme';
-import PageHeader from '../../components/common/PageHeader';
+import { Row, Col, Card, Typography, Statistic } from 'antd';
+
 import CardSection from '../../components/common/CardSection';
+import PageHeader from '../../components/common/PageHeader';
+import { stylePresets } from '../../config/theme';
 
 const { Paragraph } = Typography;
 

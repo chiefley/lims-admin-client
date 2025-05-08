@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+
+import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import {
   Form,
   Input,
@@ -14,14 +16,16 @@ import {
   Switch,
   Checkbox,
 } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+
+import appConfig from '../../config/appConfig';
+import { stylePresets } from '../../config/theme';
 import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 import CardSection from '../common/CardSection';
 import FormItem from '../common/FormItem';
-import { stylePresets } from '../../config/theme';
-import InstrumentsTab from './tabs/InstrumentsTab';
+
 import AnalytesTab from './tabs/AnalytesTab';
-import appConfig from '../../config/appConfig';
+import InstrumentsTab from './tabs/InstrumentsTab';
+
 
 const { TabPane } = Tabs;
 const { Option } = Select;

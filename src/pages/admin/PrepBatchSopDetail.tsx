@@ -1,19 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Typography,
-  Spin,
-  Card,
-  Row,
-  Col,
-  Button,
-  Tabs,
-  Tag,
-  message,
-  Form,
-  Alert,
-  Space,
-} from 'antd';
+
 import {
   ArrowLeftOutlined,
   SaveOutlined,
@@ -23,9 +9,20 @@ import {
   CloseOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+import {
+  Spin,
+  Button,
+  Tabs,
+  Tag,
+  message,
+  Form,
+  Alert,
+  Space,
+} from 'antd';
+import { useParams, useNavigate } from 'react-router-dom';
+
 // UPDATED: Import the service as a default import
 import sopService from '../../api/endpoints/configurationService';
-import { SopFieldRs, ManifestSamplePrepBatchSopRs, SopProcedureRs } from '../../models/types';
 import PageHeader from '../../components/common/PageHeader';
 
 // Import the tab components
@@ -36,6 +33,7 @@ import {
   SopProceduresTab,
   SopFieldsTab,
 } from '../../components/tabs';
+import { SopFieldRs, ManifestSamplePrepBatchSopRs, SopProcedureRs } from '../../models/types';
 
 // Define the component
 const PrepBatchSopDetail: React.FC = () => {

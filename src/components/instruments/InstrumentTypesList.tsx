@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
+
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Button, Space, Tooltip, Popconfirm, Tag, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, SettingOutlined, EyeOutlined } from '@ant-design/icons';
-import { InstrumentTypeRs, InstrumentRs } from '../../models/types';
+
 import { stylePresets } from '../../config/theme';
+import { InstrumentTypeRs, InstrumentRs } from '../../models/types';
 
 const { Text } = Typography;
 

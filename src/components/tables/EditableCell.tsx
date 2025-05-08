@@ -1,16 +1,33 @@
 import React, { ReactNode, useState, useEffect } from 'react';
-import {
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  InputNumber,
-  InputProps,
-  SelectProps,
-  DatePickerProps,
-} from 'antd';
+
+import { Form, Input, Select, DatePicker, InputNumber } from 'antd';
 import { FormInstance } from 'antd/lib/form';
 import dayjs from 'dayjs';
+
+// Define the missing interfaces
+interface InputProps {
+  placeholder?: string;
+  disabled?: boolean;
+  autoSize?: boolean | { minRows: number; maxRows: number };
+  [key: string]: any;
+}
+
+interface SelectProps {
+  mode?: 'multiple' | 'tags' | 'combobox';
+  placeholder?: string;
+  disabled?: boolean;
+  showSearch?: boolean;
+  style?: React.CSSProperties;
+  [key: string]: any;
+}
+
+interface DatePickerProps {
+  format?: string;
+  disabled?: boolean;
+  showTime?: boolean | object;
+  style?: React.CSSProperties;
+  [key: string]: any;
+}
 
 interface EditableCellProps {
   editing: boolean;

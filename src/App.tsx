@@ -1,22 +1,24 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import { ConfigProvider, App as AntApp } from 'antd';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import { limsTheme } from './config/theme';
 import './styles/global.css';
 
 // Import layout components
-import AppLayout from './components/layout/AppLayout';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import AppLayout from './components/layout/AppLayout';
 
 // Import pages
-import Dashboard from './pages/dashboard/Dashboard';
-import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
-import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
-import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
 import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
+import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
 import CompoundManagement from './pages/admin/CompoundManagement';
-import PanelManagement from './pages/admin/PanelManagement';
 import InstrumentManagement from './pages/admin/InstrumentManagement';
+import PanelManagement from './pages/admin/PanelManagement';
+import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
+import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
+import Dashboard from './pages/dashboard/Dashboard';
 import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {

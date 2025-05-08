@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+
+import { SearchOutlined, ExperimentOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Typography,
   Spin,
@@ -12,13 +14,15 @@ import {
   Tabs,
   Checkbox,
 } from 'antd';
-import { SearchOutlined, ExperimentOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import PageHeader from '../../components/common/PageHeader';
-import CardSection from '../../components/common/CardSection';
+
+
 import configurationService from '../../api/endpoints/configurationService';
-import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+import CardSection from '../../components/common/CardSection';
+import PageHeader from '../../components/common/PageHeader';
 import PanelEditDrawer from '../../components/panels/PanelEditDrawer';
+import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+
+import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+
+import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 import {
   Drawer,
   Form,
@@ -14,7 +16,7 @@ import {
   Spin,
   message,
 } from 'antd';
-import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
+
 import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 import FormItem from '../common/FormItem';
 

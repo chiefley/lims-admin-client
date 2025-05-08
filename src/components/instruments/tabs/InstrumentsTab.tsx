@@ -1,15 +1,16 @@
 import React, { useMemo } from 'react';
-import { Button, Alert, DatePicker, Switch, message, Tabs } from 'antd';
+
 import { PlusOutlined } from '@ant-design/icons';
+import { Button, Alert, Switch, message, Tabs } from 'antd';
+import dayjs from 'dayjs';
+
 import {
   InstrumentRs,
   InstrumentPeripheralRs,
   ConfigurationMaintenanceSelectors,
 } from '../../../models/types';
-import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
-import { stylePresets } from '../../../config/theme';
-import dayjs from 'dayjs';
+
 import PeripheralsTab from './PeripheralsTab';
 
 const { TabPane } = Tabs;

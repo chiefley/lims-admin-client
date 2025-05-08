@@ -1,6 +1,6 @@
 // src/api/client.ts
 import axios from 'axios';
-import { message } from 'antd';
+
 import appConfig from '../config/appConfig';
 import { API_TIMEOUT } from '../config/constants';
 

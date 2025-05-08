@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { Button, Alert, message } from 'antd';
+
 import { PlusOutlined } from '@ant-design/icons';
+import { Button, Alert, message } from 'antd';
+
 import { InstrumentTypeAnalyteRs, ConfigurationMaintenanceSelectors } from '../../../models/types';
-import CardSection from '../../common/CardSection';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
-import { stylePresets } from '../../../config/theme';
 
 interface AnalytesTabProps {
   analytes: InstrumentTypeAnalyteRs[];

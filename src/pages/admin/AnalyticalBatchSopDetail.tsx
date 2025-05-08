@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+
+import {
+  ArrowLeftOutlined,
+  SaveOutlined,
+  ExperimentOutlined,
+  EditOutlined,
+  FileTextOutlined,
+  CloseOutlined,
+  SettingOutlined,
+  AppstoreOutlined,
+  ApartmentOutlined,
+  ExceptionOutlined,
+  DatabaseOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import {
   Typography,
   Spin,
-  Card,
   Row,
   Col,
   Button,
@@ -18,25 +31,19 @@ import {
   InputNumber,
   Switch,
 } from 'antd';
-import {
-  ArrowLeftOutlined,
-  SaveOutlined,
-  ExperimentOutlined,
-  EditOutlined,
-  FileTextOutlined,
-  CloseOutlined,
-  SettingOutlined,
-  AppstoreOutlined,
-  ApartmentOutlined,
-  ExceptionOutlined,
-  DatabaseOutlined,
-  PlusOutlined,
-  DeleteOutlined,
-} from '@ant-design/icons';
+import dayjs from 'dayjs';
+import { useParams, useNavigate } from 'react-router-dom';
+
 import {
   fetchAnalyticalBatchSopRs,
   fetchSelectors,
 } from '../../api/endpoints/configurationService';
+import CardSection from '../../components/common/CardSection';
+import FormItem from '../../components/common/FormItem';
+import PageHeader from '../../components/common/PageHeader';
+import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
+import { SopFieldsTab, SopProceduresTab } from '../../components/tabs';
+import { stylePresets } from '../../config/theme';
 import {
   AnalyticalBatchSopRs,
   ConfigurationMaintenanceSelectors,
@@ -47,13 +54,7 @@ import {
   SopFieldRs,
   SopProcedureRs,
 } from '../../models/types';
-import PageHeader from '../../components/common/PageHeader';
-import CardSection from '../../components/common/CardSection';
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
-import { stylePresets } from '../../config/theme';
-import { SopFieldsTab, SopProceduresTab } from '../../components/tabs';
-import FormItem from '../../components/common/FormItem';
-import dayjs from 'dayjs';
+
 
 const { TabPane } = Tabs;
 const { Text } = Typography;

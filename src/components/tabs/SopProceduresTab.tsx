@@ -1,11 +1,13 @@
 import React from 'react';
-import { Card, Tabs, Button, Alert, Row, Col, Input, Popconfirm, message, Form } from 'antd';
+
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Tabs, Button, Alert, Row, Col, Input, Popconfirm, message } from 'antd';
+
+import { stylePresets } from '../../config/theme';
 import { SopProcedureRs, SopProcedureItemRs } from '../../models/types';
 import CardSection from '../common/CardSection';
 import FormItem from '../common/FormItem';
 import EditableTable, { EditableColumn } from '../tables/EditableTable';
-import { stylePresets } from '../../config/theme';
 
 const { TabPane } = Tabs;
 

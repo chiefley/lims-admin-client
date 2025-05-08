@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
+
 import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import PageHeader from '../../components/common/PageHeader';
-import CardSection from '../../components/common/CardSection';
-import { stylePresets } from '../../config/theme';
-import InstrumentTypesList from '../../components/instruments/InstrumentTypesList';
-import InstrumentTypeDetail from '../../components/instruments/InstrumentTypeDetail';
+import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
+
 import configurationService from '../../api/endpoints/configurationService';
-import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+import CardSection from '../../components/common/CardSection';
+import PageHeader from '../../components/common/PageHeader';
+import InstrumentTypeDetail from '../../components/instruments/InstrumentTypeDetail';
+import InstrumentTypesList from '../../components/instruments/InstrumentTypesList';
 import appConfig from '../../config/appConfig';
+import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;

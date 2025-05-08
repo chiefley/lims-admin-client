@@ -1,6 +1,11 @@
 import React from 'react';
-import { Button, Alert, message } from 'antd';
+
 import { PlusOutlined } from '@ant-design/icons';
+import { Button, Alert, message } from 'antd';
+import { Typography } from 'antd';
+import dayjs from 'dayjs';
+
+import { stylePresets } from '../../config/theme';
 import {
   PrepBatchSopRs,
   ConfigurationMaintenanceSelectors,
@@ -8,9 +13,7 @@ import {
 } from '../../models/types';
 import CardSection from '../common/CardSection';
 import EditableTable, { EditableColumn } from '../tables/EditableTable';
-import { stylePresets } from '../../config/theme';
-import dayjs from 'dayjs';
-import { Typography } from 'antd';
+
 
 interface SampleConfigurationsTabProps {
   sopData: PrepBatchSopRs;

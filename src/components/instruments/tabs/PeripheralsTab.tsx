@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react';
-import { Button, Alert, message, Select } from 'antd';
+
 import { PlusOutlined } from '@ant-design/icons';
+import { Button, Alert, message } from 'antd';
+
 import {
   InstrumentRs,
   InstrumentPeripheralRs,
   ConfigurationMaintenanceSelectors,
 } from '../../../models/types';
 import EditableTable, { EditableColumn } from '../../tables/EditableTable';
-import { stylePresets } from '../../../config/theme';
 
 interface PeripheralsTabProps {
   instrument: InstrumentRs;

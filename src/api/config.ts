@@ -1,6 +1,7 @@
 // src/api/config.ts
-import client from './client';
 import appConfig from '../config/appConfig';
+
+import client from './client';
 
 // Base URL from your API documentation
 export const BASE_URL = appConfig.api.baseUrl;

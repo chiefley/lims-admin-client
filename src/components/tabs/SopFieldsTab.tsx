@@ -1,5 +1,8 @@
 import React from 'react';
+
 import { Typography, Table, Alert, Tag, Descriptions } from 'antd';
+
+import { stylePresets } from '../../config/theme';
 import {
   SopFieldRs,
   DoubleSopFieldRs,
@@ -9,14 +12,12 @@ import {
   InstrumentTypeSopFieldRs,
   SopEnumSopFieldRs,
   UserSopFieldRs,
-  TextSopFieldRs,
   TableColumnIntSopFieldRs,
   TableColumnDoubleSopFieldRs,
   TableColumnDateTimeFieldRs,
   TableColumnSopEnumFieldRs,
 } from '../../models/types';
 import CardSection from '../common/CardSection';
-import { stylePresets } from '../../config/theme';
 
 // Create a generic SopData type that includes only the properties we need
 interface SopData {
