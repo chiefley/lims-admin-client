@@ -1,15 +1,8 @@
 // src/api/endpoints/configurationService.ts
 import appConfig from '../../config/appConfig';
 import {
-  ServiceResponse,
-  ConfigurationMaintenanceSelectors,
-  PrepBatchSopSelectionRs,
-  AnalyticalBatchSopSelectionRs,
-  PrepBatchSopRs,
-  AnalyticalBatchSopRs,
   CompoundRs,
   PanelRs,
-  InstrumentTypeRs,
   DBEnumRs,
   CcSampleCategoryRs,
   FileParserRs,
@@ -19,6 +12,15 @@ import {
   PanelGroupRs,
   PotencyCategoryRs,
   TestCategoryRs,
+} from '../../features/basicTables';
+import {
+  ServiceResponse,
+  ConfigurationMaintenanceSelectors,
+  PrepBatchSopSelectionRs,
+  AnalyticalBatchSopSelectionRs,
+  PrepBatchSopRs,
+  AnalyticalBatchSopRs,
+  InstrumentTypeRs,
 } from '../../models/types';
 import { apiClient, DEFAULT_LAB_ID } from '../config';
 

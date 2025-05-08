@@ -17,8 +17,10 @@ import {
   message,
 } from 'antd';
 
-import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
-import FormItem from '../common/FormItem';
+import FormItem from '../../components//common//FormItem';
+import { ConfigurationMaintenanceSelectors } from '../../models/types';
+
+import { PanelRs } from './types';
 
 const { Option } = Select;
 

@@ -8,7 +8,8 @@ import CardSection from '../../components/common/CardSection';
 import PageHeader from '../../components/common/PageHeader';
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import { stylePresets } from '../../config/theme';
-import { CompoundRs } from '../../models/types';
+
+import { CompoundRs } from './types';
 
 const { Text } = Typography;
 

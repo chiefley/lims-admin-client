@@ -5,7 +5,6 @@
 export * from './common';
 
 // Domain-specific types
-export * from './basicTables';
 export * from './labAssets';
 export * from './batchSops';
 export * from './prepBatchSops';

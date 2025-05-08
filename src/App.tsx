@@ -3,19 +3,18 @@ import React from 'react';
 import { ConfigProvider, App as AntApp } from 'antd';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import { limsTheme } from './config/theme';
-import './styles/global.css';
-
 // Import layout components
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
+import { limsTheme } from './config/theme';
+import './styles/global.css';
 
 // Import pages
+import CompoundManagement from './features/basicTables/CompoundManagement';
+import PanelManagement from './features/basicTables/PanelManagement';
 import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
 import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
-import CompoundManagement from './pages/admin/CompoundManagement';
 import InstrumentManagement from './pages/admin/InstrumentManagement';
-import PanelManagement from './pages/admin/PanelManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import Dashboard from './pages/dashboard/Dashboard';

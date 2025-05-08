@@ -15,12 +15,13 @@ import {
   Checkbox,
 } from 'antd';
 
-
 import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../../components/common/CardSection';
 import PageHeader from '../../components/common/PageHeader';
-import PanelEditDrawer from '../../components/panels/PanelEditDrawer';
-import { PanelRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../models/types';
+
+import PanelEditDrawer from './PanelEditDrawer';
+import { PanelRs } from './types';
 
 import type { ColumnsType } from 'antd/es/table';
 
