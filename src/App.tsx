@@ -12,7 +12,7 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import Dashboard from './pages/dashboard/Dashboard';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
-import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
+import AnalyticalBatchSopManagement from './features/analyticalBatchSop/pages/AnalyticalBatchSopManagement';
 import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
 import CompoundManagement from './pages/admin/CompoundManagement';
 import PanelManagement from './pages/admin/PanelManagement';
