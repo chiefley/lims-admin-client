@@ -6,10 +6,12 @@ import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox 
 import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../../components/common/CardSection';
 import PageHeader from '../../components/common/PageHeader';
-import InstrumentTypeDetail from '../../components/instruments/InstrumentTypeDetail';
-import InstrumentTypesList from '../../components/instruments/InstrumentTypesList';
 import appConfig from '../../config/appConfig';
-import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../models/types';
+
+import InstrumentTypeDetail from './InstrumentTypeDetail';
+import InstrumentTypesList from './InstrumentTypesList';
+import { InstrumentTypeRs } from './types';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;

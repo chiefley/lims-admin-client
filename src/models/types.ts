@@ -3,7 +3,6 @@
 // This provides backward compatibility for existing imports
 
 export * from './types/common';
-export * from './types/labAssets';
 export * from './types/batchSops';
 export * from './types/prepBatchSops';
 export * from './types/analyticalBatchSops';

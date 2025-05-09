@@ -3,12 +3,10 @@ import React, { useMemo } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Alert, message } from 'antd';
 
-import {
-  InstrumentRs,
-  InstrumentPeripheralRs,
-  ConfigurationMaintenanceSelectors,
-} from '../../../models/types';
-import EditableTable, { EditableColumn } from '../../tables/EditableTable';
+import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
+import { ConfigurationMaintenanceSelectors } from '../../models/types';
+
+import { InstrumentRs, InstrumentPeripheralRs } from './types';
 
 interface PeripheralsTabProps {
   instrument: InstrumentRs;

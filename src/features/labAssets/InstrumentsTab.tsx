@@ -4,14 +4,11 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Alert, Switch, message, Tabs } from 'antd';
 import dayjs from 'dayjs';
 
-import {
-  InstrumentRs,
-  InstrumentPeripheralRs,
-  ConfigurationMaintenanceSelectors,
-} from '../../../models/types';
-import EditableTable, { EditableColumn } from '../../tables/EditableTable';
+import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
+import { ConfigurationMaintenanceSelectors } from '../../models/types';
 
 import PeripheralsTab from './PeripheralsTab';
+import { InstrumentRs, InstrumentPeripheralRs } from './types';
 
 const { TabPane } = Tabs;
 

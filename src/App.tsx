@@ -12,9 +12,9 @@ import './styles/global.css';
 // Import pages
 import CompoundManagement from './features/basicTables/CompoundManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
+import InstrumentManagement from './features/labAssets/InstrumentManagement';
 import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
 import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
-import InstrumentManagement from './pages/admin/InstrumentManagement';
 import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
 import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
 import Dashboard from './pages/dashboard/Dashboard';

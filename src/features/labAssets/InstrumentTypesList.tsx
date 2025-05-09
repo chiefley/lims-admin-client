@@ -4,7 +4,8 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Button, Space, Tooltip, Popconfirm, Tag, Typography } from 'antd';
 
 import { stylePresets } from '../../config/theme';
-import { InstrumentTypeRs, InstrumentRs } from '../../models/types';
+
+import { InstrumentTypeRs, InstrumentRs } from './types';
 
 const { Text } = Typography;
 

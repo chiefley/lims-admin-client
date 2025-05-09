@@ -17,15 +17,15 @@ import {
   Checkbox,
 } from 'antd';
 
+import CardSection from '../../components/common/CardSection';
+import FormItem from '../../components/common/FormItem';
 import appConfig from '../../config/appConfig';
 import { stylePresets } from '../../config/theme';
-import { InstrumentTypeRs, ConfigurationMaintenanceSelectors } from '../../models/types';
-import CardSection from '../common/CardSection';
-import FormItem from '../common/FormItem';
+import { ConfigurationMaintenanceSelectors } from '../../models/types';
 
-import AnalytesTab from './tabs/AnalytesTab';
-import InstrumentsTab from './tabs/InstrumentsTab';
-
+import AnalytesTab from './AnalytesTab';
+import InstrumentsTab from './InstrumentsTab';
+import { InstrumentTypeRs } from './types';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
