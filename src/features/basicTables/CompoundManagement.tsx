@@ -4,10 +4,10 @@ import { SearchOutlined, PlusOutlined, ExperimentOutlined, SaveOutlined } from '
 import { Typography, Spin, Alert, Button, Input, Space, message, Checkbox } from 'antd';
 
 import configurationService from '../../api/endpoints/configurationService';
-import CardSection from '../../components/common/CardSection';
-import PageHeader from '../../components/common/PageHeader';
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import { stylePresets } from '../../config/theme';
+import CardSection from '../shared/components/CardSection';
+import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
+import PageHeader from '../shared/components/PageHeader';
 
 import { CompoundRs } from './types';
 

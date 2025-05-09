@@ -6,10 +6,11 @@ import { Typography } from 'antd';
 import dayjs from 'dayjs';
 
 import { stylePresets } from '../../config/theme';
-import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
-import { PrepBatchSopRs, ManifestSamplePrepBatchSopRs } from '../../models/types';
-import CardSection from '../common/CardSection';
-import EditableTable, { EditableColumn } from '../tables/EditableTable';
+import CardSection from '../shared/components/CardSection';
+import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
+import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
+
+import { PrepBatchSopRs, ManifestSamplePrepBatchSopRs } from './types';
 
 interface SampleConfigurationsTabProps {
   sopData: PrepBatchSopRs;

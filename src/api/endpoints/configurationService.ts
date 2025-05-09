@@ -1,6 +1,7 @@
 // src/api/endpoints/configurationService.ts
 import appConfig from '../../config/appConfig';
 import { InstrumentTypeRs } from '../../features//labAssets//types';
+import { PrepBatchSopSelectionRs, PrepBatchSopRs } from '../../features/prepBatchSop/types';
 import {
   AnalyticalBatchSopSelectionRs,
   AnalyticalBatchSopRs,
@@ -22,7 +23,6 @@ import {
   ServiceResponse,
   ConfigurationMaintenanceSelectors,
 } from '../../features/shared/types/common';
-import { PrepBatchSopSelectionRs, PrepBatchSopRs } from '../../models/types';
 import { apiClient, DEFAULT_LAB_ID } from '../config';
 
 // Base URL for configuration maintenance endpoints

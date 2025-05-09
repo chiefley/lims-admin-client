@@ -4,17 +4,17 @@ import { ConfigProvider, App as AntApp } from 'antd';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Import layout components
-import ErrorBoundary from './components/common/ErrorBoundary';
-import AppLayout from './components/layout/AppLayout';
 import { limsTheme } from './config/theme';
 import './styles/global.css';
+import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBatchSopDetail';
+import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
 import CompoundManagement from './features/basicTables/CompoundManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
 import PrepBatchSopDetail from './features/prepBatchSop/PrepBatchSopDetail';
 import PrepBatchSopManagement from './features/prepBatchSop/PrepBatchSopManagement';
-import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBatchSopDetail';
-import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
+import AppLayout from './features/shared/components/AppLayout';
+import ErrorBoundary from './features/shared/components/ErrorBoundary';
 import Dashboard from './pages/dashboard/Dashboard';
 import NotFound from './pages/NotFound';
 

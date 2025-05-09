@@ -2,11 +2,12 @@ import React from 'react';
 
 import { Input, InputNumber, Select, Row, Col } from 'antd';
 
+import CardSection from '../shared/components/CardSection';
+import FormItem from '../shared/components/FormItem';
 import { stylePresets } from '../../config/theme';
-import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
-import { PrepBatchSopRs } from '../../models/types';
-import CardSection from '../common/CardSection';
-import FormItem from '../common/FormItem';
+import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
+
+import { PrepBatchSopRs } from './types';
 
 interface BasicInfoTabProps {
   sopData: PrepBatchSopRs;

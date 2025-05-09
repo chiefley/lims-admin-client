@@ -10,8 +10,8 @@ import {
 } from '@ant-design/icons';
 import { Row, Col, Card, Typography, Statistic } from 'antd';
 
-import CardSection from '../../components/common/CardSection';
-import PageHeader from '../../components/common/PageHeader';
+import CardSection from '../../features/shared/components/CardSection';
+import PageHeader from '../../features/shared/components/PageHeader';
 import { stylePresets } from '../../config/theme';
 
 const { Paragraph } = Typography;

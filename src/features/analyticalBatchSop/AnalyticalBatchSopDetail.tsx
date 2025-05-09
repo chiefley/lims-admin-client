@@ -38,13 +38,14 @@ import {
   fetchAnalyticalBatchSopRs,
   fetchSelectors,
 } from '../../api/endpoints/configurationService';
-import CardSection from '../../components/common/CardSection';
-import FormItem from '../../components/common/FormItem';
-import PageHeader from '../../components/common/PageHeader';
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
-import { SopFieldsTab, SopProceduresTab } from '../../components/tabs';
 import { stylePresets } from '../../config/theme';
-import { SopFieldRs, SopProcedureRs } from '../../models/types';
+import CardSection from '../shared/components/CardSection';
+import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
+import FormItem from '../shared/components/FormItem';
+import PageHeader from '../shared/components/PageHeader';
+import SopFieldsTab from '../shared/tabs/SopFieldsTab';
+import SopProceduresTab from '../shared/tabs/SopProceduresTab';
+import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import {

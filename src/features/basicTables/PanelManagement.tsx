@@ -16,8 +16,8 @@ import {
 } from 'antd';
 
 import configurationService from '../../api/endpoints/configurationService';
-import CardSection from '../../components/common/CardSection';
-import PageHeader from '../../components/common/PageHeader';
+import CardSection from '../shared/components/CardSection';
+import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import PanelEditDrawer from './PanelEditDrawer';

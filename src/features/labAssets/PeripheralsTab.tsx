@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Alert, message } from 'antd';
 
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 
 import { InstrumentRs, InstrumentPeripheralRs } from './types';
 

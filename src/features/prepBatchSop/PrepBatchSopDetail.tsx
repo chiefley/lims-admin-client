@@ -14,14 +14,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 // UPDATED: Import the service as a default import
 import sopService from '../../api/endpoints/configurationService';
-import PageHeader from '../../components/common/PageHeader';
-import {
-  BasicInfoTab,
-  SampleConfigurationsTab,
-  SopProceduresTab,
-  SopFieldsTab,
-} from '../../components/tabs';
-import { SopFieldRs, ManifestSamplePrepBatchSopRs, SopProcedureRs } from '../../models/types';
+import PageHeader from '../shared/components/PageHeader';
+import SopFieldsTab from '../shared/tabs/SopFieldsTab';
+import SopProceduresTab from '../shared/tabs/SopProceduresTab';
+import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';
+
+import BasicInfoTab from './BasicInfoTab';
+import SampleConfigurationsTab from './SampleConfigurationsTab';
+import { ManifestSamplePrepBatchSopRs } from './types';
 
 // Define the component
 const PrepBatchSopDetail: React.FC = () => {

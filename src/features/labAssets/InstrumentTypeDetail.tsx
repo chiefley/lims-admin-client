@@ -17,11 +17,11 @@ import {
   Checkbox,
 } from 'antd';
 
-import CardSection from '../../components/common/CardSection';
-import FormItem from '../../components/common/FormItem';
 import appConfig from '../../config/appConfig';
 import { stylePresets } from '../../config/theme';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import CardSection from '../shared/components/CardSection';
+import FormItem from '../shared/components/FormItem';
 
 import AnalytesTab from './AnalytesTab';
 import InstrumentsTab from './InstrumentsTab';

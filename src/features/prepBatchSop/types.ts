@@ -1,7 +1,7 @@
 // src/models/types/prepBatchSops.ts
 // Type definitions for prep batch SOPs
 
-import { BatchSopRs, BatchSopSelectionRs } from '../../features/shared/types/batchSops';
+import { BatchSopRs, BatchSopSelectionRs } from '../shared/types/batchSops';
 
 /**
  * Manifest Sample Prep Batch SOP Response

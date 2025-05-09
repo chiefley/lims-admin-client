@@ -13,9 +13,9 @@ import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import configurationService from '../../api/endpoints/configurationService';
-import CardSection from '../../components/common/CardSection';
-import PageHeader from '../../components/common/PageHeader';
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
+import CardSection from '../shared/components/CardSection';
+import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
+import PageHeader from '../shared/components/PageHeader';
 
 import { AnalyticalBatchSopSelectionRs } from './types';
 

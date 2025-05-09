@@ -4,8 +4,8 @@ import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons
 import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
 
 import configurationService from '../../api/endpoints/configurationService';
-import CardSection from '../../components/common/CardSection';
-import PageHeader from '../../components/common/PageHeader';
+import CardSection from '../shared/components/CardSection';
+import PageHeader from '../shared/components/PageHeader';
 import appConfig from '../../config/appConfig';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 

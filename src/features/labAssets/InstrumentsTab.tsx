@@ -4,8 +4,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Alert, Switch, message, Tabs } from 'antd';
 import dayjs from 'dayjs';
 
-import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 
 import PeripheralsTab from './PeripheralsTab';
 import { InstrumentRs, InstrumentPeripheralRs } from './types';

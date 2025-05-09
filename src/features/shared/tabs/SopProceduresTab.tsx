@@ -3,11 +3,11 @@ import React from 'react';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Card, Tabs, Button, Alert, Row, Col, Input, Popconfirm, message } from 'antd';
 
-import { stylePresets } from '../../config/theme';
-import { SopProcedureRs, SopProcedureItemRs } from '../../models/types';
-import CardSection from '../common/CardSection';
-import FormItem from '../common/FormItem';
-import EditableTable, { EditableColumn } from '../tables/EditableTable';
+import { stylePresets } from '../../../config/theme';
+import { SopProcedureRs, SopProcedureItemRs } from '../../shared/types/batchSops';
+import CardSection from '../components/CardSection';
+import EditableTable, { EditableColumn } from '../components/EditableTable';
+import FormItem from '../components/FormItem';
 
 const { TabPane } = Tabs;
 
