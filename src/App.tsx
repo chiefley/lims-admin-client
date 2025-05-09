@@ -10,13 +10,13 @@ import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBa
 import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
 import CompoundManagement from './features/basicTables/CompoundManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
+import Dashboard from './features/dashboard/Dashboard';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
 import PrepBatchSopDetail from './features/prepBatchSop/PrepBatchSopDetail';
 import PrepBatchSopManagement from './features/prepBatchSop/PrepBatchSopManagement';
 import AppLayout from './features/shared/components/AppLayout';
 import ErrorBoundary from './features/shared/components/ErrorBoundary';
-import Dashboard from './pages/dashboard/Dashboard';
-import NotFound from './pages/NotFound';
+import NotFound from './features/shared/pages/NotFound';
 
 const App: React.FC = () => {
   return (
