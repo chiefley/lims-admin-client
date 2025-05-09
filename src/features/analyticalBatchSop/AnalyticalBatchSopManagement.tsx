@@ -16,8 +16,8 @@ import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../../components/common/CardSection';
 import PageHeader from '../../components/common/PageHeader';
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
-import { AnalyticalBatchSopSelectionRs } from '../../models/types';
 
+import { AnalyticalBatchSopSelectionRs } from './types';
 
 const { Text } = Typography;
 

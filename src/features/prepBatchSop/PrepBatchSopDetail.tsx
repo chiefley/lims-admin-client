@@ -9,24 +9,12 @@ import {
   CloseOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import {
-  Spin,
-  Button,
-  Tabs,
-  Tag,
-  message,
-  Form,
-  Alert,
-  Space,
-} from 'antd';
+import { Spin, Button, Tabs, Tag, message, Form, Alert, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // UPDATED: Import the service as a default import
 import sopService from '../../api/endpoints/configurationService';
 import PageHeader from '../../components/common/PageHeader';
-
-// Import the tab components
-// Import all tab components from the index file
 import {
   BasicInfoTab,
   SampleConfigurationsTab,

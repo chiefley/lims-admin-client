@@ -8,15 +8,13 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
 import { limsTheme } from './config/theme';
 import './styles/global.css';
-
-// Import pages
 import CompoundManagement from './features/basicTables/CompoundManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
-import AnalyticalBatchSopDetail from './pages/admin/AnalyticalBatchSopDetail';
-import AnalyticalBatchSopManagement from './pages/admin/AnalyticalBatchSopManagement';
-import PrepBatchSopDetail from './pages/admin/PrepBatchSopDetail';
-import PrepBatchSopManagement from './pages/admin/PrepBatchSopManagement';
+import PrepBatchSopDetail from './features/prepBatchSop/PrepBatchSopDetail';
+import PrepBatchSopManagement from './features/prepBatchSop/PrepBatchSopManagement';
+import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBatchSopDetail';
+import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
 import Dashboard from './pages/dashboard/Dashboard';
 import NotFound from './pages/NotFound';
 

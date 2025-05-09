@@ -44,16 +44,16 @@ import PageHeader from '../../components/common/PageHeader';
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
 import { SopFieldsTab, SopProceduresTab } from '../../components/tabs';
 import { stylePresets } from '../../config/theme';
-import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import { SopFieldRs, SopProcedureRs } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
+
 import {
   AnalyticalBatchSopRs,
   AnalyticalBatchSopAnalyteRs,
   AnalyticalBatchSopControlSampleRs,
   SopAnalysisReviewComponentRs,
   PrepBatchSopAnalyticalBatchSopRs,
-  SopFieldRs,
-  SopProcedureRs,
-} from '../../models/types';
+} from './types';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;

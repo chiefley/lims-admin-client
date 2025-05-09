@@ -5,7 +5,7 @@ import {
   BatchSopRs,
   BatchSopSelectionRs,
   AnalyticalBatchControlAnalyteSopSpecificationRs,
-} from '../../features/shared/types/batchSops';
+} from '../shared/types/batchSops';
 
 /**
  * Computed Analyte Constituent Response

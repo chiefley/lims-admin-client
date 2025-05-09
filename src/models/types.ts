@@ -5,7 +5,6 @@
 //export * from '../features/shared/types/common';
 export * from '../features/shared/types/batchSops';
 export * from './types/prepBatchSops';
-export * from './types/analyticalBatchSops';
 
 // This approach allows us to continue using imports like:
 // import { SomeType } from '../models/types';

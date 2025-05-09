@@ -8,7 +8,6 @@ export * from '../../features/shared/types/common';
 
 export * from '../../features/shared/types/batchSops';
 export * from './prepBatchSops';
-export * from './analyticalBatchSops';
 
 // This file replaces the original types.ts
 // Now consumers can continue using:

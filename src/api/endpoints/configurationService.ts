@@ -2,6 +2,10 @@
 import appConfig from '../../config/appConfig';
 import { InstrumentTypeRs } from '../../features//labAssets//types';
 import {
+  AnalyticalBatchSopSelectionRs,
+  AnalyticalBatchSopRs,
+} from '../../features/analyticalBatchSop/types';
+import {
   CompoundRs,
   PanelRs,
   DBEnumRs,
@@ -18,12 +22,7 @@ import {
   ServiceResponse,
   ConfigurationMaintenanceSelectors,
 } from '../../features/shared/types/common';
-import {
-  PrepBatchSopSelectionRs,
-  AnalyticalBatchSopSelectionRs,
-  PrepBatchSopRs,
-  AnalyticalBatchSopRs,
-} from '../../models/types';
+import { PrepBatchSopSelectionRs, PrepBatchSopRs } from '../../models/types';
 import { apiClient, DEFAULT_LAB_ID } from '../config';
 
 // Base URL for configuration maintenance endpoints
