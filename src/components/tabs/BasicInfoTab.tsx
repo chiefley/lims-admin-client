@@ -3,7 +3,8 @@ import React from 'react';
 import { Input, InputNumber, Select, Row, Col } from 'antd';
 
 import { stylePresets } from '../../config/theme';
-import { PrepBatchSopRs, ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import { PrepBatchSopRs } from '../../models/types';
 import CardSection from '../common/CardSection';
 import FormItem from '../common/FormItem';
 

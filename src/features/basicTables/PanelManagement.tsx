@@ -18,7 +18,7 @@ import {
 import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../../components/common/CardSection';
 import PageHeader from '../../components/common/PageHeader';
-import { ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import PanelEditDrawer from './PanelEditDrawer';
 import { PanelRs } from './types';

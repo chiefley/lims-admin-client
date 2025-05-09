@@ -1,4 +1,4 @@
-import { ConfigurationMaintenanceSelectors } from '../models/types';
+import { ConfigurationMaintenanceSelectors } from '../features/shared/types/common';
 
 /**
  * Utility functions to help with model-to-view conversions

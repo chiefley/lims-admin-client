@@ -17,6 +17,8 @@ import {
 import {
   ServiceResponse,
   ConfigurationMaintenanceSelectors,
+} from '../../features/shared/types/common';
+import {
   PrepBatchSopSelectionRs,
   AnalyticalBatchSopSelectionRs,
   PrepBatchSopRs,

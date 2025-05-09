@@ -2,8 +2,8 @@
 // This file is now simply a re-export of all types from the types/ folder
 // This provides backward compatibility for existing imports
 
-export * from './types/common';
-export * from './types/batchSops';
+//export * from '../features/shared/types/common';
+export * from '../features/shared/types/batchSops';
 export * from './types/prepBatchSops';
 export * from './types/analyticalBatchSops';
 

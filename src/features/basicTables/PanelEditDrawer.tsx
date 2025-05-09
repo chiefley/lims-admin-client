@@ -18,7 +18,7 @@ import {
 } from 'antd';
 
 import FormItem from '../../components//common//FormItem';
-import { ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import { PanelRs } from './types';
 

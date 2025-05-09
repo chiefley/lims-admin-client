@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Alert, message } from 'antd';
 
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
-import { ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import { InstrumentTypeAnalyteRs } from './types';
 

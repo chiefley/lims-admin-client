@@ -2,11 +2,11 @@
 // Main barrel file that re-exports all type definitions
 
 // Common types
-export * from './common';
+export * from '../../features/shared/types/common';
 
 // Domain-specific types
-export * from './labAssets';
-export * from './batchSops';
+
+export * from '../../features/shared/types/batchSops';
 export * from './prepBatchSops';
 export * from './analyticalBatchSops';
 

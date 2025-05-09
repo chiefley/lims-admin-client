@@ -21,7 +21,7 @@ import CardSection from '../../components/common/CardSection';
 import FormItem from '../../components/common/FormItem';
 import appConfig from '../../config/appConfig';
 import { stylePresets } from '../../config/theme';
-import { ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import AnalytesTab from './AnalytesTab';
 import InstrumentsTab from './InstrumentsTab';

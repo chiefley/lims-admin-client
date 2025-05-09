@@ -7,7 +7,7 @@ import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../../components/common/CardSection';
 import PageHeader from '../../components/common/PageHeader';
 import appConfig from '../../config/appConfig';
-import { ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import InstrumentTypeDetail from './InstrumentTypeDetail';
 import InstrumentTypesList from './InstrumentTypesList';

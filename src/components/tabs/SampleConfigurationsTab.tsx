@@ -6,14 +6,10 @@ import { Typography } from 'antd';
 import dayjs from 'dayjs';
 
 import { stylePresets } from '../../config/theme';
-import {
-  PrepBatchSopRs,
-  ConfigurationMaintenanceSelectors,
-  ManifestSamplePrepBatchSopRs,
-} from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import { PrepBatchSopRs, ManifestSamplePrepBatchSopRs } from '../../models/types';
 import CardSection from '../common/CardSection';
 import EditableTable, { EditableColumn } from '../tables/EditableTable';
-
 
 interface SampleConfigurationsTabProps {
   sopData: PrepBatchSopRs;

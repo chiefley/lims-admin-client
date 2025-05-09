@@ -5,7 +5,7 @@ import { Button, Alert, Switch, message, Tabs } from 'antd';
 import dayjs from 'dayjs';
 
 import EditableTable, { EditableColumn } from '../../components/tables/EditableTable';
-import { ConfigurationMaintenanceSelectors } from '../../models/types';
+import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 
 import PeripheralsTab from './PeripheralsTab';
 import { InstrumentRs, InstrumentPeripheralRs } from './types';
