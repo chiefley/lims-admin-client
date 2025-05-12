@@ -14,6 +14,7 @@ import CompoundManagement from './features/basicTables/CompoundManagement';
 import DBEnumManagement from './features/basicTables/DBEnumManagement';
 import FileParserManagement from './features/basicTables/FileParserManagement';
 import ItemTypeManagement from './features/basicTables/ItemTypeManagement';
+import NavMenuItemManagement from './features/basicTables/NavMenuItemManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import Dashboard from './features/dashboard/Dashboard';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
@@ -47,6 +48,7 @@ const App: React.FC = () => {
                 <Route path="admin/cc-compound-management" element={<CcCompoundManagement />} />
                 <Route path="admin/db-enum-management" element={<DBEnumManagement />} />
                 <Route path="admin/file-parser-management" element={<FileParserManagement />} />
+                <Route path="admin/nav-menu-management" element={<NavMenuItemManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/item-type-management" element={<ItemTypeManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />
