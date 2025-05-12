@@ -1,3 +1,4 @@
+// src/features/basicTables/DBEnumManagement.tsx
 import React, { useState, useEffect } from 'react';
 
 import { SearchOutlined, PlusOutlined, TableOutlined, SaveOutlined } from '@ant-design/icons';
@@ -236,7 +237,6 @@ const DBEnumManagement: React.FC = () => {
       inputProps: {
         showSearch: true,
         allowClear: true,
-        mode: 'combobox',
         placeholder: 'Select or enter enum type',
       },
       render: (text: string) => <Tag color="blue">{text}</Tag>,

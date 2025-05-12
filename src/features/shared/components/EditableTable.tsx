@@ -1,3 +1,4 @@
+// src/features/shared/components/EditableTable.tsx
 import React, { useState, useEffect } from 'react';
 
 import {
@@ -161,8 +162,6 @@ function EditableTable<RecordType extends Record<string, any>>({
         rules: col.rules,
         options: col.options,
         inputProps: col.inputProps,
-        // If this is a combobox, pass the mode property
-        ...(col.inputProps?.mode === 'combobox' ? { isCombobox: true } : {}),
       }),
     };
   });

@@ -1,3 +1,4 @@
+// src/App.tsx
 import React from 'react';
 
 import { ConfigProvider, App as AntApp } from 'antd';
@@ -11,6 +12,7 @@ import AnalyticalBatchSopManagement from './features/analyticalBatchSop/Analytic
 import CcCompoundManagement from './features/basicTables/CcCompoundManagement';
 import CompoundManagement from './features/basicTables/CompoundManagement';
 import DBEnumManagement from './features/basicTables/DBEnumManagement';
+import FileParserManagement from './features/basicTables/FileParserManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import Dashboard from './features/dashboard/Dashboard';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
@@ -43,6 +45,7 @@ const App: React.FC = () => {
                 <Route path="admin/compound-management" element={<CompoundManagement />} />
                 <Route path="admin/cc-compound-management" element={<CcCompoundManagement />} />
                 <Route path="admin/db-enum-management" element={<DBEnumManagement />} />
+                <Route path="admin/file-parser-management" element={<FileParserManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />
                 <Route path="*" element={<NotFound />} />

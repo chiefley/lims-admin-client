@@ -76,7 +76,11 @@ const AppLayout: React.FC = () => {
                   label: <Link to="/admin/db-enum-management">DB Enum Management</Link>,
                 },
                 {
-                  key: '2-2',
+                  key: '2-4',
+                  label: <Link to="/admin/file-parser-management">File Parser Management</Link>,
+                },
+                {
+                  key: '2-5',
                   label: <Link to="/admin/panel-management">Panel Management</Link>,
                 },
               ],

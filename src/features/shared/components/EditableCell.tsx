@@ -1,3 +1,4 @@
+// src/features/shared/components/EditableCell.tsx
 import React, { ReactNode, useState, useEffect } from 'react';
 
 import { Form, Input, Select, DatePicker, InputNumber } from 'antd';
@@ -13,7 +14,7 @@ interface InputProps {
 }
 
 interface SelectProps {
-  mode?: 'multiple' | 'tags' | 'combobox';
+  mode?: 'multiple' | 'tags';
   placeholder?: string;
   disabled?: boolean;
   showSearch?: boolean;
@@ -101,8 +102,7 @@ const EditableCell: React.FC<EditableCellProps> = props => {
 
   switch (inputType) {
     case 'select':
-      // Handle both standard select and combobox modes
-      const isCombobox = inputProps?.mode === 'combobox';
+      // Handle select inputs, supporting both standard select and search functionality
       inputNode = (
         <Select
           {...inputProps}
