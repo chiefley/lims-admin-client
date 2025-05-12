@@ -8,6 +8,7 @@ import { limsTheme } from './config/theme';
 import './styles/global.css';
 import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBatchSopDetail';
 import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
+import CcCompoundManagement from './features/basicTables/CcCompoundManagement';
 import CompoundManagement from './features/basicTables/CompoundManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import Dashboard from './features/dashboard/Dashboard';
@@ -39,6 +40,7 @@ const App: React.FC = () => {
                 />
 
                 <Route path="admin/compound-management" element={<CompoundManagement />} />
+                <Route path="admin/cc-compound-management" element={<CcCompoundManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />
                 <Route path="*" element={<NotFound />} />
