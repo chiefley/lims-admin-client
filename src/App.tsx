@@ -10,6 +10,7 @@ import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBa
 import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
 import CcCompoundManagement from './features/basicTables/CcCompoundManagement';
 import CompoundManagement from './features/basicTables/CompoundManagement';
+import DBEnumManagement from './features/basicTables/DBEnumManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import Dashboard from './features/dashboard/Dashboard';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
@@ -41,6 +42,7 @@ const App: React.FC = () => {
 
                 <Route path="admin/compound-management" element={<CompoundManagement />} />
                 <Route path="admin/cc-compound-management" element={<CcCompoundManagement />} />
+                <Route path="admin/db-enum-management" element={<DBEnumManagement />} />
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />
                 <Route path="*" element={<NotFound />} />

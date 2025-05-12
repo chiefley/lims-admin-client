@@ -72,6 +72,10 @@ const AppLayout: React.FC = () => {
                   label: <Link to="/admin/cc-compound-management">CC Compound Management</Link>,
                 },
                 {
+                  key: '2-3',
+                  label: <Link to="/admin/db-enum-management">DB Enum Management</Link>,
+                },
+                {
                   key: '2-2',
                   label: <Link to="/admin/panel-management">Panel Management</Link>,
                 },
