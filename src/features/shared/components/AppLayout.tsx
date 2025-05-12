@@ -105,6 +105,10 @@ const AppLayout: React.FC = () => {
                     <Link to="/admin/potency-category-management">Potency Category Management</Link>
                   ),
                 },
+                {
+                  key: '2-11',
+                  label: <Link to="/admin/test-category-management">Test Category Management</Link>,
+                },
               ],
             },
             {
