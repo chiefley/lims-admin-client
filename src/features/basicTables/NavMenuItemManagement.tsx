@@ -176,7 +176,7 @@ const NavMenuItemManagement: React.FC = () => {
         // Handle parent menu item selection
         if (record.parentNavMenuItemId && record.parentNavMenuItemId !== 0) {
           // Make sure we're not creating a circular reference
-          let parentId = record.parentNavMenuItemId;
+          let parentId: number | null | undefined = record.parentNavMenuItemId;
           const itemId = record.navMenuItemId;
 
           // Check the ancestry chain
