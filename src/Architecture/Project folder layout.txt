@@ -1,0 +1,12 @@
+Much of the source code is now organized by feature rather than function.   There is a src/feature folder that contains folders for each major area, which are 
+- prepBatchSop
+- analyticalBatchSop
+- basicTables
+- labAssets
+- common
+
+The api service is still one file for all the api methods.  That might be refactored in the future.
+
+Besides being easier to navigate the source tree, it allows a selective inclusion of files into the Project Knowledge space during Vibe Coding.
+
+
