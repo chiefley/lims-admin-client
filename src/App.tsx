@@ -15,6 +15,7 @@ import DBEnumManagement from './features/basicTables/DBEnumManagement';
 import FileParserManagement from './features/basicTables/FileParserManagement';
 import ItemTypeManagement from './features/basicTables/ItemTypeManagement';
 import NavMenuItemManagement from './features/basicTables/NavMenuItemManagement';
+import NeededByManagement from './features/basicTables/NeededByManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import Dashboard from './features/dashboard/Dashboard';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
@@ -52,6 +53,7 @@ const App: React.FC = () => {
                 <Route path="admin/panel-management" element={<PanelManagement />} />
                 <Route path="admin/item-type-management" element={<ItemTypeManagement />} />
                 <Route path="admin/instrument-management" element={<InstrumentManagement />} />
+                <Route path="admin/needed-by-management" element={<NeededByManagement />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
