@@ -99,6 +99,12 @@ const AppLayout: React.FC = () => {
                   key: '2-9',
                   label: <Link to="/admin/needed-by-management">Needed By Management</Link>,
                 },
+                {
+                  key: '2-10',
+                  label: (
+                    <Link to="/admin/potency-category-management">Potency Category Management</Link>
+                  ),
+                },
               ],
             },
             {
