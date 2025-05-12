@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 
 import {
   DashboardOutlined,
-  SettingOutlined,
   ExperimentOutlined,
   FileTextOutlined,
-  TeamOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  TableOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Typography, theme } from 'antd';
-import { Outlet } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -61,48 +60,39 @@ const AppLayout: React.FC = () => {
             },
             {
               key: '2',
-              icon: <SettingOutlined />,
-              label: 'Admin',
+              icon: <TableOutlined />,
+              label: 'Basic Tables',
               children: [
                 {
                   key: '2-1',
-                  label: <Link to="/admin/prep-batch-sop">Prep Batch SOP</Link>,
-                },
-                {
-                  key: '2-2',
-                  label: <Link to="/admin/analytical-batch-sop">Analytical Batch SOP</Link>,
-                },
-                {
-                  key: '2-3',
                   label: <Link to="/admin/compound-management">Compound Management</Link>,
                 },
                 {
-                  key: '2-4',
+                  key: '2-2',
                   label: <Link to="/admin/panel-management">Panel Management</Link>,
-                },
-                {
-                  key: '2-5',
-                  label: <Link to="/admin/instrument-management">Instrument Management</Link>,
-                },
-                {
-                  key: '2-6',
-                  label: 'User Management',
-                },
-                {
-                  key: '2-7',
-                  label: 'Lab Settings',
                 },
               ],
             },
             {
               key: '3',
-              icon: <FileTextOutlined />,
-              label: 'Sample Management',
+              icon: <ToolOutlined />,
+              label: 'Lab Assets',
+              children: [
+                {
+                  key: '3-1',
+                  label: <Link to="/admin/instrument-management">Instrument Management</Link>,
+                },
+              ],
             },
             {
               key: '4',
-              icon: <TeamOutlined />,
-              label: 'User Directory',
+              icon: <FileTextOutlined />,
+              label: <Link to="/admin/prep-batch-sop">Prep Batch SOPs</Link>,
+            },
+            {
+              key: '5',
+              icon: <FileTextOutlined />,
+              label: <Link to="/admin/analytical-batch-sop">Analytical Batch SOPs</Link>,
             },
           ]}
         />
