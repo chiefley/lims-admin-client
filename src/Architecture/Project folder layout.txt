@@ -3,6 +3,7 @@ Much of the source code is now organized by feature rather than function.   Ther
 - analyticalBatchSop
 - basicTables
 - labAssets
+- clients
 - dashboard
 - shared
 
