@@ -6,12 +6,13 @@ import { Client, ClientLicenseType, ClientLicenseCategory } from './types';
 
 /**
  * Fetches all clients
+ * @param labId Optional lab ID, defaults to the DEFAULT_LAB_ID from config
  * @returns Promise with array of Client data
  */
-export const fetchClients = async (): Promise<Client[]> => {
+export const fetchClients = async (labId: number = DEFAULT_LAB_ID): Promise<Client[]> => {
   try {
     const response = await apiClient.get<ServiceResponse<Client[]>>(
-      `/configurationmaintenance/FetchClientRss/${DEFAULT_LAB_ID}`
+      `/configurationmaintenance/FetchClientRss/${labId}`
     );
 
     if (!response.data || response.data.success === false) {
@@ -28,12 +29,16 @@ export const fetchClients = async (): Promise<Client[]> => {
 /**
  * Saves changes to clients
  * @param clients The array of client data to save
+ * @param labId Optional lab ID, defaults to the DEFAULT_LAB_ID from config
  * @returns Promise with the saved Client array
  */
-export const upsertClients = async (clients: Client[]): Promise<Client[]> => {
+export const upsertClients = async (
+  clients: Client[],
+  labId: number = DEFAULT_LAB_ID
+): Promise<Client[]> => {
   try {
     const response = await apiClient.put<ServiceResponse<Client[]>>(
-      `/configurationmaintenance/UpsertClientRss/${DEFAULT_LAB_ID}`,
+      `/configurationmaintenance/UpsertClientRss/${labId}`,
       clients
     );
 

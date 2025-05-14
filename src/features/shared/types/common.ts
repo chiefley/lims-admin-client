@@ -75,4 +75,5 @@ export interface ConfigurationMaintenanceSelectors {
   navMenuKeys: DropDownItem[];
   dayOfWeeks: DropDownItem[];
   clientLicenseCategories: DropDownItem[];
+  clientLicenseTypes: DropDownItem[];
 }

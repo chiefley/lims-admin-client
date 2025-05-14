@@ -5,18 +5,18 @@ import { message } from 'antd';
 
 import { DEFAULT_LAB_ID } from '../../api/config';
 
-import clientService from './clientService';
-import { ClientRs, ClientLicenseCategoryRs, ClientLicenseTypeRs } from './types';
+import clientsService from './clientService';
+import { Client, ClientLicenseCategory, ClientLicenseType } from './types';
 
 /**
  * Hook for managing clients data
  */
 export const useClients = (labId: number = DEFAULT_LAB_ID) => {
-  const [clients, setClients] = useState<ClientRs[]>([]);
-  const [clientLicenseCategories, setClientLicenseCategories] = useState<ClientLicenseCategoryRs[]>(
+  const [clients, setClients] = useState<Client[]>([]);
+  const [clientLicenseCategories, setClientLicenseCategories] = useState<ClientLicenseCategory[]>(
     []
   );
-  const [clientLicenseTypes, setClientLicenseTypes] = useState<ClientLicenseTypeRs[]>([]);
+  const [clientLicenseTypes, setClientLicenseTypes] = useState<ClientLicenseType[]>([]);
   const [loading, setLoading] = useState({
     clients: false,
     clientLicenseCategories: false,
@@ -29,7 +29,7 @@ export const useClients = (labId: number = DEFAULT_LAB_ID) => {
     setLoading(prev => ({ ...prev, clients: true }));
     setError(null);
     try {
-      const data = await clientService.fetchClients(labId);
+      const data = await clientsService.fetchClients(labId);
       setClients(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch clients');
@@ -44,7 +44,7 @@ export const useClients = (labId: number = DEFAULT_LAB_ID) => {
     setLoading(prev => ({ ...prev, clientLicenseCategories: true }));
     setError(null);
     try {
-      const data = await clientService.fetchClientLicenseCategories();
+      const data = await clientsService.fetchClientLicenseCategories();
       setClientLicenseCategories(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch client license categories');
@@ -59,7 +59,7 @@ export const useClients = (labId: number = DEFAULT_LAB_ID) => {
     setLoading(prev => ({ ...prev, clientLicenseTypes: true }));
     setError(null);
     try {
-      const data = await clientService.fetchClientLicenseTypes(stateId);
+      const data = await clientsService.fetchClientLicenseTypes(stateId);
       setClientLicenseTypes(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch client license types');
@@ -70,11 +70,11 @@ export const useClients = (labId: number = DEFAULT_LAB_ID) => {
   };
 
   // Save clients
-  const saveClients = async (updatedClients: ClientRs[]) => {
+  const saveClients = async (updatedClients: Client[]) => {
     setLoading(prev => ({ ...prev, clients: true }));
     setError(null);
     try {
-      const data = await clientService.upsertClients(updatedClients, labId);
+      const data = await clientsService.upsertClients(updatedClients, labId);
       setClients(data);
       message.success('Clients saved successfully');
       return data;
@@ -88,11 +88,11 @@ export const useClients = (labId: number = DEFAULT_LAB_ID) => {
   };
 
   // Save client license categories
-  const saveClientLicenseCategories = async (updatedCategories: ClientLicenseCategoryRs[]) => {
+  const saveClientLicenseCategories = async (updatedCategories: ClientLicenseCategory[]) => {
     setLoading(prev => ({ ...prev, clientLicenseCategories: true }));
     setError(null);
     try {
-      const data = await clientService.upsertClientLicenseCategories(updatedCategories);
+      const data = await clientsService.upsertClientLicenseCategories(updatedCategories);
       setClientLicenseCategories(data);
       message.success('Client license categories saved successfully');
       return data;
@@ -106,14 +106,11 @@ export const useClients = (labId: number = DEFAULT_LAB_ID) => {
   };
 
   // Save client license types
-  const saveClientLicenseTypes = async (
-    updatedTypes: ClientLicenseTypeRs[],
-    stateId: number = 2
-  ) => {
+  const saveClientLicenseTypes = async (updatedTypes: ClientLicenseType[], stateId: number = 2) => {
     setLoading(prev => ({ ...prev, clientLicenseTypes: true }));
     setError(null);
     try {
-      const data = await clientService.upsertClientLicenseTypes(updatedTypes, stateId);
+      const data = await clientsService.upsertClientLicenseTypes(updatedTypes, stateId);
       setClientLicenseTypes(data);
       message.success('Client license types saved successfully');
       return data;

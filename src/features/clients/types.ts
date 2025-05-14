@@ -1,3 +1,4 @@
+// src/features/clients/types.ts
 /**
  * Client license category
  */
