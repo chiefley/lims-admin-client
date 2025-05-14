@@ -10,6 +10,7 @@ using NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatch
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
 
 namespace NCLims.App.Controllers;
 
@@ -683,6 +684,96 @@ public class ConfigurationMaintenanceController : BaseController
         {
             var payload = await _sopService.UpsertCcSampleCategoryRss(responses);
             var sr = new ServiceResponse<List<CcSampleCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<ClientLicenseTypeRs>>
+    [HttpGet("FetchClientLicenseTypeRss/{labId}")]
+    public async Task<IActionResult> FetchClientLicenseTypeRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchClientLicenseTypeRss(labId);
+            var sr = new ServiceResponse<List<ClientLicenseTypeRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+
+    // Returns ServiceResponse<List<ClientLicenseTypeRs>>
+    [HttpPut("UpsertClientLicenseTypeRss/{stateId}")]
+    public async Task<IActionResult> UpsertClientLicenseTypeRss([FromBody] List<ClientLicenseTypeRs> responses, int stateId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertClientLicenseTypeRss(responses, stateId);
+            var sr = new ServiceResponse<List<ClientLicenseTypeRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<ClientLicenseCategoryRs>>
+    [HttpGet("FetchClientLicenseCategoryRss")]
+    public async Task<IActionResult> FetchClientLicenseCategoryRss()
+    {
+        try
+        {
+            var payload = await _sopService.FetchClientLicenseCategoryRss();
+            var sr = new ServiceResponse<List<ClientLicenseCategoryRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+
+    // Returns ServiceResponse<List<ClientLicenseCategoryRs>>
+    [HttpPut("UpsertClientLicenseCategoryRss")]
+    public async Task<IActionResult> UpsertClientLicenseCategoryRss([FromBody] List<ClientLicenseCategoryRs> responses)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertClientLicenseCategoryRss(responses);
+            var sr = new ServiceResponse<List<ClientLicenseCategoryRs>>
             {
                 Data = payload,
                 Message = "Success",

@@ -1,13 +1,6 @@
-﻿using NCLims.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using NCLims.Data;
-using FluentValidation;
-using System;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 

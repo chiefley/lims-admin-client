@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
 
-public class ClientRs
+public partial class ClientRs
 {
     // Primary Key. No display, no edit.
     public int ClientId { get; set; }
@@ -28,10 +28,11 @@ public class ClientRs
     
     [StringLength(150)]
     public string? Email { get; set; }
-    
+    [StringLength(150)]
     public string? Phone { get; set; }
     [MaxLength(10)]
-    public string? PostalCode { get; set; } 
+    public string? PostalCode { get; set; }
+    [StringLength(150)]
     public string? LimsClientApiID { get; set; }
     [StringLength(150)]
     public string? LimsClientApiKey { get; set; }

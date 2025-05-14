@@ -7,6 +7,7 @@ using NCLims.Business.NewBatch.ConfigurationManagement.Responses;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 using NCLims.Data;
@@ -47,6 +48,12 @@ public interface IConfigurationMaintenanceService
     Task<List<PotencyCategoryRs>> UpsertPotencyCategoryRss(List<PotencyCategoryRs> responses);
     Task<List<TestCategoryRs>> FetchTestCategoryRss(int stateId);
     Task<List<TestCategoryRs>> UpsertTestCategoryRss(List<TestCategoryRs> responses, int stateId);
+    Task<List<ClientLicenseTypeRs>> FetchClientLicenseTypeRss(int stateId);
+    Task<List<ClientLicenseTypeRs>> UpsertClientLicenseTypeRss(List<ClientLicenseTypeRs> responses, int stateId);
+    Task<List<ClientLicenseCategoryRs>> FetchClientLicenseCategoryRss();
+    Task<List<ClientLicenseCategoryRs>> UpsertClientLicenseCategoryRss(List<ClientLicenseCategoryRs> responses);
+    Task<List<ClientRs>> FetchClientRss(int labId);
+    Task<List<ClientRs>> UpsertClientRss(List<ClientRs> responses, int labId);
 }
 
 public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
@@ -526,4 +533,80 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         return updatedResponses;
     }
 
+    public async Task<List<ClientLicenseTypeRs>> FetchClientLicenseTypeRss(int stateId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.ClientLicenseTypes.Where(it => it.StateId == stateId);
+        var ret = await ClientLicenseTypeRs.FetchClientLicenseTypeRss(query);
+        return ret;
+    }
+
+    public async Task<List<ClientLicenseTypeRs>> UpsertClientLicenseTypeRss(List<ClientLicenseTypeRs> responses, int stateId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var models = await ctx.ClientLicenseTypes
+            .Where(nmi => nmi.StateId == stateId)
+            .ToListAsync();
+
+        foreach (var response in responses)
+            await ClientLicenseTypeRs.UpsertFromResponse(response, models, ctx);
+
+        await ctx.SaveChangesAsync();
+
+        var query = ctx.ClientLicenseTypes
+            .Where(nmi => nmi.StateId == stateId);
+        var updatedResponses = await ClientLicenseTypeRs.FetchClientLicenseTypeRss(query);
+        return updatedResponses;
+    }
+
+    public async Task<List<ClientLicenseCategoryRs>> FetchClientLicenseCategoryRss()
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.ClientLicenseCategories;
+        var ret = await ClientLicenseCategoryRs.FetchClientLicenseCategoryRss(query);
+        return ret;
+    }
+
+    public async Task<List<ClientLicenseCategoryRs>> UpsertClientLicenseCategoryRss(List<ClientLicenseCategoryRs> responses)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var models = await ctx.ClientLicenseCategories
+            .ToListAsync();
+
+        foreach (var response in responses)
+            await ClientLicenseCategoryRs.UpsertFromResponse(response, models, ctx);
+
+        await ctx.SaveChangesAsync();
+
+        var query = ctx.ClientLicenseCategories;
+        var updatedResponses = await ClientLicenseCategoryRs.FetchClientLicenseCategoryRss(query);
+        return updatedResponses;
+    }
+
+
+    public async Task<List<ClientRs>> FetchClientRss(int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.Clients.Where(it => it.LabId == labId);
+        var ret = await ClientRs.FetchClientRss(query);
+        return ret;
+    }
+
+    public async Task<List<ClientRs>> UpsertClientRss(List<ClientRs> responses, int labId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var models = await ctx.Clients
+            .Where(nmi => nmi.LabId == labId)
+            .ToListAsync();
+
+        foreach (var response in responses)
+            await ClientRs.UpsertFromResponse(response, models, ctx, labId);
+
+        await ctx.SaveChangesAsync();
+
+        var query = ctx.Clients
+            .Where(nmi => nmi.LabId == labId);
+        var updatedResponses = await ClientRs.FetchClientRss(query);
+        return updatedResponses;
+    }
 }
