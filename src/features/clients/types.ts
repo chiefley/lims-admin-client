@@ -1,12 +1,7 @@
 /**
- * Client-related interfaces for the configuration management module
- * Based on the C# Response objects in the Clients namespace
+ * Client license category
  */
-
-/**
- * Interface for client license category
- */
-export interface IClientLicenseCategory {
+export interface ClientLicenseCategory {
   /**
    * Primary Key. No display, no edit.
    */
@@ -25,10 +20,13 @@ export interface IClientLicenseCategory {
   active: boolean;
 }
 
+// Backward compatibility aliases
+export type ClientLicenseCategoryRs = ClientLicenseCategory;
+
 /**
- * Interface for client state license
+ * Client state license
  */
-export interface IClientStateLicense {
+export interface ClientStateLicense {
   /**
    * Primary key. No display, no edit
    */
@@ -54,10 +52,13 @@ export interface IClientStateLicense {
   active: boolean;
 }
 
+// Backward compatibility aliases
+export type ClientStateLicenseRs = ClientStateLicense;
+
 /**
- * Interface for client license type
+ * Client license type
  */
-export interface IClientLicenseType {
+export interface ClientLicenseType {
   /**
    * Primary Key. No display, no edit.
    */
@@ -90,10 +91,13 @@ export interface IClientLicenseType {
   active: boolean;
 }
 
+// Backward compatibility aliases
+export type ClientLicenseTypeRs = ClientLicenseType;
+
 /**
- * Interface for client information
+ * Client information
  */
-export interface IClient {
+export interface Client {
   /**
    * Primary Key. No display, no edit.
    */
@@ -144,5 +148,8 @@ export interface IClient {
   /**
    * Client's state licenses
    */
-  clientStateLicenseRss: IClientStateLicense[];
+  clientStateLicenseRss: ClientStateLicense[];
 }
+
+// Backward compatibility aliases
+export type ClientRs = Client;

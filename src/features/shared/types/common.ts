@@ -74,4 +74,5 @@ export interface ConfigurationMaintenanceSelectors {
   dataFileSampleMultiplicities: DropDownItem[];
   navMenuKeys: DropDownItem[];
   dayOfWeeks: DropDownItem[];
+  clientLicenseCategories: DropDownItem[];
 }

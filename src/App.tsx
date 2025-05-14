@@ -20,6 +20,8 @@ import PanelGroupManagement from './features/basicTables/PanelGroupManagement';
 import PanelManagement from './features/basicTables/PanelManagement';
 import PotencyCategoryManagement from './features/basicTables/PotencyCategoryManagement';
 import TestCategoryManagement from './features/basicTables/TestCategoryManagement';
+import ClientLicenseCategoryManagement from './features/clients/ClientLicenseCategoryManagement';
+import ClientLicenseTypeManagement from './features/clients/ClientLicenseTypeManagement';
 import Dashboard from './features/dashboard/Dashboard';
 import InstrumentManagement from './features/labAssets/InstrumentManagement';
 import PrepBatchSopDetail from './features/prepBatchSop/PrepBatchSopDetail';
@@ -59,6 +61,11 @@ const App: React.FC = () => {
                 <Route path="admin/needed-by-management" element={<NeededByManagement />} />
                 <Route path="admin/panel-group-management" element={<PanelGroupManagement />} />
                 <Route path="admin/test-category-management" element={<TestCategoryManagement />} />
+                <Route
+                  path="admin/client-license-category"
+                  element={<ClientLicenseCategoryManagement />}
+                />
+                <Route path="admin/client-license-type" element={<ClientLicenseTypeManagement />} />
                 <Route
                   path="admin/potency-category-management"
                   element={<PotencyCategoryManagement />}

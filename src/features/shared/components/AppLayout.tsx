@@ -8,6 +8,7 @@ import {
   MenuUnfoldOutlined,
   TableOutlined,
   ToolOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Typography, theme } from 'antd';
 import { Link, Outlet } from 'react-router-dom';
@@ -131,6 +132,21 @@ const AppLayout: React.FC = () => {
               key: '5',
               icon: <FileTextOutlined />,
               label: <Link to="/admin/analytical-batch-sop">Analytical Batch SOPs</Link>,
+            },
+            {
+              key: '6',
+              icon: <TeamOutlined />,
+              label: 'Clients',
+              children: [
+                {
+                  key: '6-1',
+                  label: <Link to="/admin/client-license-category">License Categories</Link>,
+                },
+                {
+                  key: '6-2',
+                  label: <Link to="/admin/client-license-type">License Types</Link>,
+                },
+              ],
             },
           ]}
         />
