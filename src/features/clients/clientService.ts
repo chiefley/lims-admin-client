@@ -11,17 +11,22 @@ import { Client, ClientLicenseType, ClientLicenseCategory } from './types';
  */
 export const fetchClients = async (labId: number = DEFAULT_LAB_ID): Promise<Client[]> => {
   try {
+    console.log(`Calling API to fetch clients for lab ID: ${labId}`);
+
+    // Using the correct endpoint based on other working services
     const response = await apiClient.get<ServiceResponse<Client[]>>(
       `/configurationmaintenance/FetchClientRss/${labId}`
     );
 
     if (!response.data || response.data.success === false) {
+      console.error('API returned error or no data:', response.data);
       throw new Error(response.data?.message || 'Failed to fetch clients');
     }
 
-    return response.data.data;
+    console.log(`API returned ${response.data.data?.length || 0} clients`);
+    return response.data.data || [];
   } catch (error: any) {
-    console.error('Error fetching clients:', error);
+    console.error('Error in fetchClients service call:', error.message, error.response?.status);
     throw error;
   }
 };
@@ -37,18 +42,22 @@ export const upsertClients = async (
   labId: number = DEFAULT_LAB_ID
 ): Promise<Client[]> => {
   try {
+    console.log(`Saving ${clients.length} clients for lab ID: ${labId}`);
+
     const response = await apiClient.put<ServiceResponse<Client[]>>(
       `/configurationmaintenance/UpsertClientRss/${labId}`,
       clients
     );
 
     if (!response.data || response.data.success === false) {
+      console.error('API returned error on save:', response.data);
       throw new Error(response.data?.message || 'Failed to save clients');
     }
 
-    return response.data.data;
+    console.log(`Saved ${response.data.data?.length || 0} clients successfully`);
+    return response.data.data || [];
   } catch (error: any) {
-    console.error('Error saving clients:', error);
+    console.error('Error in upsertClients service call:', error.message, error.response?.status);
     throw error;
   }
 };
@@ -70,7 +79,7 @@ export const fetchClientLicenseTypes = async (
       throw new Error(response.data?.message || 'Failed to fetch client license types');
     }
 
-    return response.data.data;
+    return response.data.data || [];
   } catch (error: any) {
     console.error('Error fetching client license types:', error);
     throw error;
@@ -97,7 +106,7 @@ export const upsertClientLicenseTypes = async (
       throw new Error(response.data?.message || 'Failed to save client license types');
     }
 
-    return response.data.data;
+    return response.data.data || [];
   } catch (error: any) {
     console.error('Error saving client license types:', error);
     throw error;
@@ -118,7 +127,7 @@ export const fetchClientLicenseCategories = async (): Promise<ClientLicenseCateg
       throw new Error(response.data?.message || 'Failed to fetch client license categories');
     }
 
-    return response.data.data;
+    return response.data.data || [];
   } catch (error: any) {
     console.error('Error fetching client license categories:', error);
     throw error;
@@ -143,7 +152,7 @@ export const upsertClientLicenseCategories = async (
       throw new Error(response.data?.message || 'Failed to save client license categories');
     }
 
-    return response.data.data;
+    return response.data.data || [];
   } catch (error: any) {
     console.error('Error saving client license categories:', error);
     throw error;

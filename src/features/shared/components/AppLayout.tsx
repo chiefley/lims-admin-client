@@ -146,6 +146,10 @@ const AppLayout: React.FC = () => {
                   key: '6-2',
                   label: <Link to="/admin/client-license-type">License Types</Link>,
                 },
+                {
+                  key: '6-3',
+                  label: <Link to="/admin/clients">Client Management</Link>,
+                },
               ],
             },
           ]}
