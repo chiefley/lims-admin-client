@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import appConfig from '../../config/appConfig';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 import CardSection from '../shared/components/CardSection';
@@ -12,6 +11,7 @@ import sharedService from '../shared/sharedService';
 
 import InstrumentTypeDetail from './InstrumentTypeDetail';
 import InstrumentTypesList from './InstrumentTypesList';
+import labAssetsService from './labAssetService';
 import { InstrumentTypeRs } from './types';
 
 const { TabPane } = Tabs;
@@ -36,7 +36,7 @@ const InstrumentManagement: React.FC = () => {
         setLoading(true);
         // Fetch both instrument types and selectors in parallel
         const [instrumentTypesData, selectorsData] = await Promise.all([
-          configurationService.fetchInstrumentTypes(),
+          labAssetsService.fetchInstrumentTypes(),
           sharedService.fetchSelectors(),
         ]);
 
@@ -184,7 +184,7 @@ const InstrumentManagement: React.FC = () => {
         };
 
         // Save to the server - wrapping in an array as the API expects an array
-        const savedTypes = await configurationService.upsertInstrumentTypes([typeToSave]);
+        const savedTypes = await labAssetsService.upsertInstrumentTypes([typeToSave]);
 
         if (savedTypes && savedTypes.length > 0) {
           // Replace the updated item with the saved version from the server

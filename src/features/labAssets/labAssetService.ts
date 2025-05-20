@@ -1,4 +1,4 @@
-// src/features/labAssets/labAssetsService.ts
+// src/features/labAssets/labAssetService.ts
 import { apiClient, DEFAULT_LAB_ID } from '../../api/config';
 import { ServiceResponse } from '../shared/types/common';
 
