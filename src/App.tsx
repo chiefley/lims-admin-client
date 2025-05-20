@@ -35,7 +35,7 @@ import ErrorBoundary from './features/shared/components/ErrorBoundary';
 import NotFound from './features/shared/pages/NotFound';
 
 // Import authentication components
-import PrivateRoute from './components/common/PrivateRoute';
+import PrivateRoute from './components/PrivateRoute';
 import authService from './services/authService';
 
 const App: React.FC = () => {

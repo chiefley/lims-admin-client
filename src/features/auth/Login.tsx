@@ -1,52 +1,93 @@
-// src/components/common/PrivateRoute.tsx
-import React from 'react';
+// src/features/auth/Login.tsx
+import React, { useState } from 'react';
 
-import { Spin } from 'antd';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, Typography, message } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../../contexts/AuthContext';
 
-interface PrivateRouteProps {
-  requiredRoles?: string[];
-}
+const { Title } = Typography;
 
-/**
- * Component for protecting routes that require authentication
- * If requiredRoles is provided, user must have at least one of the specified roles
- */
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ requiredRoles }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+const Login: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
 
-  // Show loading while checking authentication
-  if (isLoading) {
-    return (
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
-      >
-        <Spin size="large" tip="Loading..." />
-      </div>
-    );
-  }
+  // Try to get the return URL from location state
+  const from = location.state?.from?.pathname || '/';
 
-  // Check if user is authenticated
-  if (!isAuthenticated) {
-    // Redirect to login page with return URL
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  const onFinish = async (values: { username: string; password: string }) => {
+    try {
+      setLoading(true);
+      const success = await login(values.username, values.password);
 
-  // If roles are required, check if user has at least one of them
-  if (requiredRoles && requiredRoles.length > 0) {
-    const hasRequiredRole = requiredRoles.some(role => user?.roles.includes(role));
-
-    if (!hasRequiredRole) {
-      // Redirect to unauthorized page
-      return <Navigate to="/unauthorized" replace />;
+      if (success) {
+        message.success('Login successful');
+        // Navigate to the page the user was trying to access, or home if none
+        navigate(from, { replace: true });
+      } else {
+        message.error('Invalid username or password');
+      }
+    } catch (error) {
+      message.error('An error occurred during login');
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  // If authenticated and has required roles, render the protected route
-  return <Outlet />;
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: '#f0f2f5',
+      }}
+    >
+      <Card style={{ width: 400, boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Title level={2}>LIMS Admin</Title>
+          <Title level={4} style={{ marginTop: 0 }}>
+            Login
+          </Title>
+        </div>
+
+        <Form name="login" onFinish={onFinish} layout="vertical">
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: 'Please input your username!' }]}
+          >
+            <Input
+              prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+              placeholder="Username"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: 'Please input your password!' }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+              placeholder="Password"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" size="large" block loading={loading}>
+              Log in
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
+  );
 };
 
-export default PrivateRoute;
+export default Login;

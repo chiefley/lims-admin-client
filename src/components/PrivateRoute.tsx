@@ -1,10 +1,10 @@
-// src/components/common/PrivateRoute.tsx
+// src/components/PrivateRoute.tsx
 import React from 'react';
 
 import { Spin } from 'antd';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PrivateRouteProps {
   requiredRoles?: string[];
@@ -31,8 +31,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ requiredRoles }) => {
 
   // Check if user is authenticated
   if (!isAuthenticated) {
-    // Redirect to login page with return URL
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect to login page with return URL - the state is causing an infinite loop
+    // Because the Navigate component with this state causes location to change on every render
+    return <Navigate to="/login" replace />;
   }
 
   // If roles are required, check if user has at least one of them
