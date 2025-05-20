@@ -13,7 +13,6 @@ import { Spin, Button, Tabs, Tag, message, Form, Alert, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // UPDATED: Import the service as a default import
-import sopService from '../../api/endpoints/configurationService';
 import PageHeader from '../shared/components/PageHeader';
 import sharedService from '../shared/sharedService';
 import SopFieldsTab from '../shared/tabs/SopFieldsTab';
@@ -21,6 +20,7 @@ import SopProceduresTab from '../shared/tabs/SopProceduresTab';
 import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';
 
 import BasicInfoTab from './BasicInfoTab';
+import prepBatchSopService from './prepBatchSopService';
 import SampleConfigurationsTab from './SampleConfigurationsTab';
 import { ManifestSamplePrepBatchSopRs } from './types';
 
@@ -52,7 +52,7 @@ const PrepBatchSopDetail: React.FC = () => {
         // UPDATED: Use the functions from the service object
         // Fetch both the SOP details and selectors in parallel
         const [sopData, selectorsData] = await Promise.all([
-          sopService.fetchPrepBatchSopDetail(Number(id)),
+          prepBatchSopService.fetchPrepBatchSopDetail(Number(id)),
           sharedService.fetchSelectors(),
         ]);
 
