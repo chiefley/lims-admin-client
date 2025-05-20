@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Typography, Table, Alert, Tag, Descriptions } from 'antd';
 
-import CardSection from '../components/CardSection';
 import { stylePresets } from '../../../config/theme';
 import {
   SopFieldRs,
@@ -18,6 +17,7 @@ import {
   TableColumnDateTimeFieldRs,
   TableColumnSopEnumFieldRs,
 } from '../../shared/types/batchSops';
+import CardSection from '../components/CardSection';
 
 // Create a generic SopData type that includes only the properties we need
 interface SopData {

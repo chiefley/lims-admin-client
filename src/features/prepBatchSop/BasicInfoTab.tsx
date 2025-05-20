@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Input, InputNumber, Select, Row, Col } from 'antd';
 
+import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import FormItem from '../shared/components/FormItem';
-import { stylePresets } from '../../config/theme';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import { PrepBatchSopRs } from './types';
