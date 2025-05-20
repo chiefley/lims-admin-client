@@ -92,7 +92,7 @@ const PrepBatchSopDetail: React.FC = () => {
 
       // UPDATED: Use the function from the service object
       // Call the service to save the data
-      await sopService.savePrepBatchSop(dataToSave);
+      await prepBatchSopService.savePrepBatchSop(dataToSave);
 
       // Update local state with the saved data
       setSopData(dataToSave);
