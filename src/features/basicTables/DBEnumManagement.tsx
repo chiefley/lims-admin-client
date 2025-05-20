@@ -8,10 +8,11 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import basicTableService from './basicTableService';
+import { fetchDBEnums } from './basicTableService';
+import { upsertDBEnums } from './basicTableService';
 import { DBEnumRs } from './types';
 
 const { Text } = Typography;
@@ -37,10 +38,7 @@ const DBEnumManagement: React.FC = () => {
     try {
       setLoading(true);
       // Load both DB enums and selectors in parallel
-      const [dbEnumsData, selectorsData] = await Promise.all([
-        basicTableService.fetchDBEnums(),
-        sharedService.fetchSelectors(),
-      ]);
+      const [dbEnumsData, selectorsData] = await Promise.all([fetchDBEnums(), fetchSelectors()]);
 
       setDbEnums(dbEnumsData);
       setFilteredDbEnums(dbEnumsData);
@@ -192,7 +190,7 @@ const DBEnumManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all DB enums
-      const savedDbEnums = await basicTableService.upsertDBEnums(dbEnums);
+      const savedDbEnums = await upsertDBEnums(dbEnums);
 
       // Update local state with saved data from server
       setDbEnums(savedDbEnums);

@@ -8,10 +8,10 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import basicTableService from './basicTableService';
+import { fetchNeededByConfigurations, upsertNeededByConfigurations } from './basicTableService';
 import { NeededByRs } from './types';
 
 const { Text } = Typography;
@@ -41,8 +41,8 @@ const NeededByManagement: React.FC = () => {
       setLoading(true);
       // Load both needed by configs and selectors in parallel
       const [configsData, selectorsData] = await Promise.all([
-        basicTableService.fetchNeededByConfigurations(),
-        sharedService.fetchSelectors(),
+        fetchNeededByConfigurations(),
+        fetchSelectors(),
       ]);
 
       setNeededByConfigs(configsData);
@@ -203,7 +203,7 @@ const NeededByManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all needed by configs
-      const savedConfigs = await basicTableService.upsertNeededByConfigurations(neededByConfigs);
+      const savedConfigs = await upsertNeededByConfigurations(neededByConfigs);
 
       // Update local state with saved data from server
       setNeededByConfigs(savedConfigs);

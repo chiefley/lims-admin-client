@@ -14,13 +14,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 // UPDATED: Import the service as a default import
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import SopFieldsTab from '../shared/tabs/SopFieldsTab';
 import SopProceduresTab from '../shared/tabs/SopProceduresTab';
 import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';
 
 import BasicInfoTab from './BasicInfoTab';
-import prepBatchSopService from './prepBatchSopService';
+import { fetchPrepBatchSopDetail, savePrepBatchSop } from './prepBatchSopService';
 import SampleConfigurationsTab from './SampleConfigurationsTab';
 import { ManifestSamplePrepBatchSopRs } from './types';
 
@@ -52,8 +52,8 @@ const PrepBatchSopDetail: React.FC = () => {
         // UPDATED: Use the functions from the service object
         // Fetch both the SOP details and selectors in parallel
         const [sopData, selectorsData] = await Promise.all([
-          prepBatchSopService.fetchPrepBatchSopDetail(Number(id)),
-          sharedService.fetchSelectors(),
+          fetchPrepBatchSopDetail(Number(id)),
+          fetchSelectors(),
         ]);
 
         // Update state with fetched data
@@ -92,7 +92,7 @@ const PrepBatchSopDetail: React.FC = () => {
 
       // UPDATED: Use the function from the service object
       // Call the service to save the data
-      await prepBatchSopService.savePrepBatchSop(dataToSave);
+      await savePrepBatchSop(dataToSave);
 
       // Update local state with the saved data
       setSopData(dataToSave);

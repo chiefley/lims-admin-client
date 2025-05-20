@@ -7,9 +7,10 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 
-import basicTableService from './basicTableService';
+import { fetchCcSampleCategories } from './basicTableService';
+import { upsertCcSampleCategories } from './basicTableService';
 import { CcSampleCategoryRs, CcSampleTypeRs } from './types';
 
 const { Text } = Typography;
@@ -36,8 +37,8 @@ const CcCompoundManagement: React.FC = () => {
       setLoading(true);
       // Load both categories and selectors in parallel
       const [categoriesData, selectorsData] = await Promise.all([
-        basicTableService.fetchCcSampleCategories(),
-        sharedService.fetchSelectors(),
+        fetchCcSampleCategories(),
+        fetchSelectors(),
       ]);
 
       setCategories(categoriesData);
@@ -284,7 +285,7 @@ const CcCompoundManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all categories and their sample types
-      const savedCategories = await basicTableService.upsertCcSampleCategories(categories);
+      const savedCategories = await upsertCcSampleCategories(categories);
 
       // Update local state with saved data from server
       setCategories(savedCategories);

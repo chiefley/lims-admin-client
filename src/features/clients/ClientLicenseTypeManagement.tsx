@@ -6,10 +6,10 @@ import { Button, Card, Row, Col, Input, Typography, message, Space, Checkbox, Se
 import { validationRules } from '../../utils/fieldValidation';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import clientsService from './clientService';
+import { fetchClientLicenseTypes, upsertClientLicenseTypes } from './clientService';
 import { ClientLicenseType } from './types';
 
 const { Text } = Typography;
@@ -32,12 +32,12 @@ const ClientLicenseTypeManagement: React.FC = () => {
       setLoading(true);
 
       // Fetch license types for the selected state
-      const data = await clientsService.fetchClientLicenseTypes(stateId);
+      const data = await fetchClientLicenseTypes(stateId);
       setLicenseTypes(data);
 
       // Fetch selectors if we don't have them yet
       if (!selectors) {
-        const selectorsData = await sharedService.fetchSelectors();
+        const selectorsData = await fetchSelectors();
         setSelectors(selectorsData);
       }
     } catch (error) {
@@ -163,7 +163,7 @@ const ClientLicenseTypeManagement: React.FC = () => {
       setLicenseTypes(newData);
 
       // Save changes to server
-      await clientsService.upsertClientLicenseTypes(newData, stateId);
+      await upsertClientLicenseTypes(newData, stateId);
       message.success('Client license type saved successfully');
 
       // Refresh data from server

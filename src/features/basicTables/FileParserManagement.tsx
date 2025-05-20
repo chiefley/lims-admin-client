@@ -8,10 +8,10 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import basicTableService from './basicTableService';
+import { fetchFileParsers, upsertFileParsers } from './basicTableService';
 import { FileParserRs, FileParserFieldRs } from './types';
 
 const { Text } = Typography;
@@ -38,8 +38,8 @@ const FileParserManagement: React.FC = () => {
       setLoading(true);
       // Load both file parsers and selectors in parallel
       const [parsersData, selectorsData] = await Promise.all([
-        basicTableService.fetchFileParsers(),
-        sharedService.fetchSelectors(),
+        fetchFileParsers(),
+        fetchSelectors(),
       ]);
 
       setFileParsers(parsersData);
@@ -306,7 +306,7 @@ const FileParserManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all file parsers
-      const savedParsers = await basicTableService.upsertFileParsers(fileParsers);
+      const savedParsers = await upsertFileParsers(fileParsers);
 
       // Update local state with saved data from server
       setFileParsers(savedParsers);

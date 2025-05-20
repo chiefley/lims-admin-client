@@ -36,6 +36,7 @@ const AnalyticalBatchSopManagement: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
+
         const sopsData = await analyticalBatchSopService.fetchAnalyticalBatchSopSelections();
         setAnalyticalBatchSops(sopsData);
         setFilteredSops(sopsData);

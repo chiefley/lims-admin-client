@@ -7,10 +7,10 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import basicTableService from './basicTableService';
+import { fetchNavMenuItems, upsertNavMenuItems } from './basicTableService';
 import { NavMenuItemRs } from './types';
 
 const { Text } = Typography;
@@ -42,8 +42,8 @@ const NavMenuItemManagement: React.FC = () => {
       setLoading(true);
       // Load both nav menu items and selectors in parallel
       const [navMenuItemsData, selectorsData] = await Promise.all([
-        basicTableService.fetchNavMenuItems(),
-        sharedService.fetchSelectors(),
+        fetchNavMenuItems(),
+        fetchSelectors(),
       ]);
 
       setNavMenuItems(navMenuItemsData);
@@ -431,7 +431,7 @@ const NavMenuItemManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all nav menu items
-      const savedNavMenuItems = await basicTableService.upsertNavMenuItems(navMenuItems);
+      const savedNavMenuItems = await upsertNavMenuItems(navMenuItems);
 
       // Update local state with saved data from server
       setNavMenuItems(savedNavMenuItems);

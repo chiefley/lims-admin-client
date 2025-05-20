@@ -9,7 +9,7 @@ import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
-import basicTableService from './basicTableService';
+import { fetchPanelGroups, upsertPanelGroups } from './basicTableService';
 import { PanelGroupRs } from './types';
 
 const { Text } = Typography;
@@ -35,7 +35,7 @@ const PanelGroupManagement: React.FC = () => {
   const loadPanelGroups = async () => {
     try {
       setLoading(true);
-      const panelGroupsData = await basicTableService.fetchPanelGroups();
+      const panelGroupsData = await fetchPanelGroups();
       setPanelGroups(panelGroupsData);
       setFilteredPanelGroups(panelGroupsData);
       setError(null);
@@ -170,7 +170,7 @@ const PanelGroupManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all panel groups
-      const savedPanelGroups = await basicTableService.upsertPanelGroups(panelGroups);
+      const savedPanelGroups = await upsertPanelGroups(panelGroups);
 
       // Update local state with saved data from server
       setPanelGroups(savedPanelGroups);

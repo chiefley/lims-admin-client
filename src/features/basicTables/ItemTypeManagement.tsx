@@ -8,10 +8,10 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import basicTableService from './basicTableService';
+import { fetchItemTypes, upsertItemTypes } from './basicTableService';
 import { ItemTypeRs, ItemCategoryRs } from './types';
 
 const { Text } = Typography;
@@ -43,8 +43,8 @@ const ItemTypeManagement: React.FC = () => {
       setLoading(true);
       // Load both item types and selectors in parallel
       const [itemTypesData, selectorsData] = await Promise.all([
-        basicTableService.fetchItemTypes(defaultStateId),
-        sharedService.fetchSelectors(),
+        fetchItemTypes(defaultStateId),
+        fetchSelectors(),
       ]);
 
       setItemTypes(itemTypesData);
@@ -295,7 +295,7 @@ const ItemTypeManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all item types
-      const savedItemTypes = await basicTableService.upsertItemTypes(itemTypes, defaultStateId);
+      const savedItemTypes = await upsertItemTypes(itemTypes, defaultStateId);
 
       // Update local state with saved data from server
       setItemTypes(savedItemTypes);

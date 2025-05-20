@@ -8,7 +8,8 @@ import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
-import basicTableService from './basicTableService';
+import { fetchCompounds } from './basicTableService';
+import { upsertCompounds } from './basicTableService';
 import { CompoundRs } from './types';
 
 const { Text } = Typography;
@@ -31,7 +32,7 @@ const CompoundManagement: React.FC = () => {
   const loadCompounds = async () => {
     try {
       setLoading(true);
-      const compoundsData = await basicTableService.fetchCompounds();
+      const compoundsData = await fetchCompounds();
       setCompounds(compoundsData);
       setFilteredCompounds(compoundsData);
       setError(null);
@@ -176,7 +177,7 @@ const CompoundManagement: React.FC = () => {
 
       // Call the API to save all compounds
       // This follows the pattern of sending the complete dataset back to the server
-      const savedCompounds = await basicTableService.upsertCompounds(compounds);
+      const savedCompounds = await upsertCompounds(compounds);
 
       // Update local state with saved data from server
       setCompounds(savedCompounds);

@@ -30,10 +30,10 @@ import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import FormItem from '../shared/components/FormItem';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import clientsService from './clientService';
+import { fetchClients, upsertClients } from './clientService';
 import { Client, ClientStateLicense } from './types';
 
 const { Text } = Typography;
@@ -75,9 +75,6 @@ const ClientManagement: React.FC = () => {
       .catch(err => {
         console.error('Error loading API config:', err);
       });
-
-    // Check client service
-    console.log('Client service functions available:', Object.keys(clientsService).join(', '));
   }, []);
 
   // Handler to fetch data
@@ -88,7 +85,7 @@ const ClientManagement: React.FC = () => {
       console.log('Fetching clients data...');
 
       // Fetch clients
-      const data = await clientsService.fetchClients();
+      const data = await fetchClients();
       console.log('Client data received:', data);
 
       setClients(data || []);
@@ -96,7 +93,7 @@ const ClientManagement: React.FC = () => {
       // Fetch selectors if we don't have them yet
       if (!selectors) {
         console.log('Fetching selectors data...');
-        const selectorsData = await sharedService.fetchSelectors();
+        const selectorsData = await fetchSelectors();
         console.log(
           'Selectors data received:',
           selectorsData?.clientLicenseTypes?.length || 0,
@@ -227,7 +224,7 @@ const ClientManagement: React.FC = () => {
       setClients(newData);
 
       // Save changes to server
-      await clientsService.upsertClients(newData);
+      await upsertClients(newData);
       message.success('Client saved successfully');
 
       // Refresh data from server to get updated data
@@ -262,7 +259,7 @@ const ClientManagement: React.FC = () => {
           setClients(newData);
 
           // Save changes to server
-          await clientsService.upsertClients(newData);
+          await upsertClients(newData);
           message.success('Client marked as inactive');
 
           // Refresh data from server

@@ -9,7 +9,7 @@ import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
-import basicTableService from './basicTableService';
+import { fetchPotencyCategories, upsertPotencyCategories } from './basicTableService';
 import { PotencyCategoryRs } from './types';
 
 const { Text } = Typography;
@@ -36,7 +36,7 @@ const PotencyCategoryManagement: React.FC = () => {
   const loadPotencyCategories = async () => {
     try {
       setLoading(true);
-      const categoriesData = await basicTableService.fetchPotencyCategories(defaultStateId);
+      const categoriesData = await fetchPotencyCategories(defaultStateId);
       setPotencyCategories(categoriesData);
       setFilteredCategories(categoriesData);
       setError(null);
@@ -179,7 +179,7 @@ const PotencyCategoryManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all potency categories
-      const savedCategories = await basicTableService.upsertPotencyCategories(potencyCategories);
+      const savedCategories = await upsertPotencyCategories(potencyCategories);
 
       // Update local state with saved data from server
       setPotencyCategories(savedCategories);

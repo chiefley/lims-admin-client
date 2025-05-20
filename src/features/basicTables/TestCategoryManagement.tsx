@@ -19,10 +19,10 @@ import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
-import sharedService from '../shared/sharedService';
+import { fetchSelectors } from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
-import basicTableService from './basicTableService';
+import { fetchTestCategories, upsertTestCategories } from './basicTableService';
 import { TestCategoryRs } from './types';
 
 const { Text } = Typography;
@@ -53,8 +53,8 @@ const TestCategoryManagement: React.FC = () => {
       setLoading(true);
       // Load both test categories and selectors in parallel
       const [categoriesData, selectorsData] = await Promise.all([
-        basicTableService.fetchTestCategories(defaultStateId),
-        sharedService.fetchSelectors(),
+        fetchTestCategories(defaultStateId),
+        fetchSelectors(),
       ]);
 
       setTestCategories(categoriesData);
@@ -205,7 +205,7 @@ const TestCategoryManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all test categories
-      const savedCategories = await basicTableService.upsertTestCategories(testCategories);
+      const savedCategories = await upsertTestCategories(testCategories);
 
       // Update local state with saved data from server
       setTestCategories(savedCategories);
