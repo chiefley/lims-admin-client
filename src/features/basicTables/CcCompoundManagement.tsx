@@ -9,6 +9,7 @@ import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
+import basicTableService from './basicTableService';
 import { CcSampleCategoryRs, CcSampleTypeRs } from './types';
 
 const { Text } = Typography;
@@ -35,7 +36,7 @@ const CcCompoundManagement: React.FC = () => {
       setLoading(true);
       // Load both categories and selectors in parallel
       const [categoriesData, selectorsData] = await Promise.all([
-        configurationService.fetchCcSampleCategories(),
+        basicTableService.fetchCcSampleCategories(),
         configurationService.fetchSelectors(),
       ]);
 
@@ -283,7 +284,7 @@ const CcCompoundManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all categories and their sample types
-      const savedCategories = await configurationService.upsertCcSampleCategories(categories);
+      const savedCategories = await basicTableService.upsertCcSampleCategories(categories);
 
       // Update local state with saved data from server
       setCategories(savedCategories);

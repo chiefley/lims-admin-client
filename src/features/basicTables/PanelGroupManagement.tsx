@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, AppstoreOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Checkbox, Tag } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
+import basicTableService from './basicTableService';
 import { PanelGroupRs } from './types';
 
 const { Text } = Typography;
@@ -35,7 +35,7 @@ const PanelGroupManagement: React.FC = () => {
   const loadPanelGroups = async () => {
     try {
       setLoading(true);
-      const panelGroupsData = await configurationService.fetchPanelGroups();
+      const panelGroupsData = await basicTableService.fetchPanelGroups();
       setPanelGroups(panelGroupsData);
       setFilteredPanelGroups(panelGroupsData);
       setError(null);
@@ -170,7 +170,7 @@ const PanelGroupManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all panel groups
-      const savedPanelGroups = await configurationService.upsertPanelGroups(panelGroups);
+      const savedPanelGroups = await basicTableService.upsertPanelGroups(panelGroups);
 
       // Update local state with saved data from server
       setPanelGroups(savedPanelGroups);

@@ -18,8 +18,9 @@ import {
 import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../shared/components/CardSection';
 import PageHeader from '../shared/components/PageHeader';
-import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import PanelEditDrawer from './PanelEditDrawer';
 import { PanelRs } from './types';
 
@@ -47,7 +48,7 @@ const PanelManagement: React.FC = () => {
         setLoading(true);
         // Fetch panels and selectors in parallel
         const [panelsData, selectorsData] = await Promise.all([
-          configurationService.fetchPanels(),
+          basicTableService.fetchPanels(),
           configurationService.fetchSelectors(),
         ]);
 
@@ -187,7 +188,7 @@ const PanelManagement: React.FC = () => {
       }
 
       // Call the upsert endpoint with the full array of panels
-      const savedPanels = await configurationService.savePanels(panelsToSave);
+      const savedPanels = await basicTableService.savePanels(panelsToSave);
 
       // Update state with the response from the server
       setPanels(savedPanels);

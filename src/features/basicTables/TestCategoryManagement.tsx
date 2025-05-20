@@ -22,6 +22,7 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import { TestCategoryRs } from './types';
 
 const { Text } = Typography;
@@ -52,7 +53,7 @@ const TestCategoryManagement: React.FC = () => {
       setLoading(true);
       // Load both test categories and selectors in parallel
       const [categoriesData, selectorsData] = await Promise.all([
-        configurationService.fetchTestCategories(defaultStateId),
+        basicTableService.fetchTestCategories(defaultStateId),
         configurationService.fetchSelectors(),
       ]);
 
@@ -204,7 +205,7 @@ const TestCategoryManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all test categories
-      const savedCategories = await configurationService.upsertTestCategories(testCategories);
+      const savedCategories = await basicTableService.upsertTestCategories(testCategories);
 
       // Update local state with saved data from server
       setTestCategories(savedCategories);

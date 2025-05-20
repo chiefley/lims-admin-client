@@ -86,7 +86,7 @@ export const fetchPanels = async (): Promise<PanelRs[]> => {
  * @param panels The panels array to save
  * @returns Promise with the updated PanelRs array
  */
-export const upsertPanels = async (panels: PanelRs[]): Promise<PanelRs[]> => {
+export const savePanels = async (panels: PanelRs[]): Promise<PanelRs[]> => {
   try {
     // Ensure each panel has the labId property set
     const panelsWithLabId = panels.map(panel => ({
@@ -531,7 +531,7 @@ const basicTablesService = {
 
   // Panel methods
   fetchPanels,
-  upsertPanels,
+  savePanels,
   fetchPanelGroups,
   upsertPanelGroups,
 

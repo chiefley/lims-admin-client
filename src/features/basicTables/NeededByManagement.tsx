@@ -11,6 +11,7 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import { NeededByRs } from './types';
 
 const { Text } = Typography;
@@ -40,7 +41,7 @@ const NeededByManagement: React.FC = () => {
       setLoading(true);
       // Load both needed by configs and selectors in parallel
       const [configsData, selectorsData] = await Promise.all([
-        configurationService.fetchNeededByConfigurations(),
+        basicTableService.fetchNeededByConfigurations(),
         configurationService.fetchSelectors(),
       ]);
 
@@ -202,7 +203,7 @@ const NeededByManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all needed by configs
-      const savedConfigs = await configurationService.upsertNeededByConfigurations(neededByConfigs);
+      const savedConfigs = await basicTableService.upsertNeededByConfigurations(neededByConfigs);
 
       // Update local state with saved data from server
       setNeededByConfigs(savedConfigs);

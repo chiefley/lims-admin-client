@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, FireOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Select } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
+import basicTableService from './basicTableService';
 import { PotencyCategoryRs } from './types';
 
 const { Text } = Typography;
@@ -36,7 +36,7 @@ const PotencyCategoryManagement: React.FC = () => {
   const loadPotencyCategories = async () => {
     try {
       setLoading(true);
-      const categoriesData = await configurationService.fetchPotencyCategories(defaultStateId);
+      const categoriesData = await basicTableService.fetchPotencyCategories(defaultStateId);
       setPotencyCategories(categoriesData);
       setFilteredCategories(categoriesData);
       setError(null);
@@ -179,7 +179,7 @@ const PotencyCategoryManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all potency categories
-      const savedCategories = await configurationService.upsertPotencyCategories(potencyCategories);
+      const savedCategories = await basicTableService.upsertPotencyCategories(potencyCategories);
 
       // Update local state with saved data from server
       setPotencyCategories(savedCategories);

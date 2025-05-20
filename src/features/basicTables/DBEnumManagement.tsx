@@ -11,6 +11,7 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import { DBEnumRs } from './types';
 
 const { Text } = Typography;
@@ -37,7 +38,7 @@ const DBEnumManagement: React.FC = () => {
       setLoading(true);
       // Load both DB enums and selectors in parallel
       const [dbEnumsData, selectorsData] = await Promise.all([
-        configurationService.fetchDBEnums(),
+        basicTableService.fetchDBEnums(),
         configurationService.fetchSelectors(),
       ]);
 
@@ -191,7 +192,7 @@ const DBEnumManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all DB enums
-      const savedDbEnums = await configurationService.upsertDBEnums(dbEnums);
+      const savedDbEnums = await basicTableService.upsertDBEnums(dbEnums);
 
       // Update local state with saved data from server
       setDbEnums(savedDbEnums);

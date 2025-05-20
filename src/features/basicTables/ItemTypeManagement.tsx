@@ -11,6 +11,7 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import { ItemTypeRs, ItemCategoryRs } from './types';
 
 const { Text } = Typography;
@@ -42,7 +43,7 @@ const ItemTypeManagement: React.FC = () => {
       setLoading(true);
       // Load both item types and selectors in parallel
       const [itemTypesData, selectorsData] = await Promise.all([
-        configurationService.fetchItemTypes(defaultStateId),
+        basicTableService.fetchItemTypes(defaultStateId),
         configurationService.fetchSelectors(),
       ]);
 
@@ -294,7 +295,7 @@ const ItemTypeManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all item types
-      const savedItemTypes = await configurationService.upsertItemTypes(itemTypes, defaultStateId);
+      const savedItemTypes = await basicTableService.upsertItemTypes(itemTypes, defaultStateId);
 
       // Update local state with saved data from server
       setItemTypes(savedItemTypes);

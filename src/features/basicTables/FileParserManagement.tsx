@@ -11,6 +11,7 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import { FileParserRs, FileParserFieldRs } from './types';
 
 const { Text } = Typography;
@@ -37,7 +38,7 @@ const FileParserManagement: React.FC = () => {
       setLoading(true);
       // Load both file parsers and selectors in parallel
       const [parsersData, selectorsData] = await Promise.all([
-        configurationService.fetchFileParsers(),
+        basicTableService.fetchFileParsers(),
         configurationService.fetchSelectors(),
       ]);
 
@@ -305,7 +306,7 @@ const FileParserManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all file parsers
-      const savedParsers = await configurationService.upsertFileParsers(fileParsers);
+      const savedParsers = await basicTableService.upsertFileParsers(fileParsers);
 
       // Update local state with saved data from server
       setFileParsers(savedParsers);

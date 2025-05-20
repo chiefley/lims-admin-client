@@ -10,6 +10,7 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 import PageHeader from '../shared/components/PageHeader';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import basicTableService from './basicTableService';
 import { NavMenuItemRs } from './types';
 
 const { Text } = Typography;
@@ -41,7 +42,7 @@ const NavMenuItemManagement: React.FC = () => {
       setLoading(true);
       // Load both nav menu items and selectors in parallel
       const [navMenuItemsData, selectorsData] = await Promise.all([
-        configurationService.fetchNavMenuItems(),
+        basicTableService.fetchNavMenuItems(),
         configurationService.fetchSelectors(),
       ]);
 
@@ -430,7 +431,7 @@ const NavMenuItemManagement: React.FC = () => {
       setSaving(true);
 
       // Call the API to save all nav menu items
-      const savedNavMenuItems = await configurationService.upsertNavMenuItems(navMenuItems);
+      const savedNavMenuItems = await basicTableService.upsertNavMenuItems(navMenuItems);
 
       // Update local state with saved data from server
       setNavMenuItems(savedNavMenuItems);
