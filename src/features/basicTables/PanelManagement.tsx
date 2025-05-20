@@ -15,9 +15,9 @@ import {
   Checkbox,
 } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../shared/components/CardSection';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -49,7 +49,7 @@ const PanelManagement: React.FC = () => {
         // Fetch panels and selectors in parallel
         const [panelsData, selectorsData] = await Promise.all([
           basicTableService.fetchPanels(),
-          configurationService.fetchSelectors(),
+          sharedService.fetchSelectors(),
         ]);
 
         setPanels(panelsData);

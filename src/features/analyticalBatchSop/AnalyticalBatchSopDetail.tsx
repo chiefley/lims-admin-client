@@ -34,15 +34,13 @@ import {
 import dayjs from 'dayjs';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import {
-  fetchAnalyticalBatchSopRs,
-  fetchSelectors,
-} from '../../api/endpoints/configurationService';
+import { fetchAnalyticalBatchSopRs } from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import FormItem from '../shared/components/FormItem';
 import PageHeader from '../shared/components/PageHeader';
+import { fetchSelectors } from '../shared/sharedService';
 import SopFieldsTab from '../shared/tabs/SopFieldsTab';
 import SopProceduresTab from '../shared/tabs/SopProceduresTab';
 import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';

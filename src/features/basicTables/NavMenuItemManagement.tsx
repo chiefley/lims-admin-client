@@ -3,11 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, MenuOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Tabs, Tag, Select } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -43,7 +43,7 @@ const NavMenuItemManagement: React.FC = () => {
       // Load both nav menu items and selectors in parallel
       const [navMenuItemsData, selectorsData] = await Promise.all([
         basicTableService.fetchNavMenuItems(),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setNavMenuItems(navMenuItemsData);

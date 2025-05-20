@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, TableOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Select, Tag } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -39,7 +39,7 @@ const DBEnumManagement: React.FC = () => {
       // Load both DB enums and selectors in parallel
       const [dbEnumsData, selectorsData] = await Promise.all([
         basicTableService.fetchDBEnums(),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setDbEnums(dbEnumsData);

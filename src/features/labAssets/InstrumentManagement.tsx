@@ -8,6 +8,7 @@ import appConfig from '../../config/appConfig';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 import CardSection from '../shared/components/CardSection';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 
 import InstrumentTypeDetail from './InstrumentTypeDetail';
 import InstrumentTypesList from './InstrumentTypesList';
@@ -36,7 +37,7 @@ const InstrumentManagement: React.FC = () => {
         // Fetch both instrument types and selectors in parallel
         const [instrumentTypesData, selectorsData] = await Promise.all([
           configurationService.fetchInstrumentTypes(),
-          configurationService.fetchSelectors(),
+          sharedService.fetchSelectors(),
         ]);
 
         setInstrumentTypes(instrumentTypesData);

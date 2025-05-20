@@ -5,35 +5,8 @@ import {
 } from '../../features/analyticalBatchSop/types';
 import { InstrumentTypeRs } from '../../features/labAssets/types';
 import { PrepBatchSopSelectionRs, PrepBatchSopRs } from '../../features/prepBatchSop/types';
-import {
-  ServiceResponse,
-  ConfigurationMaintenanceSelectors,
-} from '../../features/shared/types/common';
+import { ServiceResponse } from '../../features/shared/types/common';
 import { apiClient, DEFAULT_LAB_ID } from '../config';
-
-// Base URL for configuration maintenance endpoints
-// const baseUrl = `${appConfig.api.baseUrl}/configurationmaintenance`;
-
-/**
- * Fetches all selectors for dropdowns
- * @returns Promise with selectors data
- */
-export const fetchSelectors = async (): Promise<ConfigurationMaintenanceSelectors> => {
-  try {
-    const response = await apiClient.get<ServiceResponse<ConfigurationMaintenanceSelectors>>(
-      `/configurationmaintenance/FetchSelectors/${DEFAULT_LAB_ID}`
-    );
-
-    if (!response.data || response.data.success === false) {
-      throw new Error(response.data?.message || 'Failed to fetch selectors');
-    }
-
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error fetching selectors:', error);
-    throw error;
-  }
-};
 
 /**
  * Fetches all prep batch SOP selections
@@ -228,7 +201,6 @@ export const saveAnalyticalBatchSop = async (
 
 // Export all functions as a default object
 const configurationService = {
-  fetchSelectors,
   fetchBatchSopSelections,
   fetchAnalyticalBatchSopSelections,
   fetchPrepBatchSopDetail,

@@ -15,6 +15,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 // UPDATED: Import the service as a default import
 import sopService from '../../api/endpoints/configurationService';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import SopFieldsTab from '../shared/tabs/SopFieldsTab';
 import SopProceduresTab from '../shared/tabs/SopProceduresTab';
 import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';
@@ -52,7 +53,7 @@ const PrepBatchSopDetail: React.FC = () => {
         // Fetch both the SOP details and selectors in parallel
         const [sopData, selectorsData] = await Promise.all([
           sopService.fetchPrepBatchSopDetail(Number(id)),
-          sopService.fetchSelectors(),
+          sharedService.fetchSelectors(),
         ]);
 
         // Update state with fetched data

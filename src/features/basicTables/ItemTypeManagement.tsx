@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, BuildOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Checkbox, Tabs, Tag } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -44,7 +44,7 @@ const ItemTypeManagement: React.FC = () => {
       // Load both item types and selectors in parallel
       const [itemTypesData, selectorsData] = await Promise.all([
         basicTableService.fetchItemTypes(defaultStateId),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setItemTypes(itemTypesData);

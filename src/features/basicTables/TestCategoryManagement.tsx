@@ -15,11 +15,11 @@ import {
   Select,
 } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -54,7 +54,7 @@ const TestCategoryManagement: React.FC = () => {
       // Load both test categories and selectors in parallel
       const [categoriesData, selectorsData] = await Promise.all([
         basicTableService.fetchTestCategories(defaultStateId),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setTestCategories(categoriesData);

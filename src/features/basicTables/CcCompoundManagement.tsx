@@ -3,11 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, ExperimentOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Tabs } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 
 import basicTableService from './basicTableService';
 import { CcSampleCategoryRs, CcSampleTypeRs } from './types';
@@ -37,7 +37,7 @@ const CcCompoundManagement: React.FC = () => {
       // Load both categories and selectors in parallel
       const [categoriesData, selectorsData] = await Promise.all([
         basicTableService.fetchCcSampleCategories(),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setCategories(categoriesData);

@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, FileOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Tabs } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -39,7 +39,7 @@ const FileParserManagement: React.FC = () => {
       // Load both file parsers and selectors in parallel
       const [parsersData, selectorsData] = await Promise.all([
         basicTableService.fetchFileParsers(),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setFileParsers(parsersData);

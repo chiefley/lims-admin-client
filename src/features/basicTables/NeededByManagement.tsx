@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined, ScheduleOutlined, SaveOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Button, Input, Space, message, Select } from 'antd';
 
-import configurationService from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
+import sharedService from '../shared/sharedService';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
 import basicTableService from './basicTableService';
@@ -42,7 +42,7 @@ const NeededByManagement: React.FC = () => {
       // Load both needed by configs and selectors in parallel
       const [configsData, selectorsData] = await Promise.all([
         basicTableService.fetchNeededByConfigurations(),
-        configurationService.fetchSelectors(),
+        sharedService.fetchSelectors(),
       ]);
 
       setNeededByConfigs(configsData);
