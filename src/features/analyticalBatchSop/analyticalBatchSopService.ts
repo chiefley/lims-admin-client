@@ -52,6 +52,17 @@ export const fetchAnalyticalBatchSopDetail = async (
 };
 
 /**
+ * Alias for fetchAnalyticalBatchSopDetail to maintain compatibility with existing code
+ * @param analyticalBatchSopId ID of the analytical batch SOP to fetch
+ * @returns Promise with AnalyticalBatchSopRs data
+ */
+export const fetchAnalyticalBatchSopRs = async (
+  analyticalBatchSopId: number
+): Promise<AnalyticalBatchSopRs> => {
+  return fetchAnalyticalBatchSopDetail(analyticalBatchSopId);
+};
+
+/**
  * Saves changes to an analytical batch SOP
  * @param analyticalBatchSop The analytical batch SOP data to save
  * @returns Promise with the saved AnalyticalBatchSopRs
@@ -80,6 +91,7 @@ export const saveAnalyticalBatchSop = async (
 const analyticalBatchSopService = {
   fetchAnalyticalBatchSopSelections,
   fetchAnalyticalBatchSopDetail,
+  fetchAnalyticalBatchSopRs,
   saveAnalyticalBatchSop,
 };
 

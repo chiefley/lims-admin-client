@@ -12,11 +12,11 @@ import { Typography, Spin, Tag, Tooltip, Alert, Button, Input, Popconfirm, Space
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
-import configurationService from '../../api/endpoints/configurationService';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
 import PageHeader from '../shared/components/PageHeader';
 
+import analyticalBatchSopService from './analyticalBatchSopService';
 import { AnalyticalBatchSopSelectionRs } from './types';
 
 const { Text } = Typography;
@@ -36,7 +36,7 @@ const AnalyticalBatchSopManagement: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const sopsData = await configurationService.fetchAnalyticalBatchSopSelections();
+        const sopsData = await analyticalBatchSopService.fetchAnalyticalBatchSopSelections();
         setAnalyticalBatchSops(sopsData);
         setFilteredSops(sopsData);
         setError(null);

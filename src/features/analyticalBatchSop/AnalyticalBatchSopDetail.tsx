@@ -34,7 +34,6 @@ import {
 import dayjs from 'dayjs';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { fetchAnalyticalBatchSopRs } from '../../api/endpoints/configurationService';
 import { stylePresets } from '../../config/theme';
 import CardSection from '../shared/components/CardSection';
 import EditableTable, { EditableColumn } from '../shared/components/EditableTable';
@@ -46,6 +45,7 @@ import SopProceduresTab from '../shared/tabs/SopProceduresTab';
 import { SopFieldRs, SopProcedureRs } from '../shared/types/batchSops';
 import { ConfigurationMaintenanceSelectors } from '../shared/types/common';
 
+import { fetchAnalyticalBatchSopRs } from './analyticalBatchSopService';
 import {
   AnalyticalBatchSopRs,
   AnalyticalBatchSopAnalyteRs,

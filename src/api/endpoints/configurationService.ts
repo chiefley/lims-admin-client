@@ -1,8 +1,4 @@
 // src/api/endpoints/configurationService.ts
-import {
-  AnalyticalBatchSopSelectionRs,
-  AnalyticalBatchSopRs,
-} from '../../features/analyticalBatchSop/types';
 import { InstrumentTypeRs } from '../../features/labAssets/types';
 import { PrepBatchSopSelectionRs, PrepBatchSopRs } from '../../features/prepBatchSop/types';
 import { ServiceResponse } from '../../features/shared/types/common';
@@ -30,29 +26,6 @@ export const fetchBatchSopSelections = async (): Promise<PrepBatchSopSelectionRs
 };
 
 /**
- * Fetches all analytical batch SOP selections
- * @returns Promise with array of AnalyticalBatchSopSelectionRs data
- */
-export const fetchAnalyticalBatchSopSelections = async (): Promise<
-  AnalyticalBatchSopSelectionRs[]
-> => {
-  try {
-    const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopSelectionRs[]>>(
-      `/configurationmaintenance/FetchAnalyticalBatchSopSelections/${DEFAULT_LAB_ID}`
-    );
-
-    if (!response.data || response.data.success === false) {
-      throw new Error(response.data?.message || 'Failed to fetch analytical batch SOP selections');
-    }
-
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error fetching analytical batch SOP selections:', error);
-    throw error;
-  }
-};
-
-/**
  * Fetches a specific prep batch SOP detail
  * @param prepBatchSopId ID of the prep batch SOP to fetch
  * @returns Promise with PrepBatchSopRs data
@@ -70,30 +43,6 @@ export const fetchPrepBatchSopDetail = async (prepBatchSopId: number): Promise<P
     return response.data.data;
   } catch (error: any) {
     console.error('Error fetching prep batch SOP detail:', error);
-    throw error;
-  }
-};
-
-/**
- * Fetches a specific analytical batch SOP detail
- * @param analyticalBatchSopId ID of the analytical batch SOP to fetch
- * @returns Promise with AnalyticalBatchSopRs data
- */
-export const fetchAnalyticalBatchSopRs = async (
-  analyticalBatchSopId: number
-): Promise<AnalyticalBatchSopRs> => {
-  try {
-    const response = await apiClient.get<ServiceResponse<AnalyticalBatchSopRs>>(
-      `/configurationmaintenance/FetchAnalyticalBatchSopRs/${analyticalBatchSopId}`
-    );
-
-    if (!response.data || response.data.success === false) {
-      throw new Error(response.data?.message || 'Failed to fetch analytical batch SOP detail');
-    }
-
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error fetching analytical batch SOP detail:', error);
     throw error;
   }
 };
@@ -174,41 +123,13 @@ export const savePrepBatchSop = async (prepBatchSop: PrepBatchSopRs): Promise<Pr
   }
 };
 
-/**
- * Saves changes to an analytical batch SOP
- * @param analyticalBatchSop The analytical batch SOP data to save
- * @returns Promise with the saved AnalyticalBatchSopRs
- */
-export const saveAnalyticalBatchSop = async (
-  analyticalBatchSop: AnalyticalBatchSopRs
-): Promise<AnalyticalBatchSopRs> => {
-  try {
-    const response = await apiClient.put<ServiceResponse<AnalyticalBatchSopRs>>(
-      `/configurationmaintenance/SaveAnalyticalBatchSop`,
-      analyticalBatchSop
-    );
-
-    if (!response.data || response.data.success === false) {
-      throw new Error(response.data?.message || 'Failed to save analytical batch SOP');
-    }
-
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error saving analytical batch SOP:', error);
-    throw error;
-  }
-};
-
 // Export all functions as a default object
 const configurationService = {
   fetchBatchSopSelections,
-  fetchAnalyticalBatchSopSelections,
   fetchPrepBatchSopDetail,
-  fetchAnalyticalBatchSopRs,
   fetchInstrumentTypes,
   upsertInstrumentTypes,
   savePrepBatchSop,
-  saveAnalyticalBatchSop,
 };
 
 export default configurationService;
