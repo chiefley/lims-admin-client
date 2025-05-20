@@ -9,16 +9,52 @@ import {
   TableOutlined,
   ToolOutlined,
   TeamOutlined,
+  UserOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Typography, theme } from 'antd';
-import { Link, Outlet } from 'react-router-dom';
+import { Layout, Menu, Typography, theme, Dropdown, Button, Avatar, Space, Modal } from 'antd';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../../../contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const AppLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { token } = theme.useToken();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Handle logout
+  const handleLogout = () => {
+    Modal.confirm({
+      title: 'Logout',
+      content: 'Are you sure you want to logout?',
+      onOk: () => {
+        logout();
+        navigate('/login');
+      },
+      okText: 'Logout',
+      cancelText: 'Cancel',
+    });
+  };
+
+  // User dropdown menu items
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'My Profile',
+      onClick: () => navigate('/profile'),
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: handleLogout,
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -165,17 +201,32 @@ const AppLayout: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             height: 64,
+            justifyContent: 'space-between', // Add this to push items to both sides
           }}
         >
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: 'trigger',
-            style: { fontSize: 18, cursor: 'pointer' },
-            onClick: () => setCollapsed(!collapsed),
-          })}
-          <div style={{ marginLeft: 24 }}>
-            <Title level={4} style={{ margin: 0 }}>
-              Laboratory Information Management System
-            </Title>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
+              className: 'trigger',
+              style: { fontSize: 18, cursor: 'pointer' },
+              onClick: () => setCollapsed(!collapsed),
+            })}
+            <div style={{ marginLeft: 24 }}>
+              <Title level={4} style={{ margin: 0 }}>
+                Laboratory Information Management System
+              </Title>
+            </div>
+          </div>
+
+          {/* User profile dropdown */}
+          <div>
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+              <Button type="text">
+                <Space>
+                  <Avatar icon={<UserOutlined />} />
+                  {user && <Text>{user.username}</Text>}
+                </Space>
+              </Button>
+            </Dropdown>
           </div>
         </Header>
 
