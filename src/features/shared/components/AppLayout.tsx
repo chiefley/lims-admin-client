@@ -1,4 +1,4 @@
-// src/features/shared/components/AppLayout.tsx - Enhanced with Lab Context
+// src/features/shared/components/AppLayout.tsx - Enhanced with Complete Menu Structure
 import React, { useState } from 'react';
 
 import {
@@ -9,6 +9,8 @@ import {
   TableOutlined,
   UserOutlined,
   LogoutOutlined,
+  FileTextOutlined,
+  BugOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Typography, theme, Dropdown, Button, Avatar, Space, Modal } from 'antd';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
@@ -23,7 +25,7 @@ const { Title, Text } = Typography;
 const AppLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { token } = theme.useToken();
-  const { user, logout, currentLab } = useAuth();
+  const { user, logout, currentLab, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Handle logout
@@ -116,27 +118,147 @@ const AppLayout: React.FC = () => {
           theme="dark"
           mode="inline"
           defaultSelectedKeys={['1']}
-          items={[
-            {
-              key: '1',
-              icon: <DashboardOutlined />,
-              label: <Link to="/">Dashboard</Link>,
-            },
-            // ... rest of your menu items remain the same
-            {
-              key: '2',
-              icon: <TableOutlined />,
-              label: 'Basic Tables',
-              children: [
-                {
-                  key: '2-1',
-                  label: <Link to="/admin/compound-management">Compound Management</Link>,
-                },
-                // ... other menu items
-              ],
-            },
-            // ... rest of menu structure
-          ]}
+          items={
+            !isAuthenticated || !user
+              ? [
+                  {
+                    key: 'login-required',
+                    icon: <UserOutlined />,
+                    label: 'Please log in to access menu items',
+                    disabled: true,
+                  },
+                ]
+              : [
+                  {
+                    key: '1',
+                    icon: <DashboardOutlined />,
+                    label: <Link to="/">Dashboard</Link>,
+                  },
+                  {
+                    key: '2',
+                    icon: <TableOutlined />,
+                    label: 'Basic Tables',
+                    children: [
+                      {
+                        key: '2-1',
+                        label: <Link to="/admin/compound-management">Compound Management</Link>,
+                      },
+                      {
+                        key: '2-2',
+                        label: (
+                          <Link to="/admin/cc-compound-management">CC Compound Management</Link>
+                        ),
+                      },
+                      {
+                        key: '2-3',
+                        label: <Link to="/admin/panel-management">Panel Management</Link>,
+                      },
+                      {
+                        key: '2-4',
+                        label: (
+                          <Link to="/admin/panel-group-management">Panel Group Management</Link>
+                        ),
+                      },
+                      {
+                        key: '2-5',
+                        label: (
+                          <Link to="/admin/test-category-management">Test Category Management</Link>
+                        ),
+                      },
+                      {
+                        key: '2-6',
+                        label: (
+                          <Link to="/admin/potency-category-management">
+                            Potency Category Management
+                          </Link>
+                        ),
+                      },
+                      {
+                        key: '2-7',
+                        label: <Link to="/admin/item-type-management">Item Type Management</Link>,
+                      },
+                      {
+                        key: '2-8',
+                        label: <Link to="/admin/needed-by-management">Needed By Management</Link>,
+                      },
+                      {
+                        key: '2-9',
+                        label: <Link to="/admin/db-enum-management">Database Enum Management</Link>,
+                      },
+                      {
+                        key: '2-10',
+                        label: (
+                          <Link to="/admin/file-parser-management">File Parser Management</Link>
+                        ),
+                      },
+                      {
+                        key: '2-11',
+                        label: (
+                          <Link to="/admin/nav-menu-management">Navigation Menu Management</Link>
+                        ),
+                      },
+                    ],
+                  },
+                  {
+                    key: '3',
+                    icon: <ExperimentOutlined />,
+                    label: 'Lab Assets',
+                    children: [
+                      {
+                        key: '3-1',
+                        label: <Link to="/admin/instrument-management">Instrument Management</Link>,
+                      },
+                    ],
+                  },
+                  {
+                    key: '4',
+                    icon: <UserOutlined />,
+                    label: 'Client Management',
+                    children: [
+                      {
+                        key: '4-1',
+                        label: <Link to="/admin/clients">Client Management</Link>,
+                      },
+                      {
+                        key: '4-2',
+                        label: (
+                          <Link to="/admin/client-license-category">Client License Categories</Link>
+                        ),
+                      },
+                      {
+                        key: '4-3',
+                        label: <Link to="/admin/client-license-type">Client License Types</Link>,
+                      },
+                    ],
+                  },
+                  {
+                    key: '5',
+                    icon: <FileTextOutlined />,
+                    label: 'Batch SOPs',
+                    children: [
+                      {
+                        key: '5-1',
+                        label: <Link to="/admin/prep-batch-sop">Prep Batch SOPs</Link>,
+                      },
+                      {
+                        key: '5-2',
+                        label: <Link to="/admin/analytical-batch-sop">Analytical Batch SOPs</Link>,
+                      },
+                    ],
+                  },
+                  {
+                    key: '6',
+                    icon: <BugOutlined />,
+                    label: 'Debug',
+                    children: [
+                      {
+                        key: '6-1',
+                        label: <Link to="/debug/lab-context">Lab Context Debug</Link>,
+                      },
+                    ],
+                  },
+                ]
+          }
         />
       </Sider>
 
@@ -166,18 +288,27 @@ const AppLayout: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {/* Lab Selector in Header */}
-            <LabSelector size="small" showRefreshButton={false} />
+            {/* Lab Selector in Header - only show when authenticated */}
+            {isAuthenticated && <LabSelector size="small" showRefreshButton={false} />}
 
-            {/* User profile dropdown */}
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <Button type="text">
-                <Space>
-                  <Avatar icon={<UserOutlined />} />
-                  {user && <Text>{user.username}</Text>}
-                </Space>
+            {/* User profile dropdown - only show when authenticated */}
+            {isAuthenticated && (
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                <Button type="text">
+                  <Space>
+                    <Avatar icon={<UserOutlined />} />
+                    {user && <Text>{user.username}</Text>}
+                  </Space>
+                </Button>
+              </Dropdown>
+            )}
+
+            {/* Login button when not authenticated */}
+            {!isAuthenticated && (
+              <Button type="primary" onClick={() => navigate('/login')}>
+                Login
               </Button>
-            </Dropdown>
+            )}
           </div>
         </Header>
 
