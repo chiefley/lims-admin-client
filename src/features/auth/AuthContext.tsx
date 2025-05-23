@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.warn('⚠️ AuthContext: User is authenticated but no labs are available');
 
         // Try to fetch labs if we have a user but no labs
-        if (currentUser.userId) {
+        if (currentUser) {
           console.log('🔄 AuthContext: Attempting to fetch labs during initialization...');
           authService
             .refreshUserLabs()

@@ -285,11 +285,11 @@ const DebugLabContext: React.FC = () => {
           />
         )}
 
-        {!user?.userId && isAuthenticated && (
+        {isAuthenticated && userLabs.length === 0 && (
           <Alert
-            message="❌ Missing User ID"
-            description="The user is authenticated but no userId was found in the login response. This is required to fetch lab information."
-            type="error"
+            message="⚠️ No Labs Available"
+            description="The user is authenticated but no labs were fetched. This could indicate an API issue or the user has no lab assignments."
+            type="warning"
             showIcon
             style={{ marginBottom: 16 }}
           />
