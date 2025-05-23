@@ -11,9 +11,13 @@ using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Lab_Assets;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.PrepBatchSops;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Auth;
 
 namespace NCLims.App.Controllers;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
 [Route("api/ConfigurationMaintenance")]
 public class ConfigurationMaintenanceController : BaseController
 {
@@ -787,4 +791,72 @@ public class ConfigurationMaintenanceController : BaseController
             throw;
         }
     }
+
+    // Returns ServiceResponse<List<ClientRs>>
+    [HttpGet("FetchClientRss/{labId}")]
+    public async Task<IActionResult> FetchClientRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchClientRss(labId);
+            var sr = new ServiceResponse<List<ClientRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+
+    // Returns ServiceResponse<List<ClientRs>>
+    [HttpPut("UpsertClientRss/{labId}")]
+    public async Task<IActionResult> UpsertClientRss([FromBody] List<ClientRs> responses, int labId)
+    {
+        try
+        {
+            var payload = await _sopService.UpsertClientRss(responses, labId);
+            var sr = new ServiceResponse<List<ClientRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Returns ServiceResponse<List<UserLabRs>>
+    [HttpGet("FetchUserLabRss/{labId}")]
+    public async Task<IActionResult> FetchUserLabRss(int labId)
+    {
+        try
+        {
+            var payload = await _sopService.FetchUserLabRss(labId);
+            var sr = new ServiceResponse<List<UserLabRs>>
+            {
+                Data = payload,
+                Message = "Success",
+                Success = true
+            };
+            return Ok(sr);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
 }
