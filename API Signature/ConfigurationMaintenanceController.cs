@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using NCLims.Data;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ public class ConfigurationMaintenanceController : BaseController
         IConfigurationMaintenanceService sopService) : base(ctxFactory)
     {
         _sopService = sopService;
+        
     }
 
     // Returns ServiceResponse<ConfigurationMaintenanceSelectors>
@@ -838,12 +840,13 @@ public class ConfigurationMaintenanceController : BaseController
     }
 
     // Returns ServiceResponse<List<UserLabRs>>
-    [HttpGet("FetchUserLabRss/{labId}")]
-    public async Task<IActionResult> FetchUserLabRss(int labId)
+    [HttpGet("FetchUserLabRss")]
+    public async Task<IActionResult> FetchUserLabRss()
     {
         try
         {
-            var payload = await _sopService.FetchUserLabRss(labId);
+            var userId = GetUserId();
+            var payload = await _sopService.FetchUserLabRss(userId);
             var sr = new ServiceResponse<List<UserLabRs>>
             {
                 Data = payload,
@@ -857,6 +860,17 @@ public class ConfigurationMaintenanceController : BaseController
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    private int GetUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new InvalidOperationException("Cannot find user.");
+        }
+
+        return userId;
     }
 
 }

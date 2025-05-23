@@ -9,6 +9,7 @@ import authService from '../src/features/auth/authService';
 import PrivateRoute from '../src/features/auth/PrivateRoute';
 
 // Import layout components
+import DebugLabContext from './components/DebugLabContext';
 import { limsTheme } from './config/theme';
 import './styles/global.css';
 import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBatchSopDetail';
@@ -111,6 +112,7 @@ const App: React.FC = () => {
                         path="admin/potency-category-management"
                         element={<PotencyCategoryManagement />}
                       />
+                      <Route path="debug/lab-context" element={<DebugLabContext />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

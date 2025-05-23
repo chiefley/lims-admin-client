@@ -1,4 +1,4 @@
-// src/services/authService.ts
+// src/features/auth/authService.ts
 import axios from 'axios';
 
 import { apiClient } from '../../api/client';
@@ -18,14 +18,14 @@ export interface LoginResponse {
   refreshToken?: string;
   username: string;
   roles: string[];
-  userId: number; // Added userId to match the API response
   expires: string;
+  // Removed userId since it's not needed - the server gets this from the token
 }
 
 export interface User {
   username: string;
   roles: string[];
-  userId: number; // Added userId to support lab fetching
+  // Removed userId since we don't need it for API calls
 }
 
 /**
@@ -41,11 +41,24 @@ class AuthService {
    */
   async login(username: string, password: string): Promise<boolean> {
     try {
+      console.log('🚀 Starting login process for:', username);
+
       // Create API endpoint by combining base URL with auth endpoint
       const apiUrl = `${appConfig.api.baseUrl}/auth/login`;
 
+      console.log('🌐 Making login request to:', apiUrl);
+
       // Make a direct request to the authentication endpoint
       const response = await axios.post<LoginResponse>(apiUrl, { username, password });
+
+      console.log('✅ Login response received:', {
+        hasToken: !!response.data?.token,
+        username: response.data?.username,
+        roles: response.data?.roles,
+      });
+
+      // Debug: Log the entire response to see what fields are actually available
+      console.log('🔍 Full login response data:', response.data);
 
       if (response.data && response.data.token) {
         // Store the token and user info in localStorage
@@ -54,7 +67,6 @@ class AuthService {
         const userData: User = {
           username: response.data.username,
           roles: response.data.roles,
-          userId: response.data.userId,
         };
 
         localStorage.setItem(this.userKey, JSON.stringify(userData));
@@ -62,62 +74,126 @@ class AuthService {
         // Configure axios to use the token for future requests
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
-        // After successful login, fetch user labs
+        console.log('💾 User data stored, now fetching labs using authenticated token');
+
+        // After successful login, fetch user labs using the authenticated token
         try {
-          await this.fetchAndStoreUserLabs(response.data.userId);
-        } catch (labError) {
-          console.warn('Failed to fetch user labs during login:', labError);
-          // Don't fail the login if lab fetching fails
+          await this.fetchAndStoreUserLabs();
+          console.log('✅ User labs fetched and stored successfully');
+        } catch (labError: any) {
+          console.error('❌ Failed to fetch user labs during login:', labError);
+          // Don't fail the login if lab fetching fails, but let's investigate why
+
+          // Check if it's a network issue or API issue
+          if (labError.response) {
+            console.error('Lab fetch API error details:', {
+              status: labError.response.status,
+              statusText: labError.response.statusText,
+              data: labError.response.data,
+            });
+          } else if (labError.request) {
+            console.error('Lab fetch network error:', labError.request);
+          } else {
+            console.error('Lab fetch unknown error:', labError.message);
+          }
         }
 
         return true;
       }
 
+      console.log('❌ Login failed: No token in response');
       return false;
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (error: any) {
+      console.error('❌ Login failed with error:', error);
+
+      // More detailed error logging
+      if (error.response) {
+        console.error('Login API error details:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+        });
+      }
+
       return false;
     }
   }
 
   /**
-   * Fetch user labs for a specific user
-   * @param userId The user ID to fetch labs for
+   * Fetch user labs for the currently authenticated user
    * @returns Promise with array of UserLab data
    */
-  async fetchUserLabs(userId: number): Promise<UserLab[]> {
+  async fetchUserLabs(): Promise<UserLab[]> {
     try {
-      console.log(`Fetching user labs for user ID: ${userId}`);
+      console.log('🌐 Making API call to fetch user labs for authenticated user');
 
-      const response = await apiClient.get<ServiceResponse<UserLab[]>>(
-        `/configurationmaintenance/FetchUserLabRss/${userId}`
-      );
+      const endpoint = `/configurationmaintenance/FetchUserLabRss`;
+      console.log('📡 API endpoint:', endpoint);
+
+      const response = await apiClient.get<ServiceResponse<UserLab[]>>(endpoint);
+
+      console.log('📥 Raw API response:', {
+        hasData: !!response.data,
+        success: response.data?.success,
+        dataLength: response.data?.data?.length,
+        message: response.data?.message,
+      });
 
       if (!response.data || response.data.success === false) {
-        console.error('API returned error or no data:', response.data);
-        throw new Error(response.data?.message || 'Failed to fetch user labs');
+        const errorMessage = response.data?.message || 'Failed to fetch user labs';
+        console.error('API returned error:', errorMessage);
+        throw new Error(errorMessage);
       }
 
-      console.log(`API returned ${response.data.data?.length || 0} user labs`);
-      return response.data.data || [];
+      const userLabs = response.data.data || [];
+      console.log('✅ Successfully parsed user labs:', userLabs.length);
+
+      return userLabs;
     } catch (error: any) {
-      console.error('Error in fetchUserLabs service call:', error.message, error.response?.status);
+      console.error('❌ Error in fetchUserLabs service call:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        responseData: error.response?.data,
+      });
       throw error;
     }
   }
 
   /**
    * Fetch user labs and store them in localStorage
-   * @param userId The user ID to fetch labs for
    */
-  private async fetchAndStoreUserLabs(userId: number): Promise<void> {
+  private async fetchAndStoreUserLabs(): Promise<void> {
     try {
-      const userLabs = await this.fetchUserLabs(userId);
+      console.log('🔍 Fetching labs for authenticated user');
+
+      const userLabs = await this.fetchUserLabs();
+
+      console.log('📋 User labs fetched:', {
+        count: userLabs.length,
+        labs: userLabs.map(lab => ({
+          id: lab.labId,
+          name: lab.labName,
+          isDefault: lab.isDefaultLab,
+        })),
+      });
+
       localStorage.setItem(this.userLabsKey, JSON.stringify(userLabs));
+
+      console.log('💾 User labs stored in localStorage');
+
+      // Log default lab info
+      const defaultLab = userLabs.find(lab => lab.isDefaultLab);
+      if (defaultLab) {
+        console.log('🎯 Default lab found:', defaultLab.labName);
+      } else {
+        console.warn('⚠️ No default lab found in user labs');
+      }
     } catch (error) {
-      console.error('Failed to fetch and store user labs:', error);
+      console.error('❌ Failed to fetch and store user labs:', error);
       // Clear any existing lab data on error
       localStorage.removeItem(this.userLabsKey);
+      throw error; // Re-throw to let caller handle
     }
   }
 
@@ -129,11 +205,14 @@ class AuthService {
     try {
       const labsJson = localStorage.getItem(this.userLabsKey);
       if (labsJson) {
-        return JSON.parse(labsJson) as UserLab[];
+        const labs = JSON.parse(labsJson) as UserLab[];
+        console.log('📖 Retrieved user labs from storage:', labs.length);
+        return labs;
       }
     } catch (error) {
       console.error('Error parsing user labs from localStorage:', error);
     }
+    console.log('📖 No user labs found in storage');
     return [];
   }
 
@@ -143,7 +222,15 @@ class AuthService {
    */
   getDefaultLab(): UserLab | null {
     const userLabs = this.getUserLabs();
-    return userLabs.find(lab => lab.isDefaultLab) || null;
+    const defaultLab = userLabs.find(lab => lab.isDefaultLab) || null;
+
+    if (defaultLab) {
+      console.log('🎯 Default lab retrieved:', defaultLab.labName);
+    } else {
+      console.log('⚠️ No default lab found');
+    }
+
+    return defaultLab;
   }
 
   /**
@@ -177,8 +264,10 @@ class AuthService {
       throw new Error('No authenticated user found');
     }
 
-    const userLabs = await this.fetchUserLabs(user.userId);
+    console.log('🔄 Refreshing user labs for user:', user.username);
+    const userLabs = await this.fetchUserLabs();
     localStorage.setItem(this.userLabsKey, JSON.stringify(userLabs));
+    console.log('✅ User labs refreshed successfully');
     return userLabs;
   }
 
@@ -248,12 +337,14 @@ class AuthService {
    * Log the user out by removing stored tokens
    */
   logout(): void {
+    console.log('🚪 Logging out user');
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.userLabsKey);
 
     // Remove authorization header from future requests
     delete apiClient.defaults.headers.common['Authorization'];
+    console.log('✅ User logged out successfully');
   }
 
   /**
@@ -269,8 +360,16 @@ class AuthService {
   getUser(): User | null {
     const userJson = localStorage.getItem(this.userKey);
     if (userJson) {
-      return JSON.parse(userJson) as User;
+      try {
+        const user = JSON.parse(userJson) as User;
+        console.log('👤 Retrieved user from storage:', user.username);
+        return user;
+      } catch (error) {
+        console.error('Error parsing user from localStorage:', error);
+        return null;
+      }
     }
+    console.log('👤 No user found in storage');
     return null;
   }
 
@@ -278,7 +377,9 @@ class AuthService {
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
-    return this.getToken() !== null;
+    const hasToken = this.getToken() !== null;
+    console.log('🔐 Authentication check:', hasToken);
+    return hasToken;
   }
 
   /**
@@ -286,25 +387,33 @@ class AuthService {
    */
   hasRole(role: string): boolean {
     const user = this.getUser();
-    return user !== null && user.roles.includes(role);
+    const hasRole = user !== null && user.roles.includes(role);
+    console.log(`🔒 Role check for '${role}':`, hasRole);
+    return hasRole;
   }
 
   /**
    * Initialize auth state from localStorage when the app loads
    */
   initializeAuth(): void {
+    console.log('🚀 Initializing auth service...');
+
     const token = this.getToken();
     if (token) {
+      console.log('✅ Token found, setting up API client');
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       // Optionally refresh user labs on app initialization
       const user = this.getUser();
-      if (user && user.userId) {
+      if (user) {
+        console.log('🔄 Refreshing labs during initialization for user:', user.username);
         // Refresh labs in background, but don't block app initialization
-        this.fetchAndStoreUserLabs(user.userId).catch(error => {
-          console.warn('Failed to refresh user labs during initialization:', error);
+        this.fetchAndStoreUserLabs().catch(error => {
+          console.warn('⚠️ Failed to refresh user labs during initialization:', error);
         });
       }
+    } else {
+      console.log('ℹ️ No token found during initialization');
     }
   }
 }
