@@ -1,8 +1,8 @@
 // src/services/authService.ts
 import axios from 'axios';
 
-import { apiClient } from '../api/client';
-import appConfig from '../config/appConfig';
+import { apiClient } from '../../api/client';
+import appConfig from '../../config/appConfig';
 
 // Define types for authentication
 export interface LoginRequest {
@@ -36,7 +36,7 @@ class AuthService {
   async login(username: string, password: string): Promise<boolean> {
     try {
       // Create API endpoint by combining base URL with auth endpoint
-      const apiUrl = `${appConfig.api.baseUrl}/api/auth/login`;
+      const apiUrl = `${appConfig.api.baseUrl}/auth/login`;
 
       // Make a direct request to the authentication endpoint
       const response = await axios.post<LoginResponse>(apiUrl, { username, password });

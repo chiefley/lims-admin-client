@@ -15,7 +15,7 @@ import {
 import { Layout, Menu, Typography, theme, Dropdown, Button, Avatar, Space, Modal } from 'antd';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;

@@ -1,6 +1,7 @@
 // src/api/endpoints/auth.ts
-import { LoginResponse, LoginRequest } from '../../services/authService';
-import { apiClient } from '../client';
+import { apiClient } from '../../api/client';
+
+import { LoginResponse, LoginRequest } from './authService';
 
 /**
  * Auth API service for handling authentication related API calls

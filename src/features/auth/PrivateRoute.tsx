@@ -4,7 +4,7 @@ import React from 'react';
 import { Spin } from 'antd';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from './AuthContext';
 
 interface PrivateRouteProps {
   requiredRoles?: string[];

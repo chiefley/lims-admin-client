@@ -1,7 +1,7 @@
 // src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-import authService, { User } from '../services/authService';
+import authService, { User } from './authService';
 
 // Define the shape of our authentication context
 interface AuthContextType {

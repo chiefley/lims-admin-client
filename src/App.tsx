@@ -4,12 +4,16 @@ import React, { useEffect } from 'react';
 import { ConfigProvider, App as AntApp } from 'antd';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
+// Import authentication components
+import authService from '../src/features/auth/authService';
+import PrivateRoute from '../src/features/auth/PrivateRoute';
+
 // Import layout components
 import { limsTheme } from './config/theme';
 import './styles/global.css';
-import { AuthProvider } from './contexts/AuthContext';
 import AnalyticalBatchSopDetail from './features/analyticalBatchSop/AnalyticalBatchSopDetail';
 import AnalyticalBatchSopManagement from './features/analyticalBatchSop/AnalyticalBatchSopManagement';
+import { AuthProvider } from './features/auth/AuthContext';
 import Login from './features/auth/Login';
 import Unauthorized from './features/auth/Unauthorized';
 import CcCompoundManagement from './features/basicTables/CcCompoundManagement';
@@ -33,10 +37,6 @@ import PrepBatchSopManagement from './features/prepBatchSop/PrepBatchSopManageme
 import AppLayout from './features/shared/components/AppLayout';
 import ErrorBoundary from './features/shared/components/ErrorBoundary';
 import NotFound from './features/shared/pages/NotFound';
-
-// Import authentication components
-import PrivateRoute from './components/PrivateRoute';
-import authService from './services/authService';
 
 const App: React.FC = () => {
   // Initialize authentication when the app loads
