@@ -5,7 +5,7 @@ import { ConfigProvider, App as AntApp } from 'antd';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import authentication components
-import authService from '../src/features/auth/authService';
+import { authService } from '../src/features/auth/authService';
 import PrivateRoute from '../src/features/auth/PrivateRoute';
 
 // Import layout components
@@ -51,8 +51,8 @@ const App: React.FC = () => {
       <AuthProvider>
         <AntApp>
           <ErrorBoundary>
-            <NavigationProtectionProvider>
-              <Router>
+            <Router>
+              <NavigationProtectionProvider>
                 <Routes>
                   {/* Public routes */}
                   <Route path="/login" element={<Login />} />
@@ -127,8 +127,8 @@ const App: React.FC = () => {
                   {/* Default route - redirect to login */}
                   <Route path="*" element={<Navigate to="/login" />} />
                 </Routes>
-              </Router>
-            </NavigationProtectionProvider>
+              </NavigationProtectionProvider>
+            </Router>
           </ErrorBoundary>
         </AntApp>
       </AuthProvider>
