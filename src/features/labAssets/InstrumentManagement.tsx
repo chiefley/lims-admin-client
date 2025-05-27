@@ -20,6 +20,7 @@ const { Text } = Typography;
 
 const InstrumentManagement: React.FC = () => {
   const [instrumentTypes, setInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
+  const [originalInstrumentTypes, setOriginalInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [selectors, setSelectors] = useState<ConfigurationMaintenanceSelectors | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -30,7 +31,9 @@ const InstrumentManagement: React.FC = () => {
   const [filteredInstrumentTypes, setFilteredInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [showInactive, setShowInactive] = useState<boolean>(false);
 
-  useUnsavedChanges(hasChanges, mySaveFunction);
+  // Navigation protection - detect changes between original and current data
+  const hasChanges = JSON.stringify(originalInstrumentTypes) !== JSON.stringify(instrumentTypes);
+  useUnsavedChanges(hasChanges);
 
   // Load instrument types
   useEffect(() => {
@@ -44,6 +47,7 @@ const InstrumentManagement: React.FC = () => {
         ]);
 
         setInstrumentTypes(instrumentTypesData);
+        setOriginalInstrumentTypes(instrumentTypesData); // Store original data for change tracking
         setFilteredInstrumentTypes(instrumentTypesData);
         setSelectors(selectorsData);
         setError(null);
