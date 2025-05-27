@@ -34,6 +34,20 @@ const InstrumentManagement: React.FC = () => {
   // Change detection - properly compare original vs current data
   const hasChanges = JSON.stringify(originalInstrumentTypes) !== JSON.stringify(instrumentTypes);
 
+  // Debug change detection
+  useEffect(() => {
+    console.log('🔍 Change detection debug:', {
+      originalCount: originalInstrumentTypes.length,
+      currentCount: instrumentTypes.length,
+      hasChanges,
+      originalFirstItem: originalInstrumentTypes[0]?.name,
+      currentFirstItem: instrumentTypes[0]?.name,
+      // Show first few characters of stringified data for comparison
+      originalHash: JSON.stringify(originalInstrumentTypes).substring(0, 100),
+      currentHash: JSON.stringify(instrumentTypes).substring(0, 100),
+    });
+  }, [originalInstrumentTypes, instrumentTypes, hasChanges]);
+
   // Save function for navigation protection
   const saveAllChanges = useCallback(async (): Promise<boolean> => {
     try {
@@ -112,11 +126,20 @@ const InstrumentManagement: React.FC = () => {
           hasSelectors: !!selectorsData,
         });
 
+        // Create a proper deep copy for comparison
+        const deepCopy = JSON.parse(JSON.stringify(instrumentTypesData));
+
         setInstrumentTypes(instrumentTypesData);
-        setOriginalInstrumentTypes(JSON.parse(JSON.stringify(instrumentTypesData))); // Deep copy for comparison
+        setOriginalInstrumentTypes(deepCopy);
         setFilteredInstrumentTypes(instrumentTypesData);
         setSelectors(selectorsData);
         setError(null);
+
+        console.log('📊 Data loaded and states set:', {
+          instrumentTypesSet: instrumentTypesData.length,
+          originalSet: deepCopy.length,
+          areEqual: JSON.stringify(instrumentTypesData) === JSON.stringify(deepCopy),
+        });
       } catch (err: any) {
         setError(err.message || 'Failed to load instrument types');
         message.error('Failed to load instrument types');
@@ -213,9 +236,9 @@ const InstrumentManagement: React.FC = () => {
     setActiveTab('detail');
   };
 
-  // Handle updating an instrument type
+  // Handle updating an instrument type (for saves)
   const handleUpdateInstrumentType = async (updatedInstrumentType: InstrumentTypeRs) => {
-    console.log('✏️ Updating instrument type:', {
+    console.log('💾 Saving instrument type:', {
       id: updatedInstrumentType.instrumentTypeId,
       name: updatedInstrumentType.name,
     });
@@ -234,11 +257,29 @@ const InstrumentManagement: React.FC = () => {
       )
     );
 
-    message.success(
-      `Instrument type "${updatedInstrumentType.name || 'New Type'}" updated locally`
+    message.success(`Instrument type "${updatedInstrumentType.name || 'New Type'}" saved locally`);
+  };
+
+  // Handle real-time changes to an instrument type (for change detection)
+  const handleInstrumentTypeChange = (updatedInstrumentType: InstrumentTypeRs) => {
+    console.log('📝 Real-time change to instrument type:', {
+      id: updatedInstrumentType.instrumentTypeId,
+      name: updatedInstrumentType.name,
+    });
+
+    // Update the local state for change detection
+    const updatedInstrumentTypes = instrumentTypes.map(t =>
+      t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
     );
 
-    // Note: Changes will be saved when user navigates away or clicks save
+    setInstrumentTypes(updatedInstrumentTypes);
+
+    // Update filtered list if the item is visible
+    setFilteredInstrumentTypes(prev =>
+      prev.map(t =>
+        t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
+      )
+    );
   };
 
   // Get the currently selected instrument type
@@ -281,6 +322,20 @@ const InstrumentManagement: React.FC = () => {
           Save All Changes
         </Button>
       )}
+      {/* Debug button to test change detection */}
+      <Button
+        type="dashed"
+        onClick={() => {
+          if (instrumentTypes.length > 0) {
+            const updated = [...instrumentTypes];
+            updated[0] = { ...updated[0], name: (updated[0].name || 'Test') + ' Modified' };
+            setInstrumentTypes(updated);
+            console.log('🧪 Manual change applied for testing');
+          }
+        }}
+      >
+        Test Change
+      </Button>
     </Space>
   );
 
@@ -365,6 +420,7 @@ const InstrumentManagement: React.FC = () => {
               instrumentType={selectedInstrumentType}
               selectors={selectors}
               onUpdate={handleUpdateInstrumentType}
+              onChange={handleInstrumentTypeChange} // Add real-time change handler
               onBack={handleBackToList}
               showInactive={showInactive}
               onShowInactiveChange={handleShowInactiveChange}

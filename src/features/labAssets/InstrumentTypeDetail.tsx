@@ -34,6 +34,7 @@ interface InstrumentTypeDetailProps {
   instrumentType: InstrumentTypeRs;
   selectors: ConfigurationMaintenanceSelectors;
   onUpdate: (instrumentType: InstrumentTypeRs) => void;
+  onChange?: (instrumentType: InstrumentTypeRs) => void; // New prop for real-time changes
   onBack: () => void;
   showInactive?: boolean;
   onShowInactiveChange?: (checked: boolean) => void;
@@ -44,6 +45,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   instrumentType,
   selectors,
   onUpdate,
+  onChange, // New prop for real-time changes
   onBack,
   showInactive = false,
   onShowInactiveChange,
@@ -64,12 +66,34 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
     setEditing(instrumentType.instrumentTypeId < 0);
   }, [form, instrumentType]);
 
+  // Handle form field changes in real-time
+  const handleFormChange = (changedFields: any, allFields: any) => {
+    if (!editing) return;
+
+    // Create updated instrument type with form changes
+    const updatedType = {
+      ...currentInstrumentType,
+      ...allFields,
+      // Always ensure labId is set correctly from config
+      labId: appConfig.api.defaultLabId,
+    };
+
+    console.log('📝 Form changed in real-time:', {
+      changedFields,
+      updatedType: updatedType.name,
+    });
+
+    setCurrentInstrumentType(updatedType);
+
+    // Notify parent of real-time changes
+    if (onChange) {
+      onChange(updatedType);
+    }
+  };
+
   // Handle form submission
   const handleSave = async () => {
     try {
-      // We don't set saving state here as it's controlled by the parent
-      // Remove the line: setSaving(true);
-
       // Validate form
       const values = await form.validateFields();
 
@@ -81,6 +105,8 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
         labId: appConfig.api.defaultLabId,
       };
 
+      console.log('💾 Saving instrument type:', updatedInstrumentType.name);
+
       // Call parent update handler
       onUpdate(updatedInstrumentType);
       setCurrentInstrumentType(updatedInstrumentType);
@@ -89,30 +115,47 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
       console.error('Validation failed:', error);
       message.error('Please check the form for errors');
     }
-    // We don't need to set saving back to false here
-    // Remove the line: setSaving(false);
   };
 
   // Handle cancel editing
   const handleCancelEdit = () => {
     form.setFieldsValue(currentInstrumentType);
     setEditing(false);
+
+    // Reset to original state and notify parent
+    if (onChange) {
+      onChange(instrumentType);
+    }
   };
 
   // Handle changes to instruments
   const handleInstrumentsChange = (instruments: any[]) => {
-    setCurrentInstrumentType({
+    const updatedType = {
       ...currentInstrumentType,
       instrumentRss: instruments,
-    });
+    };
+
+    setCurrentInstrumentType(updatedType);
+
+    // Notify parent of changes
+    if (onChange) {
+      onChange(updatedType);
+    }
   };
 
   // Handle changes to analytes
   const handleAnalytesChange = (analytes: any[]) => {
-    setCurrentInstrumentType({
+    const updatedType = {
       ...currentInstrumentType,
       instrumentTypeAnalyteRss: analytes,
-    });
+    };
+
+    setCurrentInstrumentType(updatedType);
+
+    // Notify parent of changes
+    if (onChange) {
+      onChange(updatedType);
+    }
   };
 
   return (
@@ -162,6 +205,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
           layout="vertical"
           initialValues={currentInstrumentType}
           disabled={!editing}
+          onValuesChange={handleFormChange} // Add real-time change handler
         >
           <Tabs activeKey={activeTab} onChange={setActiveTab}>
             <TabPane tab="Basic Information" key="basic">
