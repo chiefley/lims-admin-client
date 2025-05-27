@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 import { message, Modal } from 'antd';
-import { useNavigate, useBlocker } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../features/auth/AuthContext';
 
@@ -97,28 +97,9 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasAnyUnsavedChanges, browserNavigation]);
 
-  // React Router navigation blocking
-  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
-    if (!hasAnyUnsavedChanges || isNavigatingRef.current) {
-      return false;
-    }
-    return currentLocation.pathname !== nextLocation.pathname;
-  });
-
-  // Handle blocked navigation
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      handleNavigationAttempt(
-        () => {
-          isNavigatingRef.current = true;
-          blocker.proceed();
-        },
-        () => {
-          blocker.reset();
-        }
-      );
-    }
-  }, [blocker]);
+  // Note: useBlocker requires data router, so we'll handle navigation protection differently
+  // Browser back/forward navigation will be caught by beforeunload
+  // Menu/link navigation will be handled by replacing links with protectedNavigate
 
   // Monitor lab changes and clear unsaved changes when lab switches
   useEffect(() => {
