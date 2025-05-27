@@ -280,6 +280,9 @@ const InstrumentManagement: React.FC = () => {
         t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
       )
     );
+
+    // Don't update the selected instrument type here to avoid re-renders during editing
+    // The detail component manages its own state during editing
   };
 
   // Get the currently selected instrument type

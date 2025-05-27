@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import {
@@ -58,37 +58,58 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   const [currentInstrumentType, setCurrentInstrumentType] =
     useState<InstrumentTypeRs>(instrumentType);
 
-  // Set form values when instrument type changes
+  // Use a ref to track the latest changes without triggering re-renders
+  const latestChangesRef = useRef<InstrumentTypeRs>(instrumentType);
+  const changeTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Debounced function to notify parent of changes
+  const debouncedNotifyChange = useCallback(() => {
+    if (onChange && latestChangesRef.current) {
+      console.log('📤 Notifying parent of debounced changes:', latestChangesRef.current.name);
+      onChange(latestChangesRef.current);
+    }
+  }, [onChange]);
+
+  // Set form values when instrument type changes from parent
   useEffect(() => {
-    form.setFieldsValue(instrumentType);
-    setCurrentInstrumentType(instrumentType);
-    // Auto enter edit mode for new records
-    setEditing(instrumentType.instrumentTypeId < 0);
-  }, [form, instrumentType]);
+    // Only update if this is a different instrument type (not our own changes coming back)
+    if (instrumentType.instrumentTypeId !== currentInstrumentType.instrumentTypeId) {
+      console.log('🔄 Instrument type changed from parent, updating form');
+      form.setFieldsValue(instrumentType);
+      setCurrentInstrumentType(instrumentType);
+      latestChangesRef.current = instrumentType;
+      setEditing(instrumentType.instrumentTypeId < 0);
+    }
+  }, [form, instrumentType, currentInstrumentType.instrumentTypeId]);
 
   // Handle form field changes in real-time
   const handleFormChange = (changedFields: any, allFields: any) => {
     if (!editing) return;
 
-    // Create updated instrument type with form changes
+    // Update local state immediately for responsive UI
     const updatedType = {
       ...currentInstrumentType,
       ...allFields,
-      // Always ensure labId is set correctly from config
       labId: appConfig.api.defaultLabId,
     };
 
-    console.log('📝 Form changed in real-time:', {
-      changedFields,
-      updatedType: updatedType.name,
+    console.log('📝 Form field changed:', {
+      field: Object.keys(changedFields)[0],
+      value: Object.values(changedFields)[0],
     });
 
     setCurrentInstrumentType(updatedType);
+    latestChangesRef.current = updatedType;
 
-    // Notify parent of real-time changes
-    if (onChange) {
-      onChange(updatedType);
+    // Clear existing timeout and set a new one
+    if (changeTimeoutRef.current) {
+      clearTimeout(changeTimeoutRef.current);
     }
+
+    // Debounce the parent notification to avoid constant re-renders
+    changeTimeoutRef.current = setTimeout(() => {
+      debouncedNotifyChange();
+    }, 500); // 500ms delay
   };
 
   // Handle form submission
@@ -119,7 +140,14 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
 
   // Handle cancel editing
   const handleCancelEdit = () => {
-    form.setFieldsValue(currentInstrumentType);
+    // Clear any pending debounced changes
+    if (changeTimeoutRef.current) {
+      clearTimeout(changeTimeoutRef.current);
+    }
+
+    form.setFieldsValue(instrumentType);
+    setCurrentInstrumentType(instrumentType);
+    latestChangesRef.current = instrumentType;
     setEditing(false);
 
     // Reset to original state and notify parent
@@ -127,6 +155,15 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
       onChange(instrumentType);
     }
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (changeTimeoutRef.current) {
+        clearTimeout(changeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Handle changes to instruments
   const handleInstrumentsChange = (instruments: any[]) => {
@@ -136,8 +173,9 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
     };
 
     setCurrentInstrumentType(updatedType);
+    latestChangesRef.current = updatedType;
 
-    // Notify parent of changes
+    // For child component changes, notify immediately (these are less frequent)
     if (onChange) {
       onChange(updatedType);
     }
@@ -151,8 +189,9 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
     };
 
     setCurrentInstrumentType(updatedType);
+    latestChangesRef.current = updatedType;
 
-    // Notify parent of changes
+    // For child component changes, notify immediately (these are less frequent)
     if (onChange) {
       onChange(updatedType);
     }
