@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 import { message, Modal } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../features/auth/AuthContext';
 
@@ -35,6 +35,11 @@ interface NavigationProtectionContextType {
    * Get count of components with unsaved changes
    */
   unsavedChangesCount: number;
+
+  /**
+   * Force navigation without protection (for internal use)
+   */
+  forceNavigate: (to: string, options?: any) => void;
 }
 
 const NavigationProtectionContext = createContext<NavigationProtectionContextType>({
@@ -43,6 +48,7 @@ const NavigationProtectionContext = createContext<NavigationProtectionContextTyp
   protectedNavigate: () => {},
   protectedSwitchLab: () => {},
   unsavedChangesCount: 0,
+  forceNavigate: () => {},
 });
 
 interface UnsavedComponent {
@@ -52,9 +58,6 @@ interface UnsavedComponent {
 
 interface NavigationProtectionProviderProps {
   children: ReactNode;
-  /**
-   * Custom messages for different navigation types
-   */
   messages?: {
     browserNavigation?: string;
     routerNavigation?: string;
@@ -75,18 +78,18 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
   const [unsavedComponents, setUnsavedComponents] = useState<Map<string, UnsavedComponent>>(
     new Map()
   );
+  const [isNavigating, setIsNavigating] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentLab, switchLab: originalSwitchLab, userLabs } = useAuth();
 
-  const isNavigatingRef = useRef(false);
   const currentLabIdRef = useRef(currentLab?.labId);
-
   const hasAnyUnsavedChanges = unsavedComponents.size > 0;
 
-  // Browser navigation protection
+  // Browser navigation protection (refresh, close tab, etc.)
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (hasAnyUnsavedChanges && !isNavigatingRef.current) {
+      if (hasAnyUnsavedChanges && !isNavigating) {
         event.preventDefault();
         event.returnValue = browserNavigation;
         return browserNavigation;
@@ -95,11 +98,41 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasAnyUnsavedChanges, browserNavigation]);
+  }, [hasAnyUnsavedChanges, browserNavigation, isNavigating]);
 
-  // Note: useBlocker requires data router, so we'll handle navigation protection differently
-  // Browser back/forward navigation will be caught by beforeunload
-  // Menu/link navigation will be handled by replacing links with protectedNavigate
+  // History navigation protection (back button, etc.)
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (hasAnyUnsavedChanges && !isNavigating) {
+        // Prevent the navigation
+        event.preventDefault();
+
+        // Push the current state back to keep user on current page
+        window.history.pushState(null, '', location.pathname + location.search);
+
+        // Show confirmation dialog
+        handleNavigationAttempt(
+          () => {
+            setIsNavigating(true);
+            // Allow the navigation by going back
+            window.history.back();
+            setTimeout(() => setIsNavigating(false), 100);
+          },
+          () => {
+            // User cancelled - do nothing, we've already restored the state
+          }
+        );
+      }
+    };
+
+    // Push current state to enable our popstate handler
+    window.history.pushState(null, '', location.pathname + location.search);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [hasAnyUnsavedChanges, isNavigating, location]);
 
   // Monitor lab changes and clear unsaved changes when lab switches
   useEffect(() => {
@@ -125,35 +158,29 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
   ) => {
     const componentsWithSave = Array.from(unsavedComponents.values()).filter(c => c.saveCallback);
 
-    interface ActionButton {
-      label: string;
-      action: () => Promise<void> | void;
-    }
-
-    const actions: ActionButton[] = [];
-
-    // Add save option if any component can save
-    if (componentsWithSave.length > 0) {
-      actions.push({
-        label: 'Save & Continue',
-        action: async () => {
-          let allSaved = true;
-          for (const component of componentsWithSave) {
-            if (component.saveCallback) {
-              const saved = await component.saveCallback();
-              if (!saved) {
-                allSaved = false;
-                break;
-              }
+    const handleSaveAndContinue = async () => {
+      let allSaved = true;
+      for (const component of componentsWithSave) {
+        if (component.saveCallback) {
+          try {
+            const saved = await component.saveCallback();
+            if (!saved) {
+              allSaved = false;
+              break;
             }
+          } catch (error) {
+            console.error('Save failed:', error);
+            message.error('Failed to save changes');
+            allSaved = false;
+            break;
           }
-          if (allSaved) {
-            setUnsavedComponents(new Map());
-            onProceed();
-          }
-        },
-      });
-    }
+        }
+      }
+      if (allSaved) {
+        setUnsavedComponents(new Map());
+        onProceed();
+      }
+    };
 
     Modal.confirm({
       title: 'Unsaved Changes',
@@ -167,26 +194,25 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
       },
       onCancel: onCancel,
       footer: (_, { OkBtn, CancelBtn }) => (
-        <>
+        <div style={{ textAlign: 'right' }}>
           <CancelBtn />
-          {actions.map((action, index) => (
+          {componentsWithSave.length > 0 && (
             <button
-              key={index}
               className="ant-btn ant-btn-primary"
-              onClick={action.action}
-              style={{ marginLeft: 8 }}
+              onClick={handleSaveAndContinue}
+              style={{ marginLeft: 8, marginRight: 8 }}
             >
-              {action.label}
+              Save & Continue
             </button>
-          ))}
+          )}
           <OkBtn />
-        </>
+        </div>
       ),
     });
   };
 
   /**
-   * Protected lab switching function - exposed for components to use
+   * Protected lab switching function
    */
   const protectedSwitchLab = (labId: number) => {
     if (!hasAnyUnsavedChanges) {
@@ -215,17 +241,21 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
    * Register a component as having unsaved changes
    */
   const registerUnsavedChanges = (componentId: string, saveCallback?: () => Promise<boolean>) => {
+    console.log('📝 Registering unsaved changes for:', componentId);
     setUnsavedComponents(prev => {
       const newMap = new Map(prev);
       newMap.set(componentId, { componentId, saveCallback });
+      console.log('📊 Total components with unsaved changes:', newMap.size);
       return newMap;
     });
 
     // Return unregister function
     return () => {
+      console.log('🧹 Unregistering unsaved changes for:', componentId);
       setUnsavedComponents(prev => {
         const newMap = new Map(prev);
         newMap.delete(componentId);
+        console.log('📊 Total components with unsaved changes:', newMap.size);
         return newMap;
       });
     };
@@ -242,22 +272,30 @@ export const NavigationProtectionProvider: React.FC<NavigationProtectionProvider
 
     handleNavigationAttempt(
       () => {
-        isNavigatingRef.current = true;
+        setIsNavigating(true);
         navigate(to, options);
-        setTimeout(() => {
-          isNavigatingRef.current = false;
-        }, 100);
+        setTimeout(() => setIsNavigating(false), 100);
       },
       () => {} // Do nothing on cancel
     );
+  };
+
+  /**
+   * Force navigation without protection (for internal use)
+   */
+  const forceNavigate = (to: string, options?: any) => {
+    setIsNavigating(true);
+    navigate(to, options);
+    setTimeout(() => setIsNavigating(false), 100);
   };
 
   const value = {
     registerUnsavedChanges,
     hasAnyUnsavedChanges,
     protectedNavigate,
-    protectedSwitchLab, // Add this to the context
+    protectedSwitchLab,
     unsavedChangesCount: unsavedComponents.size,
+    forceNavigate,
   };
 
   return (
@@ -280,7 +318,6 @@ export const useNavigationProtection = () => {
 
 /**
  * Simple hook for pages to register unsaved changes
- * This is the ONLY thing pages need to add!
  */
 export const useUnsavedChanges = (
   hasChanges: boolean,
@@ -291,26 +328,24 @@ export const useUnsavedChanges = (
   const componentId = useRef(componentName || `component_${Date.now()}_${Math.random()}`);
 
   useEffect(() => {
+    console.log('🔍 useUnsavedChanges effect triggered:', {
+      componentId: componentId.current,
+      hasChanges,
+      hasSaveCallback: !!saveCallback,
+    });
+
     if (hasChanges) {
-      return registerUnsavedChanges(componentId.current, saveCallback);
+      const unregister = registerUnsavedChanges(componentId.current, saveCallback);
+      return unregister;
     }
     return () => {}; // No-op unregister function
   }, [hasChanges, saveCallback, registerUnsavedChanges]);
-};
 
-/**
- * Enhanced LabSelector component that uses protection
- */
-export const ProtectedLabSelector: React.FC<{
-  style?: React.CSSProperties;
-  showRefreshButton?: boolean;
-  size?: 'small' | 'middle' | 'large';
-}> = ({ style, showRefreshButton = true, size = 'middle' }) => {
-  const { currentLab, userLabs, isLoading } = useAuth();
-  const { hasAnyUnsavedChanges } = useNavigationProtection();
-
-  // Your existing LabSelector UI code here, but use protectedSwitchLab
-  // (Implementation details would go here)
-
-  return null; // Placeholder
+  // Debug info
+  useEffect(() => {
+    console.log('📊 Component change status:', {
+      componentId: componentId.current,
+      hasChanges,
+    });
+  }, [hasChanges]);
 };

@@ -1,4 +1,4 @@
-// src/features/shared/components/AppLayout.tsx - Enhanced with Complete Menu Structure
+// src/features/shared/components/AppLayout.tsx - Enhanced with Navigation Protection
 import React, { useState } from 'react';
 
 import {
@@ -13,8 +13,9 @@ import {
   BugOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Typography, theme, Dropdown, Button, Avatar, Space, Modal } from 'antd';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 
+import { useNavigationProtection } from '../../../contexts/NavigationProtectionContext';
 import { useAuth } from '../../auth/AuthContext';
 import LabContextDisplay from '../../auth/LabContextDisplay';
 import LabSelector from '../../auth/LabSelector';
@@ -26,6 +27,7 @@ const AppLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { token } = theme.useToken();
   const { user, logout, currentLab, isAuthenticated } = useAuth();
+  const { protectedNavigate } = useNavigationProtection();
   const navigate = useNavigate();
 
   // Handle logout
@@ -40,6 +42,11 @@ const AppLayout: React.FC = () => {
       okText: 'Logout',
       cancelText: 'Cancel',
     });
+  };
+
+  // Protected navigation handler for menu items
+  const handleMenuClick = (path: string) => {
+    protectedNavigate(path);
   };
 
   // User dropdown menu items
@@ -62,7 +69,7 @@ const AppLayout: React.FC = () => {
       key: 'profile',
       icon: <UserOutlined />,
       label: 'My Profile',
-      onClick: () => navigate('/profile'),
+      onClick: () => handleMenuClick('/profile'),
     },
     {
       key: 'logout',
@@ -71,6 +78,55 @@ const AppLayout: React.FC = () => {
       onClick: handleLogout,
     },
   ];
+
+  // Enhanced menu items with protected navigation
+  interface MenuItem {
+    key: string;
+    icon?: React.ReactNode;
+    label: string;
+    onClick?: () => void;
+    children?: MenuItem[];
+  }
+
+  interface ChildMenuItem {
+    key: string;
+    label: string;
+    path: string;
+  }
+
+  const createMenuItem = (
+    key: string,
+    icon: React.ReactNode,
+    label: string,
+    path?: string,
+    children?: ChildMenuItem[]
+  ): MenuItem => {
+    if (children) {
+      return {
+        key,
+        icon,
+        label,
+        children: children.map(child =>
+          createMenuItem(child.key, undefined, child.label, child.path)
+        ),
+      };
+    }
+
+    if (path) {
+      return {
+        key,
+        icon,
+        label,
+        onClick: () => handleMenuClick(path),
+      };
+    }
+
+    return {
+      key,
+      icon,
+      label,
+    };
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -129,134 +185,91 @@ const AppLayout: React.FC = () => {
                   },
                 ]
               : [
-                  {
-                    key: '1',
-                    icon: <DashboardOutlined />,
-                    label: <Link to="/">Dashboard</Link>,
-                  },
-                  {
-                    key: '2',
-                    icon: <TableOutlined />,
-                    label: 'Basic Tables',
-                    children: [
-                      {
-                        key: '2-1',
-                        label: <Link to="/admin/compound-management">Compound Management</Link>,
-                      },
-                      {
-                        key: '2-2',
-                        label: (
-                          <Link to="/admin/cc-compound-management">CC Compound Management</Link>
-                        ),
-                      },
-                      {
-                        key: '2-3',
-                        label: <Link to="/admin/panel-management">Panel Management</Link>,
-                      },
-                      {
-                        key: '2-4',
-                        label: (
-                          <Link to="/admin/panel-group-management">Panel Group Management</Link>
-                        ),
-                      },
-                      {
-                        key: '2-5',
-                        label: (
-                          <Link to="/admin/test-category-management">Test Category Management</Link>
-                        ),
-                      },
-                      {
-                        key: '2-6',
-                        label: (
-                          <Link to="/admin/potency-category-management">
-                            Potency Category Management
-                          </Link>
-                        ),
-                      },
-                      {
-                        key: '2-7',
-                        label: <Link to="/admin/item-type-management">Item Type Management</Link>,
-                      },
-                      {
-                        key: '2-8',
-                        label: <Link to="/admin/needed-by-management">Needed By Management</Link>,
-                      },
-                      {
-                        key: '2-9',
-                        label: <Link to="/admin/db-enum-management">Database Enum Management</Link>,
-                      },
-                      {
-                        key: '2-10',
-                        label: (
-                          <Link to="/admin/file-parser-management">File Parser Management</Link>
-                        ),
-                      },
-                      {
-                        key: '2-11',
-                        label: (
-                          <Link to="/admin/nav-menu-management">Navigation Menu Management</Link>
-                        ),
-                      },
-                    ],
-                  },
-                  {
-                    key: '3',
-                    icon: <ExperimentOutlined />,
-                    label: 'Lab Assets',
-                    children: [
-                      {
-                        key: '3-1',
-                        label: <Link to="/admin/instrument-management">Instrument Management</Link>,
-                      },
-                    ],
-                  },
-                  {
-                    key: '4',
-                    icon: <UserOutlined />,
-                    label: 'Client Management',
-                    children: [
-                      {
-                        key: '4-1',
-                        label: <Link to="/admin/clients">Client Management</Link>,
-                      },
-                      {
-                        key: '4-2',
-                        label: (
-                          <Link to="/admin/client-license-category">Client License Categories</Link>
-                        ),
-                      },
-                      {
-                        key: '4-3',
-                        label: <Link to="/admin/client-license-type">Client License Types</Link>,
-                      },
-                    ],
-                  },
-                  {
-                    key: '5',
-                    icon: <FileTextOutlined />,
-                    label: 'Batch SOPs',
-                    children: [
-                      {
-                        key: '5-1',
-                        label: <Link to="/admin/prep-batch-sop">Prep Batch SOPs</Link>,
-                      },
-                      {
-                        key: '5-2',
-                        label: <Link to="/admin/analytical-batch-sop">Analytical Batch SOPs</Link>,
-                      },
-                    ],
-                  },
-                  {
-                    key: '6',
-                    icon: <BugOutlined />,
-                    label: 'Debug',
-                    children: [
-                      {
-                        key: '6-1',
-                        label: <Link to="/debug/lab-context">Lab Context Debug</Link>,
-                      },
-                    ],
-                  },
+                  createMenuItem('1', <DashboardOutlined />, 'Dashboard', '/'),
+                  createMenuItem('2', <TableOutlined />, 'Basic Tables', undefined, [
+                    {
+                      key: '2-1',
+                      label: 'Compound Management',
+                      path: '/admin/compound-management',
+                    },
+                    {
+                      key: '2-2',
+                      label: 'CC Compound Management',
+                      path: '/admin/cc-compound-management',
+                    },
+                    { key: '2-3', label: 'Panel Management', path: '/admin/panel-management' },
+                    {
+                      key: '2-4',
+                      label: 'Panel Group Management',
+                      path: '/admin/panel-group-management',
+                    },
+                    {
+                      key: '2-5',
+                      label: 'Test Category Management',
+                      path: '/admin/test-category-management',
+                    },
+                    {
+                      key: '2-6',
+                      label: 'Potency Category Management',
+                      path: '/admin/potency-category-management',
+                    },
+                    {
+                      key: '2-7',
+                      label: 'Item Type Management',
+                      path: '/admin/item-type-management',
+                    },
+                    {
+                      key: '2-8',
+                      label: 'Needed By Management',
+                      path: '/admin/needed-by-management',
+                    },
+                    {
+                      key: '2-9',
+                      label: 'Database Enum Management',
+                      path: '/admin/db-enum-management',
+                    },
+                    {
+                      key: '2-10',
+                      label: 'File Parser Management',
+                      path: '/admin/file-parser-management',
+                    },
+                    {
+                      key: '2-11',
+                      label: 'Navigation Menu Management',
+                      path: '/admin/nav-menu-management',
+                    },
+                  ]),
+                  createMenuItem('3', <ExperimentOutlined />, 'Lab Assets', undefined, [
+                    {
+                      key: '3-1',
+                      label: 'Instrument Management',
+                      path: '/admin/instrument-management',
+                    },
+                  ]),
+                  createMenuItem('4', <UserOutlined />, 'Client Management', undefined, [
+                    { key: '4-1', label: 'Client Management', path: '/admin/clients' },
+                    {
+                      key: '4-2',
+                      label: 'Client License Categories',
+                      path: '/admin/client-license-category',
+                    },
+                    {
+                      key: '4-3',
+                      label: 'Client License Types',
+                      path: '/admin/client-license-type',
+                    },
+                  ]),
+                  createMenuItem('5', <FileTextOutlined />, 'Batch SOPs', undefined, [
+                    { key: '5-1', label: 'Prep Batch SOPs', path: '/admin/prep-batch-sop' },
+                    {
+                      key: '5-2',
+                      label: 'Analytical Batch SOPs',
+                      path: '/admin/analytical-batch-sop',
+                    },
+                  ]),
+                  createMenuItem('6', <BugOutlined />, 'Debug', undefined, [
+                    { key: '6-1', label: 'Lab Context Debug', path: '/debug/lab-context' },
+                  ]),
                 ]
           }
         />

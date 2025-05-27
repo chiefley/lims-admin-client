@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
@@ -31,9 +31,70 @@ const InstrumentManagement: React.FC = () => {
   const [filteredInstrumentTypes, setFilteredInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [showInactive, setShowInactive] = useState<boolean>(false);
 
-  // Navigation protection - detect changes between original and current data
+  // Change detection - properly compare original vs current data
   const hasChanges = JSON.stringify(originalInstrumentTypes) !== JSON.stringify(instrumentTypes);
-  useUnsavedChanges(hasChanges);
+
+  // Save function for navigation protection
+  const saveAllChanges = useCallback(async (): Promise<boolean> => {
+    try {
+      setSaving(true);
+
+      // Filter out only the items that need saving (new items with negative IDs or changed items)
+      const itemsToSave = instrumentTypes.filter(item => {
+        // New items (negative IDs) or changed items
+        if (item.instrumentTypeId < 0) return true;
+
+        // Find corresponding original item
+        const originalItem = originalInstrumentTypes.find(
+          orig => orig.instrumentTypeId === item.instrumentTypeId
+        );
+        return originalItem && JSON.stringify(originalItem) !== JSON.stringify(item);
+      });
+
+      if (itemsToSave.length === 0) {
+        message.info('No changes to save');
+        return true;
+      }
+
+      console.log(
+        '💾 Saving changes for items:',
+        itemsToSave.map(i => ({ id: i.instrumentTypeId, name: i.name }))
+      );
+
+      // Save to server
+      const savedItems = await upsertInstrumentTypes(itemsToSave);
+
+      // Update the current data with saved results
+      let updatedTypes = [...instrumentTypes];
+
+      savedItems.forEach(savedItem => {
+        const index = updatedTypes.findIndex(
+          item =>
+            item.instrumentTypeId === savedItem.instrumentTypeId ||
+            (item.instrumentTypeId < 0 && item.name === savedItem.name) // Handle new items getting real IDs
+        );
+
+        if (index >= 0) {
+          updatedTypes[index] = savedItem;
+        }
+      });
+
+      setInstrumentTypes(updatedTypes);
+      setOriginalInstrumentTypes(updatedTypes);
+
+      message.success(`Successfully saved ${savedItems.length} instrument type(s)`);
+      return true;
+    } catch (error: any) {
+      console.error('Save failed:', error);
+      message.error(`Failed to save changes: ${error.message}`);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }, [instrumentTypes, originalInstrumentTypes]);
+
+  // Register unsaved changes with navigation protection
+  useUnsavedChanges(hasChanges, saveAllChanges, 'InstrumentManagement');
 
   // Load instrument types
   useEffect(() => {
@@ -46,8 +107,13 @@ const InstrumentManagement: React.FC = () => {
           fetchSelectors(),
         ]);
 
+        console.log('📊 Loaded data:', {
+          instrumentTypesCount: instrumentTypesData.length,
+          hasSelectors: !!selectorsData,
+        });
+
         setInstrumentTypes(instrumentTypesData);
-        setOriginalInstrumentTypes(instrumentTypesData); // Store original data for change tracking
+        setOriginalInstrumentTypes(JSON.parse(JSON.stringify(instrumentTypesData))); // Deep copy for comparison
         setFilteredInstrumentTypes(instrumentTypesData);
         setSelectors(selectorsData);
         setError(null);
@@ -70,7 +136,7 @@ const InstrumentManagement: React.FC = () => {
 
     // First filter by active status if not showing inactive items
     if (!showInactive) {
-      filtered = filtered.filter(type => type.active !== false); // Keep both true and undefined values
+      filtered = filtered.filter(type => type.active !== false);
     }
 
     // Then filter by search text if provided
@@ -94,7 +160,6 @@ const InstrumentManagement: React.FC = () => {
 
   // Handle deleting an instrument type
   const handleDeleteInstrumentType = (instrumentTypeId: number) => {
-    // Only allow deleting instrument types with negative IDs (unsaved)
     const instrumentType = instrumentTypes.find(t => t.instrumentTypeId === instrumentTypeId);
 
     if (!instrumentType) {
@@ -118,16 +183,13 @@ const InstrumentManagement: React.FC = () => {
       t => t.instrumentTypeId !== instrumentTypeId
     );
     setInstrumentTypes(updatedInstrumentTypes);
-    setFilteredInstrumentTypes(
-      filteredInstrumentTypes.filter(t => t.instrumentTypeId !== instrumentTypeId)
-    );
+    setFilteredInstrumentTypes(prev => prev.filter(t => t.instrumentTypeId !== instrumentTypeId));
 
     message.success('Instrument type deleted successfully');
   };
 
   // Handle creating a new instrument type
   const handleAddInstrumentType = () => {
-    // Create a new instrument type with default values
     const newInstrumentType: InstrumentTypeRs = {
       instrumentTypeId: -Date.now(), // Temporary negative ID
       name: '',
@@ -135,91 +197,48 @@ const InstrumentManagement: React.FC = () => {
       dataFolder: '',
       peakAreaSaturationThreshold: null,
       instrumentFileParser: null,
-      active: true, // New entries are active by default
-      labId: appConfig.api.defaultLabId, // Explicitly set the labId from config
+      active: true,
+      labId: appConfig.api.defaultLabId,
       instrumentRss: [],
       instrumentTypeAnalyteRss: [],
     };
 
-    // Add to the array of instrument types
-    setInstrumentTypes([...instrumentTypes, newInstrumentType]);
-    setFilteredInstrumentTypes([...filteredInstrumentTypes, newInstrumentType]);
+    console.log('➕ Adding new instrument type with ID:', newInstrumentType.instrumentTypeId);
+
+    setInstrumentTypes(prev => [...prev, newInstrumentType]);
+    setFilteredInstrumentTypes(prev => [...prev, newInstrumentType]);
 
     // Select the new instrument type for editing
     setSelectedInstrumentTypeId(newInstrumentType.instrumentTypeId);
     setActiveTab('detail');
   };
 
-  // Handle updating an instrument type - this now saves to the server
-  const handleUpdateInstrumentType = async (instrumentType: InstrumentTypeRs) => {
-    try {
-      setSaving(true);
+  // Handle updating an instrument type
+  const handleUpdateInstrumentType = async (updatedInstrumentType: InstrumentTypeRs) => {
+    console.log('✏️ Updating instrument type:', {
+      id: updatedInstrumentType.instrumentTypeId,
+      name: updatedInstrumentType.name,
+    });
 
-      // Create a copy of our instrument types with the updated one
-      const updatedInstrumentTypes = instrumentTypes.map(t =>
-        t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
-      );
+    // Update the local state immediately for better UX
+    const updatedInstrumentTypes = instrumentTypes.map(t =>
+      t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
+    );
 
-      // If it's a new record (negative ID), save it separately
-      if (instrumentType.instrumentTypeId < 0) {
-        // For new records, we just update local state and will save later
-        setInstrumentTypes(updatedInstrumentTypes);
+    setInstrumentTypes(updatedInstrumentTypes);
 
-        // Update the filtered list too
-        setFilteredInstrumentTypes(prev =>
-          prev.map(t =>
-            t.instrumentTypeId === instrumentType.instrumentTypeId ? instrumentType : t
-          )
-        );
+    // Update filtered list if the item is visible
+    setFilteredInstrumentTypes(prev =>
+      prev.map(t =>
+        t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
+      )
+    );
 
-        message.success(`Instrument type "${instrumentType.name}" created successfully`);
-      } else {
-        // For existing records, send to the server
-        // Find the instrument type to update
-        const typeToUpdate = updatedInstrumentTypes.find(
-          t => t.instrumentTypeId === instrumentType.instrumentTypeId
-        );
+    message.success(
+      `Instrument type "${updatedInstrumentType.name || 'New Type'}" updated locally`
+    );
 
-        if (!typeToUpdate) {
-          throw new Error(`Instrument type with ID ${instrumentType.instrumentTypeId} not found`);
-        }
-
-        // Ensure the labId is set correctly
-        const typeToSave = {
-          ...typeToUpdate,
-          labId: appConfig.api.defaultLabId, // Use the labId from config
-        };
-
-        // Save to the server - wrapping in an array as the API expects an array
-        const savedTypes = await upsertInstrumentTypes([typeToSave]);
-
-        if (savedTypes && savedTypes.length > 0) {
-          // Replace the updated item with the saved version from the server
-          const savedType = savedTypes[0];
-
-          // Update the main instrument types array
-          setInstrumentTypes(prev =>
-            prev.map(t => (t.instrumentTypeId === savedType.instrumentTypeId ? savedType : t))
-          );
-
-          // Update the filtered list too if it contains this item
-          if (
-            filteredInstrumentTypes.some(t => t.instrumentTypeId === savedType.instrumentTypeId)
-          ) {
-            setFilteredInstrumentTypes(prev =>
-              prev.map(t => (t.instrumentTypeId === savedType.instrumentTypeId ? savedType : t))
-            );
-          }
-
-          message.success(`Instrument type "${savedType.name}" updated successfully`);
-        }
-      }
-    } catch (err: any) {
-      message.error(`Failed to save instrument type: ${err.message}`);
-      console.error('Error saving instrument type:', err);
-    } finally {
-      setSaving(false);
-    }
+    // Note: Changes will be saved when user navigates away or clicks save
   };
 
   // Get the currently selected instrument type
@@ -238,7 +257,7 @@ const InstrumentManagement: React.FC = () => {
     setShowInactive(checked);
   };
 
-  // Define the extra content for the card section - search and add button
+  // Define the extra content for the card section
   const listActionsExtra = (
     <Space>
       <Input
@@ -252,6 +271,16 @@ const InstrumentManagement: React.FC = () => {
       <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrumentType}>
         Add Instrument Type
       </Button>
+      {hasChanges && (
+        <Button
+          type="primary"
+          onClick={saveAllChanges}
+          loading={saving}
+          style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+        >
+          Save All Changes
+        </Button>
+      )}
     </Space>
   );
 
@@ -260,6 +289,20 @@ const InstrumentManagement: React.FC = () => {
       <PageHeader
         title="Instrument Management"
         subtitle="Manage instrument types and instruments used in the laboratory"
+        extra={
+          hasChanges ? (
+            <div
+              style={{
+                padding: '8px 16px',
+                background: '#fff7e6',
+                border: '1px solid #ffd591',
+                borderRadius: '4px',
+              }}
+            >
+              <Text type="warning">⚠️ You have unsaved changes</Text>
+            </div>
+          ) : null
+        }
       />
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
@@ -267,6 +310,7 @@ const InstrumentManagement: React.FC = () => {
           tab={
             <span>
               <SettingOutlined /> Instrument Types
+              {hasChanges && <span style={{ color: '#faad14' }}> *</span>}
             </span>
           }
           key="list"
@@ -310,6 +354,7 @@ const InstrumentManagement: React.FC = () => {
           tab={
             <span>
               <SettingOutlined /> Instrument Type Details
+              {hasChanges && <span style={{ color: '#faad14' }}> *</span>}
             </span>
           }
           key="detail"
