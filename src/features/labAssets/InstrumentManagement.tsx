@@ -4,6 +4,7 @@ import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons
 import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
 
 import appConfig from '../../config/appConfig';
+import { useUnsavedChanges } from '../../contexts/NavigationProtectionContext';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
 import CardSection from '../shared/components/CardSection';
 import PageHeader from '../shared/components/PageHeader';
@@ -28,6 +29,8 @@ const InstrumentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('list');
   const [filteredInstrumentTypes, setFilteredInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [showInactive, setShowInactive] = useState<boolean>(false);
+
+  useUnsavedChanges(hasChanges, mySaveFunction);
 
   // Load instrument types
   useEffect(() => {

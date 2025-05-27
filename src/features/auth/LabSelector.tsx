@@ -4,6 +4,8 @@ import React from 'react';
 import { ExperimentOutlined, ReloadOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Select, Button, Space, Typography, Tag, Tooltip, message } from 'antd';
 
+import { useNavigationProtection } from '../../contexts/NavigationProtectionContext';
+
 import { useAuth } from './AuthContext';
 
 const { Text } = Typography;
@@ -17,23 +19,19 @@ interface LabSelectorProps {
 
 /**
  * Component for selecting and switching between available laboratories
+ * Now includes protection for unsaved changes
  */
 const LabSelector: React.FC<LabSelectorProps> = ({
   style,
   showRefreshButton = true,
   size = 'middle',
 }) => {
-  const { currentLab, userLabs, switchLab, refreshUserLabs, isLoading } = useAuth();
+  const { currentLab, userLabs, refreshUserLabs, isLoading } = useAuth();
+  const { protectedSwitchLab } = useNavigationProtection();
 
-  // Handle lab change
+  // Handle lab change with protection - this is the key change!
   const handleLabChange = (labId: number) => {
-    const success = switchLab(labId);
-    if (success) {
-      const selectedLab = userLabs.find(lab => lab.labId === labId);
-      message.success(`Switched to ${selectedLab?.labName}`);
-    } else {
-      message.error('Failed to switch laboratory');
-    }
+    protectedSwitchLab(labId);
   };
 
   // Handle refresh labs
