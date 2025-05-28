@@ -21,10 +21,10 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
   selectors,
   onChange,
   showInactive = false,
-  editing = true,
+  editing = false, // Now controlled by parent edit mode
 }) => {
   // Make sure instrumentPeripheralRss is always an array
-  const peripherals = instrument.instrumentPeripheralRss || []; // Fixed property name to match interface
+  const peripherals = instrument.instrumentPeripheralRss || [];
 
   // Since peripherals don't have an Active flag, the showInactive prop isn't applicable
   // But we keep it for API consistency with other tabs
@@ -34,7 +34,10 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
 
   // Handle adding a new peripheral
   const handleAddPeripheral = () => {
-    if (!editing) return;
+    if (!editing) {
+      message.warning('Cannot add peripherals - not in edit mode');
+      return;
+    }
 
     // Create new peripheral with default values
     const newPeripheral: InstrumentPeripheralRs = {
@@ -49,51 +52,85 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
     onChange(updatedPeripherals);
   };
 
-  // Handle saving a peripheral
-  const handleSavePeripheral = (peripheral: InstrumentPeripheralRs) => {
-    // Validate required fields
+  // Handle saving a peripheral with enhanced validation
+  const handleSavePeripheral = async (peripheral: InstrumentPeripheralRs): Promise<void> => {
+    if (!editing) {
+      message.warning('Cannot save changes - not in edit mode');
+      return Promise.reject('Not in edit mode');
+    }
+
+    // Enhanced validation
+    const errors: string[] = [];
+
     if (!peripheral.durableLabAssetId) {
-      message.error('Please select a durable lab asset');
-      return Promise.reject('Please select a durable lab asset');
+      errors.push('Lab asset selection is required');
     }
 
-    if (!peripheral.peripheralType) {
-      message.error('Please enter a peripheral type');
-      return Promise.reject('Please enter a peripheral type');
+    if (!peripheral.peripheralType?.trim()) {
+      errors.push('Peripheral type is required');
     }
 
-    // Simulate API call
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        // Get the asset name from selectors
-        const assetName =
-          selectors.durableLabAssets?.find(a => a.id === peripheral.durableLabAssetId)?.label ||
-          'Unknown';
-        message.success(`Peripheral "${assetName}" saved`);
+    if (peripheral.peripheralType && peripheral.peripheralType.length > 250) {
+      errors.push('Peripheral type cannot exceed 250 characters');
+    }
 
-        // Update the peripherals array
-        if (peripheral.instrumentPeripheralId < 0) {
-          // For new peripherals (negative ID)
-          const filteredPeripherals = peripherals.filter(
-            p => p.instrumentPeripheralId !== peripheral.instrumentPeripheralId
-          );
-          onChange([...filteredPeripherals, peripheral]);
-        } else {
-          // For existing peripherals
-          const updatedPeripherals = peripherals.map(p =>
-            p.instrumentPeripheralId === peripheral.instrumentPeripheralId ? peripheral : p
-          );
-          onChange(updatedPeripherals);
-        }
+    // Check for duplicate combinations within this instrument
+    const duplicateCombo = peripherals.find(
+      p =>
+        p.instrumentPeripheralId !== peripheral.instrumentPeripheralId &&
+        p.instrumentId === peripheral.instrumentId &&
+        p.peripheralType?.trim().toLowerCase() === peripheral.peripheralType?.trim().toLowerCase()
+    );
+    if (duplicateCombo && peripheral.peripheralType?.trim()) {
+      errors.push('This peripheral type is already configured for this instrument');
+    }
 
-        resolve();
-      }, 500);
-    });
+    if (errors.length > 0) {
+      message.error(`Validation failed: ${errors.join(', ')}`);
+      return Promise.reject(errors.join(', '));
+    }
+
+    // Clean up the peripheral object
+    const cleanPeripheral: InstrumentPeripheralRs = {
+      instrumentPeripheralId: peripheral.instrumentPeripheralId,
+      instrumentId: peripheral.instrumentId,
+      durableLabAssetId: peripheral.durableLabAssetId,
+      peripheralType: peripheral.peripheralType?.trim() || null,
+    };
+
+    // Get the asset name from selectors for the success message
+    const assetName =
+      selectors.durableLabAssets?.find(a => a.id === peripheral.durableLabAssetId)?.label ||
+      'Unknown';
+
+    // Update the peripherals array
+    let updatedPeripherals;
+    if (peripheral.instrumentPeripheralId < 0) {
+      // For new peripherals (negative ID)
+      const filteredPeripherals = peripherals.filter(
+        p => p.instrumentPeripheralId !== peripheral.instrumentPeripheralId
+      );
+      updatedPeripherals = [...filteredPeripherals, cleanPeripheral];
+    } else {
+      // For existing peripherals
+      updatedPeripherals = peripherals.map(p =>
+        p.instrumentPeripheralId === peripheral.instrumentPeripheralId ? cleanPeripheral : p
+      );
+    }
+
+    onChange(updatedPeripherals);
+    message.success(`Peripheral "${assetName}" saved`);
+
+    return Promise.resolve();
   };
 
   // Handle deleting a peripheral
-  // For peripherals, we use hard deletion as that's the expected pattern
   const handleDeletePeripheral = (peripheral: InstrumentPeripheralRs) => {
+    if (!editing) {
+      message.warning('Cannot delete peripherals - not in edit mode');
+      return;
+    }
+
     // Update by filtering out the deleted peripheral
     const updatedPeripherals = peripherals.filter(
       p => p.instrumentPeripheralId !== peripheral.instrumentPeripheralId
@@ -114,7 +151,7 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
       title: 'Lab Asset',
       dataIndex: 'durableLabAssetId',
       key: 'durableLabAssetId',
-      editable: true,
+      editable: editing,
       inputType: 'select',
       options:
         selectors.durableLabAssets?.map(asset => ({
@@ -123,6 +160,10 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
         })) || [],
       rules: [{ required: true, message: 'Please select a lab asset' }],
       render: (assetId: number) => {
+        if (!assetId) {
+          return <span className="data-placeholder">Select asset...</span>;
+        }
+
         const asset = selectors.durableLabAssets?.find(a => a.id === assetId);
         return asset ? asset.label : `Asset ID: ${assetId}`;
       },
@@ -131,7 +172,7 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
       title: 'Peripheral Type',
       dataIndex: 'peripheralType',
       key: 'peripheralType',
-      editable: true,
+      editable: editing,
       inputType: 'select',
       // Use a custom component that allows both selection from a list and custom input
       // This is a combobox control as specified in the requirements
@@ -150,9 +191,27 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
         { required: true, message: 'Please enter a peripheral type' },
         { max: 250, message: 'Type cannot exceed 250 characters' },
       ],
-      render: (text: string) => text || '-',
+      render: (text: string) => text || <span className="data-placeholder">Enter type...</span>,
     },
   ];
+
+  // Custom row class to highlight validation errors
+  const getRowClassName = (record: InstrumentPeripheralRs) => {
+    if (editing && (!record.durableLabAssetId || !record.peripheralType?.trim())) {
+      return 'validation-error-row';
+    }
+    return '';
+  };
+
+  // Check for validation errors in the current data
+  const hasValidationErrors =
+    editing && filteredPeripherals.some(p => !p.durableLabAssetId || !p.peripheralType?.trim());
+
+  // Check for duplicate peripheral types
+  const peripheralTypes = filteredPeripherals
+    .map(p => p.peripheralType?.trim().toLowerCase())
+    .filter(Boolean);
+  const hasDuplicateTypes = peripheralTypes.length !== new Set(peripheralTypes).size;
 
   return (
     <div style={{ padding: '8px 0' }}>
@@ -167,7 +226,11 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
       {filteredPeripherals.length === 0 ? (
         <Alert
           message="No Peripherals"
-          description="No peripherals have been configured for this instrument."
+          description={
+            editing
+              ? 'No peripherals have been configured for this instrument. Click "Add Peripheral" to create one.'
+              : 'No peripherals have been configured for this instrument.'
+          }
           type="info"
           showIcon
         />
@@ -181,7 +244,27 @@ const PeripheralsTab: React.FC<PeripheralsTabProps> = ({
           onSave={handleSavePeripheral}
           onDelete={handleDeletePeripheral}
           editable={editing}
+          rowClassName={getRowClassName}
+          autoSaveOnUnmount={false} // Disable auto-save since we're managing edit mode at page level
         />
+      )}
+
+      {editing && (hasValidationErrors || hasDuplicateTypes) && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: '8px 12px',
+            background: '#fff2f0',
+            border: '1px solid #ffccc7',
+            borderRadius: '4px',
+            fontSize: '14px',
+            color: '#cf1322',
+          }}
+        >
+          ⚠️ {hasValidationErrors && 'Some peripherals are missing required information. '}
+          {hasDuplicateTypes && 'Duplicate peripheral types detected. '}
+          Please fix all validation errors.
+        </div>
       )}
     </div>
   );

@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  PlusOutlined,
+  SettingOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+} from '@ant-design/icons';
 import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
 
 import appConfig from '../../config/appConfig';
+import { useUnsavedChanges } from '../../contexts/NavigationProtectionContext';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
-import useBeforeUnloadProtection from '../../hooks/useBeforeUnloadProtection';
 import CardSection from '../shared/components/CardSection';
 import PageHeader from '../shared/components/PageHeader';
 import { fetchSelectors } from '../shared/sharedService';
@@ -17,6 +24,12 @@ import { InstrumentTypeRs } from './types';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
+
+interface TabValidationError {
+  tabKey: string;
+  hasErrors: boolean;
+  errorMessage?: string;
+}
 
 const InstrumentManagement: React.FC = () => {
   const [instrumentTypes, setInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
@@ -31,22 +44,27 @@ const InstrumentManagement: React.FC = () => {
   const [filteredInstrumentTypes, setFilteredInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [showInactive, setShowInactive] = useState<boolean>(false);
 
-  // Simple high-level change detection - compare the entire graph
-  const hasChanges = JSON.stringify(originalInstrumentTypes) !== JSON.stringify(instrumentTypes);
+  // Page-level edit mode state
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [tabValidationErrors, setTabValidationErrors] = useState<TabValidationError[]>([]);
+  const [pendingTabSwitch, setPendingTabSwitch] = useState<string | null>(null);
 
-  // Debug change detection
-  useEffect(() => {
-    console.log('🔍 Change detection:', {
-      hasChanges,
-      originalCount: originalInstrumentTypes.length,
-      currentCount: instrumentTypes.length,
-    });
-  }, [hasChanges, originalInstrumentTypes.length, instrumentTypes.length]);
+  // Enhanced change detection: Edit mode OR actual data changes
+  const hasDataChanges =
+    JSON.stringify(originalInstrumentTypes) !== JSON.stringify(instrumentTypes);
+  const hasUnsavedChanges = editMode || hasDataChanges;
 
   // Save function
   const saveAllChanges = useCallback(async (): Promise<boolean> => {
     try {
       setSaving(true);
+
+      // Page-level validation before save
+      const pageValidationErrors = validateEntireConfiguration();
+      if (pageValidationErrors.length > 0) {
+        message.error(`Cannot save: ${pageValidationErrors.join(', ')}`);
+        return false;
+      }
 
       const itemsToSave = instrumentTypes.filter(item => {
         if (item.instrumentTypeId < 0) return true;
@@ -57,7 +75,7 @@ const InstrumentManagement: React.FC = () => {
         return originalItem && JSON.stringify(originalItem) !== JSON.stringify(item);
       });
 
-      if (itemsToSave.length === 0) {
+      if (itemsToSave.length === 0 && !editMode) {
         message.info('No changes to save');
         return true;
       }
@@ -67,7 +85,11 @@ const InstrumentManagement: React.FC = () => {
         itemsToSave.map(i => ({ id: i.instrumentTypeId, name: i.name }))
       );
 
-      const savedItems = await upsertInstrumentTypes(itemsToSave);
+      let savedItems: InstrumentTypeRs[] = [];
+
+      if (itemsToSave.length > 0) {
+        savedItems = await upsertInstrumentTypes(itemsToSave);
+      }
 
       let updatedTypes = [...instrumentTypes];
 
@@ -85,8 +107,14 @@ const InstrumentManagement: React.FC = () => {
 
       setInstrumentTypes(updatedTypes);
       setOriginalInstrumentTypes(JSON.parse(JSON.stringify(updatedTypes)));
+      setEditMode(false); // Exit edit mode
+      setTabValidationErrors([]); // Clear validation errors
 
-      message.success(`Successfully saved ${savedItems.length} instrument type(s)`);
+      message.success(
+        itemsToSave.length > 0
+          ? `Successfully saved ${savedItems.length} instrument type(s)`
+          : 'Configuration saved successfully'
+      );
       return true;
     } catch (error: any) {
       console.error('Save failed:', error);
@@ -95,18 +123,152 @@ const InstrumentManagement: React.FC = () => {
     } finally {
       setSaving(false);
     }
-  }, [instrumentTypes, originalInstrumentTypes]);
+  }, [instrumentTypes, originalInstrumentTypes, editMode]);
 
-  // BeforeUnload protection - this will catch most navigation scenarios
-  useBeforeUnloadProtection({
-    enabled: hasChanges,
-    message: 'You have unsaved changes in Instrument Management. Are you sure you want to leave?',
-    onBeforeUnload: () => {
-      console.log('⚠️ User attempting to leave with unsaved changes in Instrument Management');
-      // You could attempt an auto-save here if desired
-      // saveAllChanges();
-    },
-  });
+  // Register for navigation protection
+  useUnsavedChanges(hasUnsavedChanges, saveAllChanges, 'InstrumentManagement');
+
+  // Debug change detection
+  useEffect(() => {
+    console.log('🔍 Change detection:', {
+      editMode,
+      hasDataChanges,
+      hasUnsavedChanges,
+      originalCount: originalInstrumentTypes.length,
+      currentCount: instrumentTypes.length,
+    });
+  }, [
+    editMode,
+    hasDataChanges,
+    hasUnsavedChanges,
+    originalInstrumentTypes.length,
+    instrumentTypes.length,
+  ]);
+
+  // Page-level validation function
+  const validateEntireConfiguration = (): string[] => {
+    const errors: string[] = [];
+
+    instrumentTypes.forEach((instrumentType, index) => {
+      // Basic validation
+      if (!instrumentType.name?.trim()) {
+        errors.push(`Instrument Type #${index + 1}: Name is required`);
+      }
+      if (!instrumentType.measurementType?.trim()) {
+        errors.push(
+          `${instrumentType.name || `Instrument Type #${index + 1}`}: Measurement Type is required`
+        );
+      }
+      if (!instrumentType.dataFolder?.trim()) {
+        errors.push(
+          `${instrumentType.name || `Instrument Type #${index + 1}`}: Data Folder is required`
+        );
+      }
+      if (!instrumentType.instrumentFileParser) {
+        errors.push(
+          `${instrumentType.name || `Instrument Type #${index + 1}`}: File Parser Type is required`
+        );
+      }
+
+      // Cross-tab validation
+      instrumentType.instrumentRss?.forEach((instrument, instIndex) => {
+        if (!instrument.name?.trim()) {
+          errors.push(`${instrumentType.name}: Instrument #${instIndex + 1} name is required`);
+        }
+      });
+
+      instrumentType.instrumentTypeAnalyteRss?.forEach((analyte, anaIndex) => {
+        if (!analyte.analyteId) {
+          errors.push(`${instrumentType.name}: Analyte #${anaIndex + 1} selection is required`);
+        }
+        if (!analyte.analyteAlias?.trim()) {
+          errors.push(`${instrumentType.name}: Analyte #${anaIndex + 1} alias is required`);
+        }
+      });
+    });
+
+    return errors;
+  };
+
+  // Tab validation function
+  const validateTab = (instrumentType: InstrumentTypeRs, tabKey: string): TabValidationError => {
+    const errors: string[] = [];
+
+    switch (tabKey) {
+      case 'basic':
+        if (!instrumentType.name?.trim()) errors.push('Name is required');
+        if (!instrumentType.measurementType?.trim()) errors.push('Measurement Type is required');
+        if (!instrumentType.dataFolder?.trim()) errors.push('Data Folder is required');
+        if (!instrumentType.instrumentFileParser) errors.push('File Parser Type is required');
+        break;
+
+      case 'instruments':
+        instrumentType.instrumentRss?.forEach((instrument, index) => {
+          if (!instrument.name?.trim()) {
+            errors.push(`Instrument #${index + 1} name is required`);
+          }
+        });
+        break;
+
+      case 'analytes':
+        instrumentType.instrumentTypeAnalyteRss?.forEach((analyte, index) => {
+          if (!analyte.analyteId) {
+            errors.push(`Analyte #${index + 1} selection is required`);
+          }
+          if (!analyte.analyteAlias?.trim()) {
+            errors.push(`Analyte #${index + 1} alias is required`);
+          }
+        });
+        break;
+    }
+
+    return {
+      tabKey,
+      hasErrors: errors.length > 0,
+      errorMessage: errors.length > 0 ? errors.join(', ') : undefined,
+    };
+  };
+
+  // Handle tab switching with validation
+  const handleTabChange = (newTabKey: string) => {
+    if (!editMode) {
+      setActiveTab(newTabKey);
+      return;
+    }
+
+    // If we're in detail view and switching tabs, validate current tab
+    if (activeTab === 'detail' && selectedInstrumentTypeId) {
+      const selectedInstrumentType = instrumentTypes.find(
+        t => t.instrumentTypeId === selectedInstrumentTypeId
+      );
+
+      if (selectedInstrumentType) {
+        // We need the current tab within the detail view, not the top-level tab
+        // For now, allow switching and handle validation at save time
+        setActiveTab(newTabKey);
+        return;
+      }
+    }
+
+    setActiveTab(newTabKey);
+  };
+
+  // Handle entering edit mode
+  const handleStartEdit = () => {
+    console.log('📝 Entering edit mode');
+    setEditMode(true);
+    setTabValidationErrors([]);
+  };
+
+  // Handle canceling edit mode
+  const handleCancelEdit = () => {
+    console.log('❌ Canceling edit mode');
+    // Restore original data
+    setInstrumentTypes(JSON.parse(JSON.stringify(originalInstrumentTypes)));
+    setEditMode(false);
+    setTabValidationErrors([]);
+    message.info('Changes discarded');
+  };
 
   // Load instrument types
   useEffect(() => {
@@ -169,6 +331,11 @@ const InstrumentManagement: React.FC = () => {
 
   // Handle deleting an instrument type
   const handleDeleteInstrumentType = (instrumentTypeId: number) => {
+    if (!editMode) {
+      message.warning('Enter edit mode to delete instrument types');
+      return;
+    }
+
     const instrumentType = instrumentTypes.find(t => t.instrumentTypeId === instrumentTypeId);
 
     if (!instrumentType) {
@@ -197,6 +364,11 @@ const InstrumentManagement: React.FC = () => {
 
   // Handle creating a new instrument type
   const handleAddInstrumentType = () => {
+    if (!editMode) {
+      message.warning('Enter edit mode to add new instrument types');
+      return;
+    }
+
     const newInstrumentType: InstrumentTypeRs = {
       instrumentTypeId: -Date.now(),
       name: '',
@@ -259,6 +431,34 @@ const InstrumentManagement: React.FC = () => {
     setShowInactive(checked);
   };
 
+  // Render edit mode controls
+  const renderEditModeControls = () => {
+    if (editMode) {
+      return (
+        <Space>
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={saveAllChanges}
+            loading={saving}
+            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+          >
+            Save All Changes
+          </Button>
+          <Button icon={<CloseOutlined />} onClick={handleCancelEdit} disabled={saving}>
+            Cancel
+          </Button>
+        </Space>
+      );
+    }
+
+    return (
+      <Button type="primary" icon={<EditOutlined />} onClick={handleStartEdit}>
+        Edit
+      </Button>
+    );
+  };
+
   const listActionsExtra = (
     <Space>
       <Input
@@ -268,22 +468,30 @@ const InstrumentManagement: React.FC = () => {
         onChange={e => setSearchText(e.target.value)}
         style={{ width: 250 }}
         allowClear
+        disabled={saving}
       />
-      <Button type="primary" icon={<PlusOutlined />} onClick={handleAddInstrumentType}>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={handleAddInstrumentType}
+        disabled={!editMode}
+      >
         Add Instrument Type
       </Button>
-      {hasChanges && (
-        <Button
-          type="primary"
-          onClick={saveAllChanges}
-          loading={saving}
-          style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-        >
-          Save All Changes
-        </Button>
-      )}
+      {renderEditModeControls()}
     </Space>
   );
+
+  // Get tab status indicator
+  const getTabStatus = (tabKey: string) => {
+    if (!editMode) return null;
+
+    const tabError = tabValidationErrors.find(e => e.tabKey === tabKey);
+    if (tabError?.hasErrors) {
+      return <span style={{ color: '#ff4d4f' }}>❌</span>;
+    }
+    return null;
+  };
 
   return (
     <div className="page-container">
@@ -291,27 +499,30 @@ const InstrumentManagement: React.FC = () => {
         title="Instrument Management"
         subtitle="Manage instrument types and instruments used in the laboratory"
         extra={
-          hasChanges ? (
+          hasUnsavedChanges ? (
             <div
               style={{
                 padding: '8px 16px',
-                background: '#fff7e6',
-                border: '1px solid #ffd591',
+                background: editMode ? '#fff7e6' : '#fffbe6',
+                border: `1px solid ${editMode ? '#ffd591' : '#ffe58f'}`,
                 borderRadius: '4px',
               }}
             >
-              <Text type="warning">⚠️ You have unsaved changes</Text>
+              <Text type="warning">
+                {editMode ? '✏️ Edit Mode Active' : '⚠️ You have unsaved changes'}
+              </Text>
             </div>
           ) : null
         }
       />
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab}>
+      <Tabs activeKey={activeTab} onChange={handleTabChange}>
         <TabPane
           tab={
             <span>
               <SettingOutlined /> Instrument Types
-              {hasChanges && <span style={{ color: '#faad14' }}> *</span>}
+              {getTabStatus('list')}
+              {hasUnsavedChanges && <span style={{ color: '#faad14' }}>*</span>}
             </span>
           }
           key="list"
@@ -355,7 +566,8 @@ const InstrumentManagement: React.FC = () => {
           tab={
             <span>
               <SettingOutlined /> Instrument Type Details
-              {hasChanges && <span style={{ color: '#faad14' }}> *</span>}
+              {getTabStatus('detail')}
+              {hasUnsavedChanges && <span style={{ color: '#faad14' }}>*</span>}
             </span>
           }
           key="detail"
@@ -370,6 +582,13 @@ const InstrumentManagement: React.FC = () => {
               showInactive={showInactive}
               onShowInactiveChange={handleShowInactiveChange}
               saving={saving}
+              editMode={editMode}
+              onValidationChange={(tabKey, hasErrors, errorMessage) => {
+                setTabValidationErrors(prev => [
+                  ...prev.filter(e => e.tabKey !== tabKey),
+                  { tabKey, hasErrors, errorMessage },
+                ]);
+              }}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '24px' }}>

@@ -160,8 +160,6 @@ body {
   text-align: right;
 }
 
-/* Add these styles to src/styles/global.css */
-
 /* Styling for inactive rows */
 .inactive-row {
   background-color: #fafafa;
@@ -192,4 +190,273 @@ body {
 /* Style for inactive switches */
 .ant-switch:not(.ant-switch-checked) {
   background-color: #ff4d4f;
+}
+
+/* ========================================
+   PAGE-LEVEL EDIT MODE ENHANCEMENTS
+   ======================================== */
+
+/* Edit mode indicator styling */
+.edit-mode-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: linear-gradient(90deg, #e6f7ff 0%, #f0f9ff 100%);
+  border: 1px solid #91d5ff;
+  border-radius: 16px;
+  color: #1677ff;
+  font-weight: 500;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.edit-mode-indicator::before {
+  content: '✏️';
+  margin-right: 4px;
+}
+
+/* Validation error row highlighting */
+.validation-error-row {
+  background-color: #fff2f0 !important;
+  border-left: 3px solid #ff4d4f;
+}
+
+.validation-error-row:hover {
+  background-color: #ffe7e6 !important;
+}
+
+.validation-error-row td {
+  border-bottom-color: #ffccc7;
+}
+
+/* Enhanced tab styling for validation states */
+.ant-tabs-tab-with-remove .anticon-close {
+  display: none;
+}
+
+.ant-tabs-tab[aria-selected='true'] {
+  background-color: #f0f9ff;
+}
+
+/* Tab validation indicators */
+.ant-tabs-tab .anticon-check-circle {
+  color: #52c41a;
+  font-size: 12px;
+}
+
+.ant-tabs-tab .anticon-exclamation-circle {
+  color: #ff4d4f;
+  font-size: 12px;
+  animation: pulse-error 2s infinite;
+}
+
+@keyframes pulse-error {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Edit mode form enhancements */
+.ant-form-item-has-error .ant-input,
+.ant-form-item-has-error .ant-select-selector,
+.ant-form-item-has-error .ant-picker {
+  border-color: #ff4d4f !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* Enhanced form field focus states in edit mode */
+.ant-form:not([disabled]) .ant-input:focus,
+.ant-form:not([disabled]) .ant-select-focused .ant-select-selector,
+.ant-form:not([disabled]) .ant-picker-focused {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+}
+
+/* Read-only form styling */
+.ant-form[disabled] {
+  opacity: 0.8;
+}
+
+.ant-form[disabled] .ant-input,
+.ant-form[disabled] .ant-select-selector,
+.ant-form[disabled] .ant-picker {
+  background-color: #f5f5f5;
+  cursor: default;
+}
+
+/* Action button styling */
+.edit-mode-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.edit-mode-actions .ant-btn-primary {
+  background: #52c41a;
+  border-color: #52c41a;
+}
+
+.edit-mode-actions .ant-btn-primary:hover {
+  background: #73d13d;
+  border-color: #73d13d;
+}
+
+/* Validation summary styling */
+.validation-summary {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 6px;
+  border-left: 4px solid #ff4d4f;
+}
+
+.validation-summary-title {
+  font-weight: 600;
+  color: #cf1322;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.validation-summary-title::before {
+  content: '⚠️';
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.validation-summary-item {
+  color: #cf1322;
+  font-size: 14px;
+  margin-bottom: 4px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.validation-summary-item::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.validation-summary-item strong {
+  color: #a8071a;
+}
+
+/* Enhanced unsaved changes indicator */
+.unsaved-changes-indicator {
+  padding: 8px 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.unsaved-changes-indicator.edit-mode {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbe6 100%);
+  border: 1px solid #ffd591;
+  color: #d46b08;
+}
+
+.unsaved-changes-indicator.has-changes {
+  background: linear-gradient(135deg, #fffbe6 0%, #fff1b8 100%);
+  border: 1px solid #ffe58f;
+  color: #d48806;
+}
+
+.unsaved-changes-indicator::before {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.unsaved-changes-indicator.edit-mode::before {
+  content: '✏️';
+}
+
+.unsaved-changes-indicator.has-changes::before {
+  content: '⚠️';
+}
+
+/* Page-level validation improvements */
+.required-field-indicator {
+  color: #ff4d4f;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+/* Enhanced table edit mode styling */
+.ant-table-tbody .ant-table-cell-editing {
+  background-color: rgba(22, 119, 255, 0.05);
+  border: 1px solid #91d5ff;
+  padding: 4px 8px !important;
+}
+
+/* Disabled state improvements */
+.ant-btn:disabled {
+  opacity: 0.5;
+}
+
+.ant-input:disabled,
+.ant-select-disabled .ant-select-selector {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* Loading state improvements */
+.ant-spin-container {
+  transition: opacity 0.3s;
+}
+
+.ant-spin-blur {
+  opacity: 0.5;
+}
+
+/* Mobile responsiveness for edit mode */
+@media (max-width: 768px) {
+  .edit-mode-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .edit-mode-actions .ant-btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .edit-mode-actions .ant-btn:last-child {
+    margin-bottom: 0;
+  }
+
+  .unsaved-changes-indicator {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+/* Print styles for edit mode */
+@media print {
+  .edit-mode-actions,
+  .validation-summary,
+  .unsaved-changes-indicator {
+    display: none !important;
+  }
+
+  .validation-error-row {
+    background-color: transparent !important;
+    border-left: none !important;
+  }
 }

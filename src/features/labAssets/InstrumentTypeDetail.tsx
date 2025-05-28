@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import {
+  ArrowLeftOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import {
   Form,
   Input,
@@ -38,6 +42,14 @@ interface InstrumentTypeDetailProps {
   showInactive?: boolean;
   onShowInactiveChange?: (checked: boolean) => void;
   saving?: boolean;
+  editMode?: boolean;
+  onValidationChange?: (tabKey: string, hasErrors: boolean, errorMessage?: string) => void;
+}
+
+interface TabValidationError {
+  tabKey: string;
+  hasErrors: boolean;
+  errorMessage?: string;
 }
 
 const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
@@ -48,54 +60,166 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
   showInactive = false,
   onShowInactiveChange,
   saving = false,
+  editMode = false,
+  onValidationChange,
 }) => {
   const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState('basic');
-  const [editing, setEditing] = useState(instrumentType.instrumentTypeId < 0);
   const [loading, setLoading] = useState(false);
   const [currentInstrumentType, setCurrentInstrumentType] =
     useState<InstrumentTypeRs>(instrumentType);
+  const [tabValidationErrors, setTabValidationErrors] = useState<TabValidationError[]>([]);
+  const [pendingTabSwitch, setPendingTabSwitch] = useState<string | null>(null);
 
   // Update when props change
   useEffect(() => {
     form.setFieldsValue(instrumentType);
     setCurrentInstrumentType(instrumentType);
-    setEditing(instrumentType.instrumentTypeId < 0);
   }, [form, instrumentType]);
 
-  // Handle form submission/save
-  const handleSave = async () => {
-    try {
-      const values = await form.validateFields();
+  // Tab validation function
+  const validateTab = (tabKey: string): TabValidationError => {
+    const errors: string[] = [];
 
-      const updatedInstrumentType: InstrumentTypeRs = {
-        ...currentInstrumentType,
-        ...values,
-        labId: appConfig.api.defaultLabId,
-      };
+    switch (tabKey) {
+      case 'basic':
+        if (!currentInstrumentType.name?.trim()) errors.push('Name is required');
+        if (!currentInstrumentType.measurementType?.trim())
+          errors.push('Measurement Type is required');
+        if (!currentInstrumentType.dataFolder?.trim()) errors.push('Data Folder is required');
+        if (!currentInstrumentType.instrumentFileParser)
+          errors.push('File Parser Type is required');
 
-      console.log('💾 Saving changes to instrument type:', updatedInstrumentType.name);
+        // Additional basic validations
+        if (currentInstrumentType.name && currentInstrumentType.name.length > 150) {
+          errors.push('Name cannot exceed 150 characters');
+        }
+        if (
+          currentInstrumentType.measurementType &&
+          currentInstrumentType.measurementType.length > 150
+        ) {
+          errors.push('Measurement Type cannot exceed 150 characters');
+        }
+        if (currentInstrumentType.dataFolder && currentInstrumentType.dataFolder.length > 250) {
+          errors.push('Data Folder cannot exceed 250 characters');
+        }
+        break;
 
-      onUpdate(updatedInstrumentType);
-      setCurrentInstrumentType(updatedInstrumentType);
-      setEditing(false);
+      case 'instruments':
+        currentInstrumentType.instrumentRss?.forEach((instrument, index) => {
+          if (!instrument.name?.trim()) {
+            errors.push(`Instrument #${index + 1} name is required`);
+          }
+          if (instrument.name && instrument.name.length > 150) {
+            errors.push(`Instrument #${index + 1} name cannot exceed 150 characters`);
+          }
+          // Validate dates
+          if (instrument.lastPM && instrument.nextPm) {
+            const lastPM = new Date(instrument.lastPM);
+            const nextPM = new Date(instrument.nextPm);
+            if (nextPM <= lastPM) {
+              errors.push(`Instrument #${index + 1}: Next PM must be after Last PM`);
+            }
+          }
+        });
+        break;
 
-      message.success('Changes saved successfully');
-    } catch (error) {
-      console.error('Validation failed:', error);
-      message.error('Please check the form for errors');
+      case 'analytes':
+        currentInstrumentType.instrumentTypeAnalyteRss?.forEach((analyte, index) => {
+          if (!analyte.analyteId) {
+            errors.push(`Analyte #${index + 1} selection is required`);
+          }
+          if (!analyte.analyteAlias?.trim()) {
+            errors.push(`Analyte #${index + 1} alias is required`);
+          }
+          if (analyte.analyteAlias && analyte.analyteAlias.length > 150) {
+            errors.push(`Analyte #${index + 1} alias cannot exceed 150 characters`);
+          }
+        });
+
+        // Check for duplicate analyte aliases within this instrument type
+        const aliases = currentInstrumentType.instrumentTypeAnalyteRss
+          ?.map(a => a.analyteAlias?.trim().toLowerCase())
+          .filter(alias => alias);
+
+        if (aliases && aliases.length !== new Set(aliases).size) {
+          errors.push('Analyte aliases must be unique within this instrument type');
+        }
+        break;
     }
+
+    return {
+      tabKey,
+      hasErrors: errors.length > 0,
+      errorMessage: errors.length > 0 ? errors.join(', ') : undefined,
+    };
   };
 
-  // Handle cancel editing
-  const handleCancelEdit = () => {
-    form.setFieldsValue(instrumentType);
-    setCurrentInstrumentType(instrumentType);
-    setEditing(false);
+  // Update tab validation when data changes
+  useEffect(() => {
+    if (!editMode) {
+      setTabValidationErrors([]);
+      return;
+    }
+
+    const basicValidation = validateTab('basic');
+    const instrumentsValidation = validateTab('instruments');
+    const analytesValidation = validateTab('analytes');
+
+    const newValidationErrors = [basicValidation, instrumentsValidation, analytesValidation];
+    setTabValidationErrors(newValidationErrors);
+
+    // Notify parent of validation changes
+    if (onValidationChange) {
+      newValidationErrors.forEach(validation => {
+        onValidationChange(validation.tabKey, validation.hasErrors, validation.errorMessage);
+      });
+    }
+  }, [currentInstrumentType, editMode, onValidationChange]);
+
+  // Handle tab switching with validation
+  const handleTabChange = (newTabKey: string) => {
+    if (!editMode) {
+      setActiveTab(newTabKey);
+      return;
+    }
+
+    // Check current tab for errors
+    const currentTabValidation = tabValidationErrors.find(e => e.tabKey === activeTab);
+
+    if (currentTabValidation?.hasErrors) {
+      message.error(`Cannot switch tabs: ${currentTabValidation.errorMessage}`);
+      setPendingTabSwitch(newTabKey);
+      return;
+    }
+
+    setActiveTab(newTabKey);
+    setPendingTabSwitch(null);
   };
 
-  // Handle changes to instruments - update parent immediately
+  // Handle form field changes
+  const handleFieldChange = () => {
+    if (!editMode) return;
+
+    // Update current instrument type with form values
+    const formValues = form.getFieldsValue();
+    const updatedType = {
+      ...currentInstrumentType,
+      ...formValues,
+      labId: appConfig.api.defaultLabId,
+    };
+
+    setCurrentInstrumentType(updatedType);
+    onUpdate(updatedType);
+  };
+
+  // Handle changes to instruments
   const handleInstrumentsChange = (instruments: any[]) => {
+    if (!editMode) {
+      message.warning('Cannot modify instruments - not in edit mode');
+      return;
+    }
+
     console.log('🔧 handleInstrumentsChange called:', {
       instrumentCount: instruments.length,
       instrumentNames: instruments.map(i => i.name || 'New'),
@@ -107,13 +231,16 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
     };
 
     setCurrentInstrumentType(updatedType);
-
-    console.log('🔧 Calling onUpdate for instruments change');
-    onUpdate(updatedType); // Notify parent immediately
+    onUpdate(updatedType);
   };
 
-  // Handle changes to analytes - update parent immediately
+  // Handle changes to analytes
   const handleAnalytesChange = (analytes: any[]) => {
+    if (!editMode) {
+      message.warning('Cannot modify analytes - not in edit mode');
+      return;
+    }
+
     console.log('🧪 handleAnalytesChange called:', {
       analyteCount: analytes.length,
       analyteAliases: analytes.map(a => a.analyteAlias || 'New'),
@@ -125,9 +252,28 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
     };
 
     setCurrentInstrumentType(updatedType);
+    onUpdate(updatedType);
+  };
 
-    console.log('🧪 Calling onUpdate for analytes change');
-    onUpdate(updatedType); // Notify parent immediately
+  // Get tab status indicator
+  const getTabStatus = (tabKey: string) => {
+    if (!editMode) return null;
+
+    const tabError = tabValidationErrors.find(e => e.tabKey === tabKey);
+    if (tabError?.hasErrors) {
+      return <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginLeft: 4 }} />;
+    }
+    return <CheckCircleOutlined style={{ color: '#52c41a', marginLeft: 4 }} />;
+  };
+
+  // Get tab title with validation status
+  const getTabTitle = (title: string, tabKey: string) => {
+    return (
+      <span>
+        {title}
+        {getTabStatus(tabKey)}
+      </span>
+    );
   };
 
   return (
@@ -145,24 +291,8 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
             <Button icon={<ArrowLeftOutlined />} onClick={onBack}>
               Back to Instrument Types
             </Button>
-            {editing ? (
-              <>
-                <Button
-                  type="primary"
-                  icon={<SaveOutlined />}
-                  onClick={handleSave}
-                  loading={saving}
-                >
-                  Save Changes
-                </Button>
-                <Button onClick={handleCancelEdit} disabled={saving}>
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <Button type="primary" onClick={() => setEditing(true)}>
-                Edit
-              </Button>
+            {editMode && (
+              <div style={{ color: '#1890ff', fontWeight: 500 }}>✏️ Edit Mode Active</div>
             )}
           </Space>
           {onShowInactiveChange && (
@@ -176,10 +306,11 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
           form={form}
           layout="vertical"
           initialValues={currentInstrumentType}
-          disabled={!editing}
+          disabled={!editMode}
+          onValuesChange={handleFieldChange}
         >
-          <Tabs activeKey={activeTab} onChange={setActiveTab}>
-            <TabPane tab="Basic Information" key="basic">
+          <Tabs activeKey={activeTab} onChange={handleTabChange}>
+            <TabPane tab={getTabTitle('Basic Information', 'basic')} key="basic">
               <CardSection title="Instrument Type Details" style={stylePresets.contentCard}>
                 <Row gutter={24}>
                   <Col span={12}>
@@ -274,7 +405,7 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
               </CardSection>
             </TabPane>
 
-            <TabPane tab="Instruments" key="instruments">
+            <TabPane tab={getTabTitle('Instruments', 'instruments')} key="instruments">
               <CardSection title="Instruments">
                 <div style={{ marginBottom: 16, textAlign: 'right' }}>
                   {onShowInactiveChange && (
@@ -292,12 +423,12 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                   selectors={selectors}
                   onChange={handleInstrumentsChange}
                   showInactive={showInactive}
-                  editing={editing}
+                  editing={editMode}
                 />
               </CardSection>
             </TabPane>
 
-            <TabPane tab="Analytes" key="analytes">
+            <TabPane tab={getTabTitle('Analytes', 'analytes')} key="analytes">
               <CardSection title="Analytes">
                 <div style={{ marginBottom: 16, textAlign: 'right' }}>
                   {onShowInactiveChange && (
@@ -315,12 +446,46 @@ const InstrumentTypeDetail: React.FC<InstrumentTypeDetailProps> = ({
                   selectors={selectors}
                   onChange={handleAnalytesChange}
                   showInactive={showInactive}
-                  editing={editing}
+                  editing={editMode}
                 />
               </CardSection>
             </TabPane>
           </Tabs>
         </Form>
+
+        {/* Show validation summary if there are errors */}
+        {editMode && tabValidationErrors.some(e => e.hasErrors) && (
+          <div style={{ marginTop: 16 }}>
+            <div
+              style={{
+                padding: '12px 16px',
+                background: '#fff2f0',
+                border: '1px solid #ffccc7',
+                borderRadius: '4px',
+              }}
+            >
+              <div style={{ fontWeight: 500, marginBottom: 8, color: '#cf1322' }}>
+                ⚠️ Validation Errors:
+              </div>
+              {tabValidationErrors
+                .filter(e => e.hasErrors)
+                .map(error => (
+                  <div key={error.tabKey} style={{ color: '#cf1322', fontSize: '14px' }}>
+                    •{' '}
+                    <strong>
+                      {error.tabKey === 'basic'
+                        ? 'Basic Information'
+                        : error.tabKey === 'instruments'
+                        ? 'Instruments'
+                        : 'Analytes'}
+                      :
+                    </strong>{' '}
+                    {error.errorMessage}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
     </Spin>
   );
