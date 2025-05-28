@@ -4,8 +4,8 @@ import { SearchOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons
 import { Typography, Spin, Alert, Tabs, Input, Button, Space, message, Checkbox } from 'antd';
 
 import appConfig from '../../config/appConfig';
-import { useUnsavedChanges } from '../../contexts/NavigationProtectionContext';
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
+import useBeforeUnloadProtection from '../../hooks/useBeforeUnloadProtection';
 import CardSection from '../shared/components/CardSection';
 import PageHeader from '../shared/components/PageHeader';
 import { fetchSelectors } from '../shared/sharedService';
@@ -31,34 +31,26 @@ const InstrumentManagement: React.FC = () => {
   const [filteredInstrumentTypes, setFilteredInstrumentTypes] = useState<InstrumentTypeRs[]>([]);
   const [showInactive, setShowInactive] = useState<boolean>(false);
 
-  // Change detection - properly compare original vs current data
+  // Simple high-level change detection - compare the entire graph
   const hasChanges = JSON.stringify(originalInstrumentTypes) !== JSON.stringify(instrumentTypes);
 
   // Debug change detection
   useEffect(() => {
-    console.log('🔍 Change detection debug:', {
+    console.log('🔍 Change detection:', {
+      hasChanges,
       originalCount: originalInstrumentTypes.length,
       currentCount: instrumentTypes.length,
-      hasChanges,
-      originalFirstItem: originalInstrumentTypes[0]?.name,
-      currentFirstItem: instrumentTypes[0]?.name,
-      // Show first few characters of stringified data for comparison
-      originalHash: JSON.stringify(originalInstrumentTypes).substring(0, 100),
-      currentHash: JSON.stringify(instrumentTypes).substring(0, 100),
     });
-  }, [originalInstrumentTypes, instrumentTypes, hasChanges]);
+  }, [hasChanges, originalInstrumentTypes.length, instrumentTypes.length]);
 
-  // Save function for navigation protection
+  // Save function
   const saveAllChanges = useCallback(async (): Promise<boolean> => {
     try {
       setSaving(true);
 
-      // Filter out only the items that need saving (new items with negative IDs or changed items)
       const itemsToSave = instrumentTypes.filter(item => {
-        // New items (negative IDs) or changed items
         if (item.instrumentTypeId < 0) return true;
 
-        // Find corresponding original item
         const originalItem = originalInstrumentTypes.find(
           orig => orig.instrumentTypeId === item.instrumentTypeId
         );
@@ -75,17 +67,15 @@ const InstrumentManagement: React.FC = () => {
         itemsToSave.map(i => ({ id: i.instrumentTypeId, name: i.name }))
       );
 
-      // Save to server
       const savedItems = await upsertInstrumentTypes(itemsToSave);
 
-      // Update the current data with saved results
       let updatedTypes = [...instrumentTypes];
 
       savedItems.forEach(savedItem => {
         const index = updatedTypes.findIndex(
           item =>
             item.instrumentTypeId === savedItem.instrumentTypeId ||
-            (item.instrumentTypeId < 0 && item.name === savedItem.name) // Handle new items getting real IDs
+            (item.instrumentTypeId < 0 && item.name === savedItem.name)
         );
 
         if (index >= 0) {
@@ -94,7 +84,7 @@ const InstrumentManagement: React.FC = () => {
       });
 
       setInstrumentTypes(updatedTypes);
-      setOriginalInstrumentTypes(updatedTypes);
+      setOriginalInstrumentTypes(JSON.parse(JSON.stringify(updatedTypes)));
 
       message.success(`Successfully saved ${savedItems.length} instrument type(s)`);
       return true;
@@ -107,15 +97,22 @@ const InstrumentManagement: React.FC = () => {
     }
   }, [instrumentTypes, originalInstrumentTypes]);
 
-  // Register unsaved changes with navigation protection
-  useUnsavedChanges(hasChanges, saveAllChanges, 'InstrumentManagement');
+  // BeforeUnload protection - this will catch most navigation scenarios
+  useBeforeUnloadProtection({
+    enabled: hasChanges,
+    message: 'You have unsaved changes in Instrument Management. Are you sure you want to leave?',
+    onBeforeUnload: () => {
+      console.log('⚠️ User attempting to leave with unsaved changes in Instrument Management');
+      // You could attempt an auto-save here if desired
+      // saveAllChanges();
+    },
+  });
 
   // Load instrument types
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // Fetch both instrument types and selectors in parallel
         const [instrumentTypesData, selectorsData] = await Promise.all([
           fetchInstrumentTypes(),
           fetchSelectors(),
@@ -126,20 +123,11 @@ const InstrumentManagement: React.FC = () => {
           hasSelectors: !!selectorsData,
         });
 
-        // Create a proper deep copy for comparison
-        const deepCopy = JSON.parse(JSON.stringify(instrumentTypesData));
-
         setInstrumentTypes(instrumentTypesData);
-        setOriginalInstrumentTypes(deepCopy);
+        setOriginalInstrumentTypes(JSON.parse(JSON.stringify(instrumentTypesData)));
         setFilteredInstrumentTypes(instrumentTypesData);
         setSelectors(selectorsData);
         setError(null);
-
-        console.log('📊 Data loaded and states set:', {
-          instrumentTypesSet: instrumentTypesData.length,
-          originalSet: deepCopy.length,
-          areEqual: JSON.stringify(instrumentTypesData) === JSON.stringify(deepCopy),
-        });
       } catch (err: any) {
         setError(err.message || 'Failed to load instrument types');
         message.error('Failed to load instrument types');
@@ -157,12 +145,10 @@ const InstrumentManagement: React.FC = () => {
 
     let filtered = [...instrumentTypes];
 
-    // First filter by active status if not showing inactive items
     if (!showInactive) {
       filtered = filtered.filter(type => type.active !== false);
     }
 
-    // Then filter by search text if provided
     if (searchText) {
       filtered = filtered.filter(
         type =>
@@ -195,13 +181,11 @@ const InstrumentManagement: React.FC = () => {
       return;
     }
 
-    // Check if the instrument type has instruments
     if (instrumentType?.instrumentRss && instrumentType.instrumentRss.length > 0) {
       message.error('Cannot delete instrument type with associated instruments');
       return;
     }
 
-    // Update the state to remove the deleted instrument type
     const updatedInstrumentTypes = instrumentTypes.filter(
       t => t.instrumentTypeId !== instrumentTypeId
     );
@@ -214,7 +198,7 @@ const InstrumentManagement: React.FC = () => {
   // Handle creating a new instrument type
   const handleAddInstrumentType = () => {
     const newInstrumentType: InstrumentTypeRs = {
-      instrumentTypeId: -Date.now(), // Temporary negative ID
+      instrumentTypeId: -Date.now(),
       name: '',
       measurementType: '',
       dataFolder: '',
@@ -231,58 +215,32 @@ const InstrumentManagement: React.FC = () => {
     setInstrumentTypes(prev => [...prev, newInstrumentType]);
     setFilteredInstrumentTypes(prev => [...prev, newInstrumentType]);
 
-    // Select the new instrument type for editing
     setSelectedInstrumentTypeId(newInstrumentType.instrumentTypeId);
     setActiveTab('detail');
   };
 
-  // Handle updating an instrument type (for saves)
-  const handleUpdateInstrumentType = async (updatedInstrumentType: InstrumentTypeRs) => {
-    console.log('💾 Saving instrument type:', {
+  // Handle updating an instrument type
+  const handleUpdateInstrumentType = (updatedInstrumentType: InstrumentTypeRs) => {
+    console.log('🔄 handleUpdateInstrumentType called:', {
       id: updatedInstrumentType.instrumentTypeId,
       name: updatedInstrumentType.name,
+      instrumentCount: updatedInstrumentType.instrumentRss?.length,
+      analyteCount: updatedInstrumentType.instrumentTypeAnalyteRss?.length,
     });
 
-    // Update the local state immediately for better UX
     const updatedInstrumentTypes = instrumentTypes.map(t =>
       t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
     );
 
     setInstrumentTypes(updatedInstrumentTypes);
 
-    // Update filtered list if the item is visible
     setFilteredInstrumentTypes(prev =>
       prev.map(t =>
         t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
       )
     );
 
-    message.success(`Instrument type "${updatedInstrumentType.name || 'New Type'}" saved locally`);
-  };
-
-  // Handle real-time changes to an instrument type (for change detection)
-  const handleInstrumentTypeChange = (updatedInstrumentType: InstrumentTypeRs) => {
-    console.log('📝 Real-time change to instrument type:', {
-      id: updatedInstrumentType.instrumentTypeId,
-      name: updatedInstrumentType.name,
-    });
-
-    // Update the local state for change detection
-    const updatedInstrumentTypes = instrumentTypes.map(t =>
-      t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
-    );
-
-    setInstrumentTypes(updatedInstrumentTypes);
-
-    // Update filtered list if the item is visible
-    setFilteredInstrumentTypes(prev =>
-      prev.map(t =>
-        t.instrumentTypeId === updatedInstrumentType.instrumentTypeId ? updatedInstrumentType : t
-      )
-    );
-
-    // Don't update the selected instrument type here to avoid re-renders during editing
-    // The detail component manages its own state during editing
+    console.log('✅ State updated, change detection should trigger');
   };
 
   // Get the currently selected instrument type
@@ -301,7 +259,6 @@ const InstrumentManagement: React.FC = () => {
     setShowInactive(checked);
   };
 
-  // Define the extra content for the card section
   const listActionsExtra = (
     <Space>
       <Input
@@ -325,20 +282,6 @@ const InstrumentManagement: React.FC = () => {
           Save All Changes
         </Button>
       )}
-      {/* Debug button to test change detection */}
-      <Button
-        type="dashed"
-        onClick={() => {
-          if (instrumentTypes.length > 0) {
-            const updated = [...instrumentTypes];
-            updated[0] = { ...updated[0], name: (updated[0].name || 'Test') + ' Modified' };
-            setInstrumentTypes(updated);
-            console.log('🧪 Manual change applied for testing');
-          }
-        }}
-      >
-        Test Change
-      </Button>
     </Space>
   );
 
@@ -423,7 +366,6 @@ const InstrumentManagement: React.FC = () => {
               instrumentType={selectedInstrumentType}
               selectors={selectors}
               onUpdate={handleUpdateInstrumentType}
-              onChange={handleInstrumentTypeChange} // Add real-time change handler
               onBack={handleBackToList}
               showInactive={showInactive}
               onShowInactiveChange={handleShowInactiveChange}

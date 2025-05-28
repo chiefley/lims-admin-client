@@ -45,19 +45,20 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
     if (!editing) return;
 
     // Create new analyte with default values
-    const newAnalyte: InstrumentTypeAnalyteRs & { key: string } = {
+    const newAnalyte: InstrumentTypeAnalyteRs = {
       instrumentTypeId: instrumentTypeId,
       analyteId: 0, // Initialize with 0 instead of null
       analyteAlias: '', // Field for AnalyteAlias
-      key: `${instrumentTypeId}_new_${Date.now()}`, // Generate a temporary unique key
     };
 
-    // Add to the analytes array
+    // Add to the analytes array and notify parent immediately
     const updatedAnalytes = [...analytes, newAnalyte];
     onChange(updatedAnalytes);
+
+    console.log('➕ Added new analyte, notifying parent');
   };
 
-  // Handle saving an analyte
+  // Handle saving an analyte - now updates parent immediately
   const handleSaveAnalyte = (analyte: InstrumentTypeAnalyteRs & { key: string }) => {
     // Validate required fields
     if (!analyte.analyteId) {
@@ -70,40 +71,38 @@ const AnalytesTab: React.FC<AnalytesTabProps> = ({
       return Promise.reject('Please enter an analyte alias');
     }
 
-    // Simulate API call
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        // Get the analyte name from compounds selectors
-        const analyteName =
-          selectors.compounds?.find(c => c.id === analyte.analyteId)?.label || 'Unknown';
-        message.success(`Analyte "${analyteName}" saved`);
+    console.log('💾 Saving analyte changes and notifying parent');
 
-        // Update the analytes array
-        // For instrument type analytes, we use the compound key (instrumentTypeId, analyteId, analyteAlias)
-        // to identify the record
-        const existingIndex = analytes.findIndex(
-          a => a.instrumentTypeId === analyte.instrumentTypeId && a.analyteId === analyte.analyteId
-        );
+    // Update the analytes array and notify parent immediately
+    const existingIndex = analytes.findIndex(
+      a => a.instrumentTypeId === analyte.instrumentTypeId && a.analyteId === analyte.analyteId
+    );
 
-        if (existingIndex >= 0) {
-          // Update existing record
-          const updatedAnalytes = [...analytes];
-          updatedAnalytes[existingIndex] = analyte;
-          onChange(updatedAnalytes);
-        } else {
-          // Add new record
-          onChange([...analytes, analyte]);
-        }
+    let updatedAnalytes;
+    if (existingIndex >= 0) {
+      // Update existing record
+      updatedAnalytes = [...analytes];
+      updatedAnalytes[existingIndex] = { ...analyte };
+    } else {
+      // Add new record
+      updatedAnalytes = [...analytes, { ...analyte }];
+    }
 
-        resolve();
-      }, 500);
-    });
+    onChange(updatedAnalytes);
+
+    // Get the analyte name from compounds selectors
+    const analyteName =
+      selectors.compounds?.find(c => c.id === analyte.analyteId)?.label || 'Unknown';
+    message.success(`Analyte "${analyteName}" updated`);
+
+    return Promise.resolve();
   };
 
-  // Handle deleting an analyte
-  // For instrument type analytes, we implement hard deletion since there's no Active flag
+  // Handle deleting an analyte - now updates parent immediately
   const handleDeleteAnalyte = (analyte: InstrumentTypeAnalyteRs & { key: string }) => {
-    // Remove the analyte from the array
+    console.log('🗑️ Deleting analyte and notifying parent');
+
+    // Remove the analyte from the array and notify parent immediately
     const updatedAnalytes = analytes.filter(
       a => !(a.instrumentTypeId === analyte.instrumentTypeId && a.analyteId === analyte.analyteId)
     );

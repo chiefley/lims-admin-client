@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Alert, Switch, message, Tabs } from 'antd';
+import { Button, Alert, Switch, message } from 'antd';
 import dayjs from 'dayjs';
 
 import { ConfigurationMaintenanceSelectors } from '../../features/shared/types/common';
@@ -9,8 +9,6 @@ import EditableTable, { EditableColumn } from '../shared/components/EditableTabl
 
 import PeripheralsTab from './PeripheralsTab';
 import { InstrumentRs, InstrumentPeripheralRs } from './types';
-
-const { TabPane } = Tabs;
 
 interface InstrumentsTabProps {
   instruments: InstrumentRs[];
@@ -51,56 +49,55 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       instrumentPeripheralRss: [], // Fixed property name to match interface
     };
 
-    // Add to the instruments array
+    console.log('➕ Adding new instrument and notifying parent');
+
+    // Add to the instruments array and notify parent immediately
     const updatedInstruments = [...instruments, newInstrument];
     onChange(updatedInstruments);
   };
 
-  // Handle saving an instrument
+  // Handle saving an instrument - now updates parent immediately
   const handleSaveInstrument = (instrument: InstrumentRs) => {
-    // Format dates for API submission
+    console.log('💾 Saving instrument changes and notifying parent');
+
+    // Format dates for consistency
     const updatedInstrument = {
       ...instrument,
       lastPM: instrument.lastPM ? dayjs(instrument.lastPM).toISOString() : null,
       nextPm: instrument.nextPm ? dayjs(instrument.nextPm).toISOString() : null,
-      // Ensure outOfService is a boolean (might come as a string from the form)
+      // Ensure boolean values are properly typed
       outOfService:
         typeof instrument.outOfService === 'string'
           ? instrument.outOfService === 'true'
           : !!instrument.outOfService,
-      // Ensure active is a boolean
       active:
         typeof instrument.active === 'string'
           ? instrument.active === 'true'
           : instrument.active !== false,
     };
 
-    // Simulate API call
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        message.success(`Instrument ${instrument.name || 'New Instrument'} saved`);
+    // Update the instruments array and notify parent immediately
+    let updatedInstruments;
+    if (instrument.instrumentId < 0) {
+      // For new instruments (temporary negative ID)
+      const filteredInstruments = instruments.filter(
+        i => i.instrumentId !== instrument.instrumentId
+      );
+      updatedInstruments = [...filteredInstruments, updatedInstrument];
+    } else {
+      // For existing instruments
+      updatedInstruments = instruments.map(i =>
+        i.instrumentId === instrument.instrumentId ? updatedInstrument : i
+      );
+    }
 
-        // Update the instruments array
-        if (instrument.instrumentId < 0) {
-          // For new instruments (temporary negative ID)
-          const filteredInstruments = instruments.filter(
-            i => i.instrumentId !== instrument.instrumentId
-          );
-          onChange([...filteredInstruments, updatedInstrument]);
-        } else {
-          // For existing instruments
-          const updatedInstruments = instruments.map(i =>
-            i.instrumentId === instrument.instrumentId ? updatedInstrument : i
-          );
-          onChange(updatedInstruments);
-        }
+    onChange(updatedInstruments);
+    message.success(`Instrument ${instrument.name || 'New Instrument'} updated`);
 
-        resolve();
-      }, 500);
-    });
+    return Promise.resolve();
   };
 
-  // Handle deleting an instrument
+  // Handle deleting an instrument - now updates parent immediately
   const handleDeleteInstrument = (instrument: InstrumentRs) => {
     // Only allow deleting temporary records (negative IDs)
     if (instrument.instrumentId >= 0) {
@@ -108,16 +105,20 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
       return;
     }
 
-    // Update by filtering out the deleted instrument
-    const updatedInstruments = instruments.filter(i => i.instrumentId !== instrument.instrumentId);
+    console.log('🗑️ Deleting instrument and notifying parent');
 
+    // Update by filtering out the deleted instrument and notify parent immediately
+    const updatedInstruments = instruments.filter(i => i.instrumentId !== instrument.instrumentId);
     onChange(updatedInstruments);
+
     message.success(`Instrument ${instrument.name || 'New Instrument'} deleted`);
   };
 
-  // Handle updating peripherals for an instrument
+  // Handle updating peripherals for an instrument - now updates parent immediately
   const handlePeripheralsChange = (instrumentId: number, peripherals: InstrumentPeripheralRs[]) => {
-    // Update the specific instrument's peripherals
+    console.log('🔧 Updating peripherals and notifying parent');
+
+    // Update the specific instrument's peripherals and notify parent immediately
     const updatedInstruments = instruments.map(instrument =>
       instrument.instrumentId === instrumentId
         ? { ...instrument, instrumentPeripheralRss: peripherals } // Fixed property name to match interface
@@ -281,6 +282,7 @@ const InstrumentsTab: React.FC<InstrumentsTabProps> = ({
           expandable={{
             expandedRowRender,
           }}
+          showDeleteButton={canDelete}
         />
       )}
     </div>

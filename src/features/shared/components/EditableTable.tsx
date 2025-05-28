@@ -1,5 +1,5 @@
 // src/features/shared/components/EditableTable.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import {
   EditOutlined,
@@ -39,8 +39,8 @@ interface EditableTableProps<RecordType extends Record<string, any>>
   editable?: boolean;
   addButtonText?: string;
   defaultValues?: any;
-  // New prop to conditionally show delete button
   showDeleteButton?: (record: RecordType) => boolean;
+  autoSaveOnUnmount?: boolean; // New prop to enable auto-save
 }
 
 function EditableTable<RecordType extends Record<string, any>>({
@@ -54,6 +54,7 @@ function EditableTable<RecordType extends Record<string, any>>({
   addButtonText = 'Add New',
   defaultValues = {},
   showDeleteButton,
+  autoSaveOnUnmount = true, // Default to true
   ...restProps
 }: EditableTableProps<RecordType>) {
   const [form] = Form.useForm();
@@ -61,9 +62,53 @@ function EditableTable<RecordType extends Record<string, any>>({
   const [data, setData] = useState<RecordType[]>([]);
   const [saving, setSaving] = useState(false);
 
+  // Keep track of the currently editing record for auto-save
+  const editingRecordRef = useRef<RecordType | null>(null);
+
   useEffect(() => {
     setData(dataSource);
   }, [dataSource]);
+
+  // Auto-save on unmount if there are unsaved changes
+  useEffect(() => {
+    return () => {
+      if (autoSaveOnUnmount && editingKey !== '' && editingRecordRef.current) {
+        console.log('🔄 EditableTable unmounting with unsaved changes, attempting auto-save');
+
+        // Try to save the current edit
+        form
+          .validateFields()
+          .then(values => {
+            const updatedRecord = {
+              ...editingRecordRef.current!,
+              ...values,
+            };
+
+            // Process values similar to the save function
+            columns.forEach(col => {
+              const key = col.dataIndex;
+              const value = values[key];
+
+              if (col.inputType === 'date' && value && dayjs.isDayjs(value)) {
+                (updatedRecord as any)[key] = value.toISOString();
+              } else if (col.inputType === 'date' && !value) {
+                (updatedRecord as any)[key] = null;
+              } else if (col.inputType === 'select' && (value === 'true' || value === 'false')) {
+                (updatedRecord as any)[key] = value === 'true';
+              } else {
+                (updatedRecord as any)[key] = value;
+              }
+            });
+
+            console.log('💾 Auto-saving record on unmount:', updatedRecord);
+            onSave(updatedRecord);
+          })
+          .catch(error => {
+            console.warn('⚠️ Auto-save failed on unmount:', error);
+          });
+      }
+    };
+  }, []); // Empty dependency array - this runs only on unmount
 
   const isEditing = (record: RecordType): boolean => {
     const key = record[rowKey]?.toString();
@@ -71,6 +116,9 @@ function EditableTable<RecordType extends Record<string, any>>({
   };
 
   const edit = (record: RecordType) => {
+    // Store reference to the record being edited
+    editingRecordRef.current = record;
+
     // Process the record data to set form values correctly
     const formValues: Record<string, any> = { ...record };
 
@@ -79,7 +127,6 @@ function EditableTable<RecordType extends Record<string, any>>({
       const dataIndex = col.dataIndex;
       if (col.inputType === 'date' && record[dataIndex]) {
         try {
-          // Try to convert to dayjs safely
           const dateValue = record[dataIndex];
           if (typeof dateValue === 'string') {
             formValues[dataIndex] = dayjs(dateValue);
@@ -101,6 +148,7 @@ function EditableTable<RecordType extends Record<string, any>>({
 
   const cancel = () => {
     setEditingKey('');
+    editingRecordRef.current = null;
     form.resetFields();
   };
 
@@ -119,24 +167,20 @@ function EditableTable<RecordType extends Record<string, any>>({
         const column = columns.find(col => col.dataIndex === key);
         const value = values[key];
 
-        // Type-safe way to update the record
         if (column?.inputType === 'date' && value && dayjs.isDayjs(value)) {
-          // Convert dayjs to ISO string
           (updatedRecord as any)[key] = value.toISOString();
         } else if (column?.inputType === 'date' && !value) {
-          // If date value is null or undefined, explicitly set to null
           (updatedRecord as any)[key] = null;
         } else if (column?.inputType === 'select' && (value === 'true' || value === 'false')) {
-          // Convert string 'true' or 'false' back to boolean
           (updatedRecord as any)[key] = value === 'true';
         } else {
-          // For all other types, use the value as is (which might be null)
           (updatedRecord as any)[key] = value;
         }
       });
 
       await onSave(updatedRecord);
       setEditingKey('');
+      editingRecordRef.current = null;
     } catch (error) {
       console.error('Validation failed:', error);
     } finally {
@@ -144,7 +188,7 @@ function EditableTable<RecordType extends Record<string, any>>({
     }
   };
 
-  // Enhance columns with cell rendering logic
+  // Enhanced columns with cell rendering logic
   const enhancedColumns = columns.map(col => {
     if (!col.editable) {
       return col;
@@ -174,9 +218,6 @@ function EditableTable<RecordType extends Record<string, any>>({
         width: '150px',
         render: (_: any, record: RecordType) => {
           const editable = isEditing(record);
-
-          // Determine if delete button should be shown
-          // Use the showDeleteButton prop callback if provided, otherwise show for all records
           const shouldShowDelete = showDeleteButton ? showDeleteButton(record) : true;
 
           return editable ? (
@@ -240,7 +281,6 @@ function EditableTable<RecordType extends Record<string, any>>({
       <div style={{ marginBottom: 16 }}>
         <Button
           onClick={() => {
-            // Call onAdd with defaultValues
             onAdd(defaultValues);
           }}
           type="primary"
