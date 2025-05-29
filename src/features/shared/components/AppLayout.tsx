@@ -295,7 +295,7 @@ const AppLayout: React.FC = () => {
             })}
             <div style={{ marginLeft: 24 }}>
               <Title level={4} style={{ margin: 0 }}>
-                Laboratory Information Management System
+                Lims 6000 System Configuration
               </Title>
             </div>
           </div>
