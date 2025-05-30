@@ -1,6 +1,8 @@
 // src/models/types/basicTables.ts
 // Type definitions for basic configuration tables
 
+import { ClientPricingRs } from '../clients/types';
+
 /**
  * Compound/Analyte definition
  */
@@ -619,6 +621,21 @@ export interface PanelRs {
    * @validation Required for API calls
    */
   labId?: number;
+
+  /**
+   * Price for this panel
+   */
+  price?: number;
+
+  /**
+   * Minimum sample size required
+   */
+  minSampleSize?: number;
+
+  /**
+   * Client-specific pricing for this panel
+   */
+  clientPricingRss: ClientPricingRs[];
 }
 
 /**
@@ -677,6 +694,32 @@ export interface PotencyCategoryRs {
    * @ui Part of Lab Context. Set to StateId on new()
    */
   stateId: number;
+}
+
+/**
+ * Pricing Configuration
+ */
+export interface PricingRs {
+  /** Primary Key. No display, no edit */
+  pricingId: number;
+
+  /** Associated panel ID */
+  panelId?: number;
+
+  /** Sort order for display */
+  sortOrder: number;
+
+  /** Price value */
+  price: number;
+
+  /** Minimum sample size */
+  minSampleSize: number;
+
+  /**
+   * Whether the pricing is active
+   * @default true
+   */
+  active: boolean;
 }
 
 /**

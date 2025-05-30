@@ -96,6 +96,34 @@ export interface ClientLicenseType {
 export type ClientLicenseTypeRs = ClientLicenseType;
 
 /**
+ * Client pricing information
+ */
+export interface ClientPricing {
+  /**
+   * Primary Key. No display, no edit.
+   */
+  clientPricingId: number;
+
+  /**
+   * @validation Uniqueness Constraint(PanelId, ClientId)
+   */
+  clientId: number;
+
+  /**
+   * Dropdown Control. Selections come from ConfigurationManagementSelectors.Panel
+   * @validation Uniqueness Constraint(PanelId, ClientId)
+   */
+  panelId: number;
+
+  value?: number;
+
+  isPercent: boolean;
+}
+
+// Backward compatibility aliases
+export type ClientPricingRs = ClientPricing;
+
+/**
  * Client information
  */
 export interface Client {
@@ -150,6 +178,11 @@ export interface Client {
    * Client's state licenses
    */
   clientStateLicenseRss: ClientStateLicense[];
+
+  /**
+   * Client's pricing information
+   */
+  clientPricingRss: ClientPricing[];
 }
 
 // Backward compatibility aliases
