@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.AnalyticalBatchSops;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Auth;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.BatchSops;
 using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
@@ -54,6 +55,7 @@ public interface IConfigurationMaintenanceService
     Task<List<ClientLicenseCategoryRs>> UpsertClientLicenseCategoryRss(List<ClientLicenseCategoryRs> responses);
     Task<List<ClientRs>> FetchClientRss(int labId);
     Task<List<ClientRs>> UpsertClientRss(List<ClientRs> responses, int labId);
+    Task<List<UserLabRs>> FetchUserLabRss(int userId);
 }
 
 public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
@@ -106,6 +108,8 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         var navMenuKeys = _selectorService.EnumSelector<NavMenuKey>(true);
         var dayOfWeeks = _selectorService.EnumSelector<DayOfWeek>(true);
         var dataFileSampleMultiplicities = _selectorService.EnumSelector<DataFileSampleMultiplicity>(true);
+        var clientLicenseCategories = await _selectorService.ClientLicenseCategories(true, false);
+        var clientLicenseTypes = await _selectorService.ClientLicenseTypes(stateId, true, false);
 
         var ret = new ConfigurationMaintenanceSelectors
         {
@@ -144,7 +148,9 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
             DataFileTypes = dataFileTypes.DropDownItems(),
             FieldDelimeterTypes = fieldDelimeterTypes.DropDownItems(),
             NavMenuKeys = navMenuKeys.DropDownItems(),
-            DayOfWeeks = dayOfWeeks.DropDownItems()
+            DayOfWeeks = dayOfWeeks.DropDownItems(),
+            ClientLicenseCategories = clientLicenseCategories.DropDownItems(),
+            ClientLicenseTypes = clientLicenseTypes.DropDownItems()
         };
 
         return ret;
@@ -172,7 +178,7 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
     public async Task<PrepBatchSopRs> FetchPrepBatchSopRs(int prepBatchSopId)
     {
         await using var ctx = _ctxFactory.Create;
-        var query = ctx.PrepBatchSops.AsNoTracking()
+        var query = ctx.PrepBatchSops
             .Where(pbsop => pbsop.Id == prepBatchSopId);
 
         var pbsops = await PrepBatchSopRs.PrepBatchSopRss(query);
@@ -430,7 +436,6 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
         return updatedResponses;
     }
 
-
     public async Task<List<NeededByRs>> FetchNeededByRss(int labId)
     {
         await using var ctx = _ctxFactory.Create;
@@ -594,8 +599,11 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
 
     public async Task<List<ClientRs>> UpsertClientRss(List<ClientRs> responses, int labId)
     {
+       
         await using var ctx = _ctxFactory.Create;
         var models = await ctx.Clients
+            .Include(cl => cl.ClientLicenses)
+            .Include(cl => cl.ClientPricings)
             .Where(nmi => nmi.LabId == labId)
             .ToListAsync();
 
@@ -608,5 +616,13 @@ public class ConfigurationMaintenanceService : IConfigurationMaintenanceService
             .Where(nmi => nmi.LabId == labId);
         var updatedResponses = await ClientRs.FetchClientRss(query);
         return updatedResponses;
+    }
+
+    public async Task<List<UserLabRs>> FetchUserLabRss(int userId)
+    {
+        await using var ctx = _ctxFactory.Create;
+        var query = ctx.UserLabs.Where(ul => ul.AspNetUserId == userId);
+        var response = await UserLabRs.FetchUeUserLabRss(query);
+        return response;
     }
 }
