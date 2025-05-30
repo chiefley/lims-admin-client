@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
 
@@ -37,7 +38,9 @@ public partial class ClientRs
     [StringLength(150)]
     public string? LimsClientApiKey { get; set; }
     public bool Active { get; set; } = true;
-
+    [JsonPropertyOrder(100)]
     public List<ClientStateLicenseRs> ClientStateLicenseRss { get; set; } = [];
+    [JsonPropertyOrder(101)]
+    public List<ClientPricingRs> ClientPricingRss { get; set; } = [];
 
 }

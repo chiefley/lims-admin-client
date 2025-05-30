@@ -42,5 +42,8 @@ public class ConfigurationMaintenanceSelectors
     public List<DropDownItem> DataFileSampleMultiplicities { get; set; }
     public List<DropDownItem> NavMenuKeys { get; set; }
     public List<DropDownItem> DayOfWeeks { get; set; }
+    public List<DropDownItem> ClientLicenseCategories { get; set; }
+    public List<DropDownItem> ClientLicenseTypes { get; set; }
+    public List<DropDownItem> UserLabs { get; set; }
 
 }

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using NCLims.Data;
-using NCLims.Models;
-using NCLims.Models.Enums;
+using NCLims.Business.NewBatch.ConfigurationManagement.Responses.Clients;
 
 namespace NCLims.Business.NewBatch.ConfigurationManagement.Responses.Basic_Tables;
 
@@ -90,9 +83,17 @@ public partial class PanelRs
     // Defaults to true on new().
     public bool Active { get; set; } = true;
 
+    // Panel Pricing Section
+    // Decimal(7,2)
+    public decimal? Price { get; set; }
+    public double? MinSampleSize { get; set; }
+
     [JsonPropertyOrder(100)]
     // List of child panel slugs
-    public List<string> ChildPanels { get; set; } = new();
+    public List<string> ChildPanels { get; set; } = [];
+
+    [JsonPropertyOrder(101)]
+    public List<ClientPricingRs> ClientPricingRss { get; set; } = [];
 
 }
 
