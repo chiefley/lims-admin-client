@@ -144,6 +144,7 @@ const PanelManagement: React.FC = () => {
       sampleCount: 0,
       childPanels: [],
       active: true, // Set active by default for new panels
+      clientPricingRss: [], // Initialize empty array for client pricing
     };
 
     // Add to the array

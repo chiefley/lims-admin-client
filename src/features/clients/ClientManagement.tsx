@@ -170,6 +170,7 @@ const ClientManagement: React.FC = () => {
       name: '',
       active: true,
       clientStateLicenseRss: [],
+      clientPricingRss: [], // Initialize empty array for client pricing
     };
 
     setEditingClient(newClient);
@@ -663,12 +664,14 @@ const ClientManagement: React.FC = () => {
                           active: true,
                         },
                       ],
+                      clientPricingRss: [],
                     },
                     {
                       clientId: 1002,
                       name: 'Test Client 2',
                       active: false,
                       clientStateLicenseRss: [],
+                      clientPricingRss: [],
                     },
                   ];
                   console.log('Setting mock clients for testing');
